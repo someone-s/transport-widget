@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Transport Widgets</string>
+    <string name="live_point_widget_description">Widget to display live transport data at stop</string>
+    <string name="live_point_widget_configuration_activity_label">Configure widget</string>
+    <string name="app_main_activity">Main entry point of application</string>
+</resources>
