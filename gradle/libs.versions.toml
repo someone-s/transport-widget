@@ -16,6 +16,7 @@ fragment = "1.8.9"
 activity = "1.10.1"
 glance = "1.1.1"
 workRuntimeKtx = "2.10.3"
+retrofit = "2.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,9 +40,10 @@ androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifec
 androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity"}
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance"}
-androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance"}
-androidx-glance-material = { group = "androidx.glance", name = "glance-material", version.ref = "glance"}
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+squareup-retrofit2-retrofit = { group = "com.squareup.retrofit2", name="retrofit", version.ref = "retrofit" }
+squareup-retrofit2-converter-gson = { group = "com.squareup.retrofit2", name="converter-gson", version.ref = "retrofit" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

@@ -101,21 +101,16 @@ class LivePointWidgetCreateWorker(
         val stopPointId = inputData.getString(STOP_POINT_ID)
         if (stopPointId == null)
             return Result.failure()
-        Log.i(this.javaClass.name, "A")
 
         val manager = GlanceAppWidgetManager(context)
-        Log.i(this.javaClass.name, "B")
         // if illegal exception let worker fail
         val glanceId = manager.getGlanceIdBy(appWidgetId)
-        Log.i(this.javaClass.name, "C")
 
         updateAppWidgetState(context, glanceId) { preferences ->
             preferences[LivePointWidget.stopPointIdKey] = stopPointId
         }
-        Log.i(this.javaClass.name, "D")
 
         LivePointWidget().update(context, glanceId)
-        Log.i(this.javaClass.name, "E")
 
         return Result.success()
     }
