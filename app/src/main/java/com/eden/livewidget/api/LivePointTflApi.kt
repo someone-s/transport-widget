@@ -15,7 +15,7 @@ private data class ArrivalTiming(
     val insert: String,
     val read: String,
     val sent: String,
-    val received: String
+    val received: String,
 )
 
 private data class ArrivalEntry(
@@ -38,7 +38,7 @@ private data class ArrivalEntry(
     val expectedArrival: String,
     val timeToLive: String,
     val modeName: String,
-    val timing: ArrivalTiming
+    val timing: ArrivalTiming,
 )
 
 private const val BASE_URL = "https://api.tfl.gov.uk"
@@ -52,12 +52,13 @@ private interface LivePointTflApiService {
     @GET("StopPoint/{id}/Arrivals")
     fun getStopPointArrivals(
         @Path("id")
-        stopPointId: String
+        stopPointId: String,
     ): Call<List<ArrivalEntry>>
 }
+
 class LivePointTflApi(
-    private val stopPointId: String
-): LivePointApi {
+    private val stopPointId: String,
+) : LivePointApi {
 
     private val service: LivePointTflApiService by lazy {
         retrofit.create(LivePointTflApiService::class.java)
@@ -71,15 +72,20 @@ class LivePointTflApi(
         if (response == null) {
             Log.i(this.javaClass.name, "no response")
             return emptyList()
-        }
-        else if (response.body() !is List<ArrivalEntry>) {
+        } else if (response.body() !is List<ArrivalEntry>) {
             Log.i(this.javaClass.name, "no body")
             return emptyList()
         }
-        else {
-            for (l in response.body() as List<ArrivalEntry>)
-                Log.i(this.javaClass.name, l.expectedArrival)
-        }
-        return emptyList()
+
+        val entries = response.body() as List<ArrivalEntry>
+
+        return entries
+            .map { entry ->
+                ArrivalModel(
+                    entry.lineName,
+                    entry.timeToStation
+                )
+            }
+            .sortedBy { model -> model.remainingS }
     }
 }
