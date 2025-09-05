@@ -1,7 +1,6 @@
 package com.eden.livewidget.widget
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,7 +11,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -21,7 +19,6 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.components.Scaffold
-import androidx.glance.appwidget.components.SquareIconButton
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
@@ -39,16 +36,19 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.MainActivity
-import com.eden.livewidget.data.LivePointRepository
-import com.eden.livewidget.R
+import com.eden.livewidget.data.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.utils.Provider
 
 class LivePointWidget : GlanceAppWidget() {
 
     companion object {
 
-        val STOP_POINT_KEY = stringPreferencesKey("stopPointId")
+        val API_PROVIDER_KEY = stringPreferencesKey("apiProvider")
+        val API_VALUE_KEY = stringPreferencesKey("apiValue")
+        val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
         val IS_ACTIVE_KEY = stringPreferencesKey("isActive")
         const val IS_ACTIVE_TRUE = "TRUE"
         const val IS_ACTIVE_FALSE = "FALSE"
@@ -63,17 +63,72 @@ class LivePointWidget : GlanceAppWidget() {
 
         provideContent {
             GlanceTheme {
-                val stopPointId = currentState(STOP_POINT_KEY)
-                Log.i("A", if (stopPointId == null) "B" else "A")
-                if (stopPointId != null)
-                    MyContent(stopPointId)
+                val apiProviderString = currentState(API_PROVIDER_KEY)
+                if (apiProviderString == null) {
+                    PlaceholderContent()
+                    return@GlanceTheme
+                }
+
+                var apiProvider: Provider
+                try {
+                    apiProvider = Provider.valueOf(apiProviderString)
+                } catch (_: IllegalArgumentException) {
+                    PlaceholderContent()
+                    return@GlanceTheme
+                }
+
+                val apiValue = currentState(API_VALUE_KEY)
+                if (apiValue == null) {
+                    PlaceholderContent()
+                    return@GlanceTheme
+                }
+
+                val displayName = currentState(DISPLAY_NAME_KEY)
+                if (displayName == null) {
+                    PlaceholderContent()
+                    return@GlanceTheme
+                }
+
+                MyContent(apiProvider, apiValue, displayName)
             }
         }
     }
 
+    @Composable
+    private fun PlaceholderContent() {
+
+        Scaffold(
+            backgroundColor = GlanceTheme.colors.widgetBackground,
+            modifier = GlanceModifier
+                .fillMaxSize(),
+
+        ) {
+            Box(
+                modifier = GlanceModifier
+                    .fillMaxSize()
+                    .cornerRadius(12.dp)
+                    .padding(all = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Configure widget by long pressing widget",
+                    style = TextStyle(
+                        color = GlanceTheme.colors.onPrimaryContainer,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center
+                    ),
+                    maxLines = 2
+                )
+            }
+        }
+
+    }
+
 
     @Composable
-    private fun MyContent(stopPointId: String) {
+    private fun MyContent(apiProvider: Provider, apiValue: String, displayName: String) {
+
         val isActive = currentState(IS_ACTIVE_KEY)
 
         Scaffold(
@@ -97,30 +152,20 @@ class LivePointWidget : GlanceAppWidget() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stopPointId,
+                        modifier = GlanceModifier,
+                        text =  displayName,
                         style = TextStyle(
                             color = GlanceTheme.colors.onPrimaryContainer,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 30.sp,
+                            fontSize = 25.sp,
                         ),
+
                         maxLines = 1
                     )
-                    Box(
-                        modifier = GlanceModifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        SquareIconButton(
-                            imageProvider = ImageProvider(R.drawable.ic_launcher_foreground),
-                            contentDescription = "Refresh feed",
-                            onClick = actionRunCallback<RefreshLivePointWidgetCallback>()
-                        )
-                    }
                 }
             }
         ) {
             if (isActive == IS_ACTIVE_TRUE)
-                ActiveList(stopPointId)
+                ActiveList(apiProvider, apiValue)
             else
                 DisableBlock()
         }
@@ -128,8 +173,8 @@ class LivePointWidget : GlanceAppWidget() {
     }
 
     @Composable
-    fun ActiveList(stopPointId: String) {
-        val repository = remember { LivePointRepository.getInstance(stopPointId) }
+    fun ActiveList(apiProvider: Provider, apiValue: String) {
+        val repository = remember { ArrivalsRepository.getInstance(apiProvider, apiValue) }
         val latestArrivals by repository.latestArrivals.collectAsState()
 
         LazyColumn(
@@ -153,7 +198,7 @@ class LivePointWidget : GlanceAppWidget() {
                             style = TextStyle(
                                 color = GlanceTheme.colors.onPrimaryContainer,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 30.sp,
+                                fontSize = 25.sp,
                             ),
                             maxLines = 1
                         )
@@ -167,7 +212,7 @@ class LivePointWidget : GlanceAppWidget() {
                                 style = TextStyle(
                                     color = GlanceTheme.colors.primary,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 30.sp,
+                                    fontSize = 25.sp,
                                 ),
                                 maxLines = 1
                             )
@@ -196,11 +241,14 @@ class LivePointWidget : GlanceAppWidget() {
                     .fillMaxSize()
                     .background(GlanceTheme.colors.primaryContainer)
                     .cornerRadius(12.dp)
-                    .padding(all = 8.dp),
+                    .padding(all = 8.dp)
+                    .clickable(
+                        onClick = actionRunCallback<RefreshLivePointWidgetCallback>()
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Tracking Paused",
+                    text = "Paused, click to start tracking",
                     style = TextStyle(
                         color = GlanceTheme.colors.onPrimaryContainer,
                         fontWeight = FontWeight.Normal,
@@ -223,6 +271,6 @@ class RefreshLivePointWidgetCallback : ActionCallback {
 
 
         val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
-        LivePointWidgetUpdateWorker.schedule(context, widgetId, 3, null)
+        LivePointWidgetUpdateWorker.schedule(context, widgetId, 10, null)
     }
 }

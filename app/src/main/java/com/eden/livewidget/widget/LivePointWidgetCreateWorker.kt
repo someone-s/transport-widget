@@ -4,12 +4,15 @@ import android.app.Notification
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
+import com.eden.livewidget.data.utils.providerFromString
+import com.eden.livewidget.data.utils.providerToString
 
 class LivePointWidgetCreateWorker(
     val context: Context,
@@ -18,7 +21,9 @@ class LivePointWidgetCreateWorker(
 
     companion object {
         const val APP_WIDGET_ID = "appWidgetId"
-        const val STOP_POINT_ID = "stopPointId"
+        const val API_PROVIDER = "apiProvider"
+        const val API_VALUE = "apiValue"
+        const val DISPLAY_NAME = "displayName"
         const val NOTIFICATION_ID = 50000
         const val NOTIFICATION_CHANNEL_ID = "Widget Worker"
 
@@ -36,16 +41,35 @@ class LivePointWidgetCreateWorker(
             setForeground(getForegroundInfo())
 
         val appWidgetId = inputData.getInt(APP_WIDGET_ID, -1)
-        val stopPointId = inputData.getString(STOP_POINT_ID)
-        if (stopPointId == null)
-            return Result.failure()
 
         val manager = GlanceAppWidgetManager(context)
-        // if illegal exception let worker fail
-        val glanceId = manager.getGlanceIdBy(appWidgetId)
+        var glanceId: GlanceId
+        try {
+            glanceId = manager.getGlanceIdBy(appWidgetId)
+        } catch (_: IllegalArgumentException) {
+            return Result.failure()
+        }
+
+        val apiProvider = providerFromString(inputData.getString(API_PROVIDER))
+        if (apiProvider == null)
+            return Result.failure()
+
+        val apiValue = inputData.getString(API_VALUE)
+        if (apiValue == null)
+            return Result.failure()
+
+        val displayName = inputData.getString(DISPLAY_NAME)
+        if (displayName == null)
+            return Result.failure()
+
+        // Stop any ongoing update
+        LivePointWidgetUpdateWorker.Companion.unsetCurrentRequestId(appWidgetId)
 
         updateAppWidgetState(context, glanceId) { preferences ->
-            preferences[LivePointWidget.STOP_POINT_KEY] = stopPointId
+            preferences[LivePointWidget.API_PROVIDER_KEY] = providerToString(apiProvider)
+            preferences[LivePointWidget.API_VALUE_KEY] = apiValue
+            preferences[LivePointWidget.DISPLAY_NAME_KEY] = displayName
+            preferences[LivePointWidget.IS_ACTIVE_KEY] = LivePointWidget.IS_ACTIVE_FALSE
         }
 
         LivePointWidget().update(context, glanceId)

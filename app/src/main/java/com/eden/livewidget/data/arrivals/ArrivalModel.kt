@@ -1,4 +1,4 @@
-package com.eden.livewidget.data
+package com.eden.livewidget.data.arrivals
 
 data class ArrivalModel(
     val service: String,

@@ -16,7 +16,8 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
-import com.eden.livewidget.data.LivePointRepository
+import com.eden.livewidget.data.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.utils.providerFromString
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.UUID
@@ -38,6 +39,10 @@ class LivePointWidgetUpdateWorker(
         private val mutex = Mutex()
 
         private val currentRequestIds = mutableMapOf<Int, UUID>()
+
+        fun unsetCurrentRequestId( appWidgetId: Int) {
+            currentRequestIds.remove(appWidgetId)
+        }
 
         fun schedule(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?) {
             val inputData = Data.Builder()
@@ -107,12 +112,17 @@ class LivePointWidgetUpdateWorker(
 
             // PreferencesGlanceStateDefinition is the default state definition used
             val preferences = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
-            val stopPointId = preferences[LivePointWidget.STOP_POINT_KEY]
-            if (stopPointId == null)
+
+            val apiProvider = providerFromString(preferences[LivePointWidget.API_PROVIDER_KEY])
+            if (apiProvider == null)
+                return Result.failure()
+
+            val apiValue = preferences[LivePointWidget.API_VALUE_KEY]
+            if (apiValue == null)
                 return Result.failure()
 
             // Update data source
-            val repository = LivePointRepository.getInstance(stopPointId)
+            val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
             repository.fetchLatestArrival()
 
             updater.update(context, glanceId)
