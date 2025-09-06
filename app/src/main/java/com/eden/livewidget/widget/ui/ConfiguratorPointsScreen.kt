@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.configuration
+package com.eden.livewidget.widget.ui
 
 import android.util.Log
 import androidx.compose.foundation.background

@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.configuration
+package com.eden.livewidget.widget.ui
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost

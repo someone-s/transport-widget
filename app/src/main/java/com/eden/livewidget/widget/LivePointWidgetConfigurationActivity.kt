@@ -19,7 +19,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import com.eden.livewidget.data.utils.Provider
 import com.eden.livewidget.data.utils.providerToString
-import com.eden.livewidget.ui.configuration.ConfiguratorContent
+import com.eden.livewidget.widget.ui.ConfiguratorContent
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 
 class LivePointWidgetConfigurationActivity: ComponentActivity()  {

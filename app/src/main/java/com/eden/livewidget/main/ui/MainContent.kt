@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui
+package com.eden.livewidget.main.ui
 
 import android.content.Context
 import androidx.compose.foundation.layout.padding
