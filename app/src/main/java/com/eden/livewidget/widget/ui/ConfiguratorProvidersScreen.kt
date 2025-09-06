@@ -77,7 +77,7 @@ fun ConfiguratorSelectProviderScreen(
                         setApiProvider((agencyLookup[topAgencyMatch[index]] as Agency).apiProvider)
                         navController.navigate(SelectPoint)
                     },
-                    placeholder = { Text(stringResource(R.string.configure_point_screen_search_bar_placeholder)) },
+                    placeholder = { Text(stringResource(R.string.configure_provider_screen_search_bar_placeholder)) },
                     supportingContent = { index, _ ->
                         if (index >= topAgencyMatch.size) return@CustomizableSearchBar
                         Text(

@@ -23,4 +23,5 @@
     <string name="data_sync_worker_begin_progress_text">Starting data download</string>
     <string name="provider_tfl_api_fetch_status_update_text">Fetching page %1$d to %2$d</string>
     <string name="agency_tfl_about_short">London\'s transport authority</string>
+    <string name="configure_provider_screen_search_bar_placeholder">Search for an agency</string>
 </resources>
