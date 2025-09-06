@@ -1,4 +1,4 @@
-package com.eden.livewidget.data.utils
+package com.eden.livewidget.data
 
 import android.content.Context
 import com.eden.livewidget.data.arrivals.ArrivalsApi

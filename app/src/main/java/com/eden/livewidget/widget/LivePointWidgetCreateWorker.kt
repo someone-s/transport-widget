@@ -15,8 +15,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
-import com.eden.livewidget.data.utils.providerFromString
-import com.eden.livewidget.data.utils.providerToString
+import com.eden.livewidget.data.providerFromString
+import com.eden.livewidget.data.providerToString
 
 class LivePointWidgetCreateWorker(
     val context: Context,

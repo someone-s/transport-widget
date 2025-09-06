@@ -13,8 +13,8 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
-import com.eden.livewidget.data.utils.Provider
-import com.eden.livewidget.data.utils.providerToString
+import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.providerToString
 import com.eden.livewidget.widget.ui.ConfiguratorContent
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 

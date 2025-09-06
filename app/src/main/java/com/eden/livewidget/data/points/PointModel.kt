@@ -1,6 +1,6 @@
 package com.eden.livewidget.data.points
 
-import com.eden.livewidget.data.utils.Provider
+import com.eden.livewidget.data.Provider
 
 data class PointModel(
     val name: String,

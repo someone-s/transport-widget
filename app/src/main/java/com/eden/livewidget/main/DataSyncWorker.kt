@@ -19,9 +19,9 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
 import com.eden.livewidget.data.points.PointsRepository
-import com.eden.livewidget.data.utils.Provider
-import com.eden.livewidget.data.utils.providerFromString
-import com.eden.livewidget.data.utils.providerToString
+import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.providerFromString
+import com.eden.livewidget.data.providerToString
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 

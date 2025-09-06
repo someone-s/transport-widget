@@ -1,7 +1,7 @@
 // See: https://developer.android.com/topic/architecture/data-layer
 package com.eden.livewidget.data.arrivals
 
-import com.eden.livewidget.data.utils.Provider
+import com.eden.livewidget.data.Provider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

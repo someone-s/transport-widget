@@ -3,7 +3,7 @@ package com.eden.livewidget.data.points
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.R
-import com.eden.livewidget.data.utils.Provider
+import com.eden.livewidget.data.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch

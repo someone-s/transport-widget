@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
@@ -38,9 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.eden.livewidget.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.data.points.PointsRepository
-import com.eden.livewidget.data.utils.Provider
 import com.eden.livewidget.main.DataSyncWorker
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlinx.coroutines.flow.flow
@@ -54,12 +55,9 @@ fun DataSyncScreen(context: Context?) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        item {
+        items(Agency.entries) { agency ->
             DataSyncSourceContainer(
-                context,
-                Provider.TFL,
-                stringResource(R.string.provider_tfl_title),
-                stringResource(R.string.provider_tfl_about)
+                context, agency
             )
         }
     }
@@ -67,12 +65,12 @@ fun DataSyncScreen(context: Context?) {
 
 @Composable
 fun DataSyncSourceContainer(
-    context: Context?, apiProvider: Provider, titleText: String, aboutText: String
+    context: Context?, agency: Agency
 ) {
 
     val flow =
         if (context != null)
-            DataSyncWorker.getWorkInfoFlow(context, apiProvider)
+            DataSyncWorker.getWorkInfoFlow(context, agency.apiProvider)
                 .map { workInfos ->
                     if (workInfos.isEmpty()) return@map false
 
@@ -101,13 +99,13 @@ fun DataSyncSourceContainer(
 
         ) {
             Text(
-                text = titleText,
+                text = stringResource(agency.agencyName),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = aboutText,
+                text = stringResource(agency.agencyDescription),
                 fontWeight = FontWeight.Normal,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Justify
@@ -141,7 +139,7 @@ fun DataSyncSourceContainer(
                     FilledTonalButton(
                         onClick = {
                             if (context == null) return@FilledTonalButton
-                            DataSyncWorker.schedule(context, apiProvider)
+                            DataSyncWorker.schedule(context, agency.apiProvider)
                         },
                     ) {
                         Text(text = stringResource(R.string.data_sync_screen_update_data_button_text))
@@ -150,8 +148,8 @@ fun DataSyncSourceContainer(
                 FilledTonalIconButton(
                     onClick = {
                         if (context == null) return@FilledTonalIconButton
-                        DataSyncWorker.cancelCurrentRequest(context, apiProvider)
-                        PointsRepository.getInstance(context, apiProvider).reset(context)
+                        DataSyncWorker.cancelCurrentRequest(context, agency.apiProvider)
+                        PointsRepository.getInstance(context, agency.apiProvider).reset(context)
                     },
                     enabled = true
                 ) {

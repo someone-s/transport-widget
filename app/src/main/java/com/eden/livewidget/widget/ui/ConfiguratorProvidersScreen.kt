@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +32,7 @@ import androidx.glance.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.eden.livewidget.data.points.PointsRepository
-import com.eden.livewidget.data.utils.Provider
+import com.eden.livewidget.data.Provider
 import com.eden.livewidget.ui.component.CustomizableSearchBar
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlinx.coroutines.launch
@@ -39,7 +40,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfiguratorSelectProviderScreen(
-    navController: NavController
+    navController: NavController,
+    apiProvider: MutableState<Provider>
 ) {
     val context = LocalContext.current
 
@@ -47,9 +49,8 @@ fun ConfiguratorSelectProviderScreen(
     // Controls expansion state of the search bar
     val textFieldState = rememberTextFieldState()
 
-    val apiProvider = remember { mutableStateOf(Provider.TFL) }
     val repository = remember(key1 = apiProvider) { PointsRepository.getInstance(context, apiProvider.value) }
-    val matchingPoints by repository.matchingPoints.collectAsState()
+    val matchingProviders by repository.matchingPoints.collectAsState()
 
     Box(
         Modifier
@@ -69,7 +70,7 @@ fun ConfiguratorSelectProviderScreen(
                     },
                     query = textFieldState.text.toString(),
                     onSearch = {},
-                    searchResults = matchingPoints.map { points -> points.name },
+                    searchResults = matchingProviders.map { points -> points.name },
                     onResultClick = {_, _ -> },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -90,14 +91,14 @@ fun ConfiguratorSelectProviderScreen(
                         ) {
                         }
                     }
-                    itemsIndexed(matchingPoints) { index, item ->
+                    itemsIndexed(matchingProviders) { index, item ->
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(
                                 topStart = if (index == 0) 8.dp else 2.dp,
                                 topEnd = if (index == 0) 8.dp else 2.dp,
-                                bottomStart = if (index == matchingPoints.size - 1) 8.dp else 2.dp,
-                                bottomEnd = if (index == matchingPoints.size - 1) 8.dp else 2.dp
+                                bottomStart = if (index == matchingProviders.size - 1) 8.dp else 2.dp,
+                                bottomEnd = if (index == matchingProviders.size - 1) 8.dp else 2.dp
                             )
                         ) {
 
@@ -128,6 +129,6 @@ fun PreviewConfiguratorSelectProviderScreen() {
 
     TransportWidgetsTheme {
 
-        ConfiguratorSelectProviderScreen(rememberNavController())
+        ConfiguratorSelectProviderScreen(rememberNavController(), remember { mutableStateOf(Provider.TFL) })
     }
 }

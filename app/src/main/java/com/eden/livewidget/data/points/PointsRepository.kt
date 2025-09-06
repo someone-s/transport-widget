@@ -1,7 +1,7 @@
 package com.eden.livewidget.data.points
 
 import android.content.Context
-import com.eden.livewidget.data.utils.Provider
+import com.eden.livewidget.data.Provider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

@@ -21,7 +21,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
-import com.eden.livewidget.data.utils.providerFromString
+import com.eden.livewidget.data.providerFromString
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.UUID

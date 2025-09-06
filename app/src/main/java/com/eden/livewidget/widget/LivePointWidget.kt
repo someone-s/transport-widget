@@ -42,7 +42,7 @@ import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
 import com.eden.livewidget.main.MainActivity
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
-import com.eden.livewidget.data.utils.Provider
+import com.eden.livewidget.data.Provider
 
 class LivePointWidget : GlanceAppWidget() {
 
