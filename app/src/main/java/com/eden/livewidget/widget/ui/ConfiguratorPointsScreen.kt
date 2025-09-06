@@ -66,12 +66,10 @@ fun ConfiguratorSelectPointScreen(
     val matchingPoints by repository.matchingPoints.collectAsState()
 
     Scaffold(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background),
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
         topBar = {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 CustomizableSearchBar(
                     onQueryChange = {
@@ -92,8 +90,7 @@ fun ConfiguratorSelectPointScreen(
                     },
                     searchResults = matchingPoints.map { points -> points.name },
                     onResultClick = { index, _ ->
-                        if (index >= matchingPoints.size)
-                            return@CustomizableSearchBar
+                        if (index >= matchingPoints.size) return@CustomizableSearchBar
 
                         createWidget(
                             matchingPoints[index].apiProvider,
@@ -103,10 +100,8 @@ fun ConfiguratorSelectPointScreen(
                     },
                     placeholder = { Text(stringResource(R.string.configure_point_screen_search_bar_placeholder)) },
                     supportingContent = { index, _ ->
-                        if (index >= matchingPoints.size)
-                            return@CustomizableSearchBar
-                        if (matchingPoints[index].context == null)
-                            return@CustomizableSearchBar
+                        if (index >= matchingPoints.size) return@CustomizableSearchBar
+                        if (matchingPoints[index].context == null) return@CustomizableSearchBar
                         Text(
                             text = matchingPoints[index].context as String,
                             style = MaterialTheme.typography.bodyMedium
@@ -128,12 +123,10 @@ fun ConfiguratorSelectPointScreen(
                     }
                     .padding(contentPadding)
                     .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+                horizontalAlignment = Alignment.CenterHorizontally) {
                 itemsIndexed(matchingPoints) { index, item ->
                     Surface(
-                        modifier = Modifier
-                            .widthIn(0.dp, 360.dp),
+                        modifier = Modifier.widthIn(0.dp, 360.dp),
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
                         shape = RoundedCornerShape(
                             topStart = if (index == 0) 16.dp else 2.dp,
@@ -153,12 +146,11 @@ fun ConfiguratorSelectPointScreen(
                                 )
                             },
                             supportingContent = {
-                                if (item.context != null)
-                                    Text(
-                                        text = item.context,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
+                                if (item.context != null) Text(
+                                    text = item.context,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             },
                             leadingContent = {
                                 Icon(
@@ -175,16 +167,13 @@ fun ConfiguratorSelectPointScreen(
                                         matchingPoints[index].name
                                     )
                                 }
-                                .fillMaxWidth()
-                        )
+                                .fillMaxWidth())
                     }
 
                 }
             }
         },
-
-        )
-
+    )
 }
 
 @PreviewScreenSizes
@@ -194,8 +183,6 @@ fun PreviewConfiguratorSelectPointScreen() {
     TransportWidgetsTheme {
 
         ConfiguratorSelectPointScreen(
-            rememberNavController(),
-            remember { mutableStateOf(Provider.TFL) }
-        ) { _, _, _ -> }
+            rememberNavController(), remember { mutableStateOf(Provider.TFL) }) { _, _, _ -> }
     }
 }

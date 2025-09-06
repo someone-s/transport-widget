@@ -81,16 +81,6 @@ fun ConfiguratorSelectProviderScreen(
                         .fillMaxWidth()
                         .padding(contentPadding)
                 ) {
-                    item {
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(12.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                        }
-                    }
                     itemsIndexed(matchingProviders) { index, item ->
                         Surface(
                             modifier = Modifier.fillMaxWidth(),

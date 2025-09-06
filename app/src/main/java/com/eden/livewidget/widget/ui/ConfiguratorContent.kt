@@ -10,7 +10,7 @@ import com.eden.livewidget.data.Provider
 import kotlinx.serialization.Serializable
 
 @Serializable
-object SelectProvider
+object SelectAgency
 @Serializable
 object SelectPoint
 
@@ -19,8 +19,8 @@ fun ConfiguratorContent(createWidget: (apiProvider: Provider, apiValue: String, 
     val navController = rememberNavController()
     val apiProvider = remember { mutableStateOf(Provider.TFL) }
 
-    NavHost(navController, startDestination = SelectPoint) {
-        composable<SelectProvider> { ConfiguratorSelectProviderScreen(navController, apiProvider) }
+    NavHost(navController, startDestination = SelectAgency) {
+        composable<SelectAgency> { ConfiguratorSelectProviderScreen(navController, apiProvider) }
         composable<SelectPoint> { ConfiguratorSelectPointScreen(navController, apiProvider, createWidget) }
     }
 }
