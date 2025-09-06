@@ -68,13 +68,12 @@ class LivePointWidgetCreateWorker(
             return Result.failure()
 
         // Stop any ongoing update
-        LivePointWidgetUpdateWorker.Companion.unsetCurrentRequestId(appWidgetId)
+        LivePointWidgetUpdateWorker.cancelCurrentRequest(context, appWidgetId)
 
         updateAppWidgetState(context, glanceId) { preferences ->
             preferences[LivePointWidget.API_PROVIDER_KEY] = providerToString(apiProvider)
             preferences[LivePointWidget.API_VALUE_KEY] = apiValue
             preferences[LivePointWidget.DISPLAY_NAME_KEY] = displayName
-            preferences[LivePointWidget.IS_ACTIVE_KEY] = LivePointWidget.IS_ACTIVE_FALSE
         }
 
         LivePointWidget().update(context, glanceId)

@@ -40,9 +40,9 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.main.MainActivity
-import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.arrivals.ArrivalsRepository
+import com.eden.livewidget.main.MainActivity
 
 class LivePointWidget : GlanceAppWidget() {
 
@@ -51,9 +51,6 @@ class LivePointWidget : GlanceAppWidget() {
         val API_PROVIDER_KEY = stringPreferencesKey("apiProvider")
         val API_VALUE_KEY = stringPreferencesKey("apiValue")
         val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
-        val IS_ACTIVE_KEY = stringPreferencesKey("isActive")
-        const val IS_ACTIVE_TRUE = "TRUE"
-        const val IS_ACTIVE_FALSE = "FALSE"
 
     }
 
@@ -91,7 +88,7 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
-                MyContent(apiProvider, apiValue, displayName)
+                MyContent(context, id, apiProvider, apiValue, displayName)
             }
         }
     }
@@ -129,9 +126,12 @@ class LivePointWidget : GlanceAppWidget() {
 
 
     @Composable
-    private fun MyContent(apiProvider: Provider, apiValue: String, displayName: String) {
+    private fun MyContent(context: Context, glanceId: GlanceId, apiProvider: Provider, apiValue: String, displayName: String) {
 
-        val isActive = currentState(IS_ACTIVE_KEY)
+        val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
+
+        val flow = LivePointWidgetUpdateWorker.getIsActiveFlow(context, widgetId)
+        val isActive by flow.collectAsState(false)
 
         Scaffold(
             backgroundColor = GlanceTheme.colors.widgetBackground,
@@ -166,7 +166,7 @@ class LivePointWidget : GlanceAppWidget() {
                 }
             }
         ) {
-            if (isActive == IS_ACTIVE_TRUE)
+            if (isActive)
                 ActiveList(apiProvider, apiValue)
             else
                 DisableBlock()

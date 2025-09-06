@@ -10,20 +10,22 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
-import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.providerFromString
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -44,8 +46,33 @@ class LivePointWidgetUpdateWorker(
 
         private val currentRequestIds = mutableMapOf<Int, UUID>()
 
-        fun unsetCurrentRequestId( appWidgetId: Int) {
-            currentRequestIds.remove(appWidgetId)
+
+
+        private fun getUniqueWorkName(appWidgetId: Int) =
+            "Widget Update Worker $appWidgetId"
+
+        fun getWorkInfoFlow(context: Context, appWidgetId: Int): Flow<List<WorkInfo>> {
+            return WorkManager.Companion.getInstance(context)
+                .getWorkInfosForUniqueWorkFlow(getUniqueWorkName(appWidgetId))
+        }
+
+        fun getIsActiveFlow(context: Context, appWidgetId: Int): Flow<Boolean> {
+            return getWorkInfoFlow(context, appWidgetId).map { workInfos ->
+                if (workInfos.isEmpty()) return@map false
+
+                for (info in workInfos) {
+                    if (!info.state.isFinished)
+                        return@map true
+                }
+                return@map false
+            }
+        }
+
+
+        fun cancelCurrentRequest(context: Context, appWidgetId: Int) {
+            WorkManager.Companion.getInstance(context).cancelUniqueWork(
+                getUniqueWorkName(appWidgetId)
+            )
         }
 
         fun schedule(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?) {
@@ -62,9 +89,11 @@ class LivePointWidgetUpdateWorker(
                 builder.setInitialDelay(delay.toJavaDuration())
             val workerRequest = builder.build()
 
-            currentRequestIds[appWidgetId] = workerRequest.id
-
-            WorkManager.getInstance(context).enqueue(workerRequest)
+            WorkManager.Companion.getInstance(context).enqueueUniqueWork(
+                getUniqueWorkName(appWidgetId),
+                ExistingWorkPolicy.REPLACE,
+                workerRequest
+            )
         }
 
     }
@@ -85,11 +114,6 @@ class LivePointWidgetUpdateWorker(
 
         val appWidgetId = inputData.getInt(APP_WIDGET_ID, -1)
 
-        mutex.withLock {
-            // don't schedule new job if not main
-            if (currentRequestIds[appWidgetId] != params.id)
-                return Result.success()
-        }
 
         val manager = GlanceAppWidgetManager(context)
         // if illegal exception let worker fail
@@ -102,17 +126,11 @@ class LivePointWidgetUpdateWorker(
         val remainingTimes = inputData.getInt(REMAINING_TIMES, -1)
 
         if (remainingTimes < 0) {
-
-            updateAppWidgetState(context, glanceId) { preferences ->
-                preferences[LivePointWidget.IS_ACTIVE_KEY] = LivePointWidget.IS_ACTIVE_FALSE
-            }
+            // update one more cycle then end
             updater.update(context, glanceId)
         }
         else {
 
-            updateAppWidgetState(context, glanceId) { preferences ->
-                preferences[LivePointWidget.IS_ACTIVE_KEY] = LivePointWidget.IS_ACTIVE_TRUE
-            }
 
             // PreferencesGlanceStateDefinition is the default state definition used
             val preferences = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
