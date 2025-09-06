@@ -17,10 +17,10 @@ object SelectPoint
 @Composable
 fun ConfiguratorContent(createWidget: (apiProvider: Provider, apiValue: String, displayName: String) -> Unit) {
     val navController = rememberNavController()
-    val apiProvider = remember { mutableStateOf(Provider.TFL) }
+    val (apiProvider, setApiProvider) = remember { mutableStateOf(Provider.TFL) }
 
     NavHost(navController, startDestination = SelectAgency) {
-        composable<SelectAgency> { ConfiguratorSelectProviderScreen(navController, apiProvider) }
-        composable<SelectPoint> { ConfiguratorSelectPointScreen(navController, apiProvider, createWidget) }
+        composable<SelectAgency> { ConfiguratorSelectProviderScreen(navController, setApiProvider) }
+        composable<SelectPoint> { ConfiguratorSelectPointScreen(apiProvider, createWidget) }
     }
 }

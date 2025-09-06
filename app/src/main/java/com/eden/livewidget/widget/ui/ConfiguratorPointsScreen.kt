@@ -24,10 +24,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -39,11 +37,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.eden.livewidget.R
-import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.ui.component.CustomizableSearchBar
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlinx.coroutines.launch
@@ -51,8 +47,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfiguratorSelectPointScreen(
-    navController: NavHostController,
-    apiProvider: MutableState<Provider>,
+    apiProvider: Provider,
     createWidget: (apiProvider: Provider, apiValue: String, displayName: String) -> Unit,
 ) {
     val context = LocalContext.current
@@ -62,7 +57,7 @@ fun ConfiguratorSelectPointScreen(
     val textFieldState = rememberTextFieldState()
 
     val repository =
-        remember(key1 = apiProvider) { PointsRepository.getInstance(context, apiProvider.value) }
+        remember(key1 = apiProvider) { PointsRepository.getInstance(context, apiProvider) }
     val matchingPoints by repository.matchingPoints.collectAsState()
 
     Scaffold(
@@ -76,7 +71,7 @@ fun ConfiguratorSelectPointScreen(
                         textFieldState.edit { replace(0, length, it) }
                         coroutineScope.launch {
                             val repository =
-                                PointsRepository.getInstance(context, apiProvider.value)
+                                PointsRepository.getInstance(context, apiProvider)
                             repository.fetchMatching(it)
                         }
                     },
@@ -84,7 +79,7 @@ fun ConfiguratorSelectPointScreen(
                     onSearch = {
                         coroutineScope.launch {
                             val repository =
-                                PointsRepository.getInstance(context, apiProvider.value)
+                                PointsRepository.getInstance(context, apiProvider)
                             repository.fetchMatching(it)
                         }
                     },
@@ -145,13 +140,6 @@ fun ConfiguratorSelectPointScreen(
                                     style = LocalTextStyle.current
                                 )
                             },
-                            supportingContent = {
-                                if (item.context != null) Text(
-                                    text = item.context,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            },
                             leadingContent = {
                                 Icon(
                                     Icons.Rounded.LocationOn,
@@ -182,7 +170,6 @@ fun PreviewConfiguratorSelectPointScreen() {
 
     TransportWidgetsTheme {
 
-        ConfiguratorSelectPointScreen(
-            rememberNavController(), remember { mutableStateOf(Provider.TFL) }) { _, _, _ -> }
+        ConfiguratorSelectPointScreen(Provider.TFL) { _, _, _ -> }
     }
 }

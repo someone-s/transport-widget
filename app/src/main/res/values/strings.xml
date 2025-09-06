@@ -11,7 +11,7 @@
     <string name="data_sync_screen_update_data_button_text">Update Data</string>
     <string name="data_sync_screen_reset_data_button_description">Reset Data</string>
     <string name="agency_tfl_title">Transport for London</string>
-    <string name="agency_tfl_about">London\'s transport authority, provides live tracking data for buses, underground and riverboat services</string>
+    <string name="agency_tfl_about_full">London\'s transport authority, provides live tracking data for buses, underground and riverboat services</string>
     <string name="widget_configure_prompt_text">Configure widget by long pressing widget</string>
     <string name="widget_arrival_imminent_text">Arriving</string>
     <string name="widget_arrival_minute_text">%1$d Mins</string>
@@ -22,4 +22,5 @@
     <string name="configure_point_screen_location_icon_description">Location Icon</string>
     <string name="data_sync_worker_begin_progress_text">Starting data download</string>
     <string name="provider_tfl_api_fetch_status_update_text">Fetching page %1$d to %2$d</string>
+    <string name="agency_tfl_about_short">London\'s transport authority</string>
 </resources>
