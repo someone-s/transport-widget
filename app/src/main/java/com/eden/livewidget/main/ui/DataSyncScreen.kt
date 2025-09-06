@@ -1,7 +1,6 @@
 package com.eden.livewidget.main.ui
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,13 +55,20 @@ fun DataSyncScreen(context: Context?) {
             .fillMaxSize()
     ) {
         item {
-            DataSyncSourceContainer(context, Provider.TFL)
+            DataSyncSourceContainer(
+                context,
+                Provider.TFL,
+                stringResource(R.string.provider_tfl_title),
+                stringResource(R.string.provider_tfl_about)
+            )
         }
     }
 }
 
 @Composable
-fun DataSyncSourceContainer(context: Context?, apiProvider: Provider) {
+fun DataSyncSourceContainer(
+    context: Context?, apiProvider: Provider, titleText: String, aboutText: String
+) {
 
     val flow =
         if (context != null)
@@ -70,7 +77,6 @@ fun DataSyncSourceContainer(context: Context?, apiProvider: Provider) {
                     if (workInfos.isEmpty()) return@map false
 
                     for (info in workInfos) {
-                        Log.i("AAAAA", "${info.id} ${info.state.isFinished}")
                         if (!info.state.isFinished)
                             return@map true
                     }
@@ -95,13 +101,13 @@ fun DataSyncSourceContainer(context: Context?, apiProvider: Provider) {
 
         ) {
             Text(
-                text = "Transport for London",
+                text = titleText,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "London's transport authority, provides live tracking data for buses, underground and riverboat services",
+                text = aboutText,
                 fontWeight = FontWeight.Normal,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Justify
@@ -138,7 +144,7 @@ fun DataSyncSourceContainer(context: Context?, apiProvider: Provider) {
                             DataSyncWorker.schedule(context, apiProvider)
                         },
                     ) {
-                        Text(text = "Update Data")
+                        Text(text = stringResource(R.string.data_sync_screen_update_data_button_text))
                     }
                 }
                 FilledTonalIconButton(
@@ -151,7 +157,7 @@ fun DataSyncSourceContainer(context: Context?, apiProvider: Provider) {
                 ) {
                     Icon(
                         painterResource(R.drawable.ic_data_sync_reset),
-                        "Download Data"
+                        stringResource(R.string.data_sync_screen_reset_data_button_description)
                     )
                 }
             }

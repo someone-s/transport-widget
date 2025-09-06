@@ -138,7 +138,7 @@ class LivePointWidgetUpdateWorker(
 
         return NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_background)
-            .setContentTitle("Updating Widget")
+            .setContentTitle(context.getString(R.string.widget_update_worker_notification_title))
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }

@@ -8,4 +8,16 @@
     <string name="data_sync_notification_channel_name">Data Sync</string>
     <string name="data_sync_notification_title">Updating Database</string>
     <string name="data_sync_notification_cancel">Cancel</string>
+    <string name="data_sync_screen_update_data_button_text">Update Data</string>
+    <string name="data_sync_screen_reset_data_button_description">Reset Data</string>
+    <string name="provider_tfl_title">Transport for London</string>
+    <string name="provider_tfl_about">London\'s transport authority, provides live tracking data for buses, underground and riverboat services</string>
+    <string name="widget_configure_prompt_text">Configure widget by long pressing widget</string>
+    <string name="widget_arrival_imminent_text">Arriving</string>
+    <string name="widget_arrival_minute_text">%1$d Mins</string>
+    <string name="widget_start_tracking_prompt_text">Paused, click to start tracking</string>
+    <string name="widget_create_worker_notification_title">Configuring Widget</string>
+    <string name="widget_update_worker_notification_title">Updating Widget</string>
+    <string name="configure_point_screen_search_bar_placeholder">Search for a stop</string>
+    <string name="configure_point_screen_location_icon_description">Location Icon</string>
 </resources>

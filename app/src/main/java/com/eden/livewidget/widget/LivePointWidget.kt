@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -38,6 +39,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
+import com.eden.livewidget.R
 import com.eden.livewidget.main.MainActivity
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.utils.Provider
@@ -111,7 +113,7 @@ class LivePointWidget : GlanceAppWidget() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Configure widget by long pressing widget",
+                    text = stringResource(R.string.widget_configure_prompt_text),
                     style = TextStyle(
                         color = GlanceTheme.colors.onPrimaryContainer,
                         fontWeight = FontWeight.Normal,
@@ -208,7 +210,9 @@ class LivePointWidget : GlanceAppWidget() {
                             contentAlignment = Alignment.CenterEnd
                         ) {
                             Text(
-                                text = if (arrival.remainingS < 60) "Arriving" else "${(arrival.remainingS / 60)} Mins",
+                                text = if (arrival.remainingS < 60) stringResource(R.string.widget_arrival_imminent_text) else stringResource(
+                                    R.string.widget_arrival_minute_text, (arrival.remainingS / 60)
+                                ),
                                 style = TextStyle(
                                     color = GlanceTheme.colors.primary,
                                     fontWeight = FontWeight.Bold,
@@ -248,7 +252,7 @@ class LivePointWidget : GlanceAppWidget() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Paused, click to start tracking",
+                    text = stringResource(R.string.widget_start_tracking_prompt_text),
                     style = TextStyle(
                         color = GlanceTheme.colors.onPrimaryContainer,
                         fontWeight = FontWeight.Normal,

@@ -1,6 +1,5 @@
 package com.eden.livewidget.widget.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,12 +33,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.eden.livewidget.R
 import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.data.utils.Provider
 import com.eden.livewidget.ui.component.CustomizableSearchBar
@@ -90,15 +91,12 @@ fun ConfiguratorSelectPointScreen(
                         },
                         searchResults = matchingPoints.map { points -> points.name },
                         onResultClick = { index, _ ->
-                            Log.i("AAAAA", "BBBBBB")
                             if (index >= matchingPoints.size)
                                 return@CustomizableSearchBar
-                            Log.i("AAAAA", "TTTTTT")
-                            Log.i("AAAAA", "CCCCCCCCC")
 
                             createWidget(matchingPoints[index].apiProvider, matchingPoints[index].apiValue, matchingPoints[index].name)
                         },
-                        placeholder = { Text("Search for a stop") },
+                        placeholder = { Text(stringResource(R.string.configure_point_screen_search_bar_placeholder)) },
                         supportingContent = { index, _ ->
                             if (index >= matchingPoints.size)
                                 return@CustomizableSearchBar
@@ -160,13 +158,18 @@ fun ConfiguratorSelectPointScreen(
                             leadingContent = {
                                 Icon(
                                     Icons.Rounded.LocationOn,
-                                    "Location Icon"
+                                    stringResource(R.string.configure_point_screen_location_icon_description)
                                 )
                             },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier
                                 .clickable {
-                                    createWidget(matchingPoints[index].apiProvider, matchingPoints[index].apiValue, matchingPoints[index].name)                                }
+                                    createWidget(
+                                        matchingPoints[index].apiProvider,
+                                        matchingPoints[index].apiValue,
+                                        matchingPoints[index].name
+                                    )
+                                }
                                 .fillMaxWidth()
                         )
                     }
