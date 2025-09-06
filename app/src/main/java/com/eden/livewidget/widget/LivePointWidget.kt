@@ -5,13 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -104,7 +104,7 @@ class LivePointWidget : GlanceAppWidget() {
             modifier = GlanceModifier
                 .fillMaxSize(),
 
-        ) {
+            ) {
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize()
@@ -113,7 +113,7 @@ class LivePointWidget : GlanceAppWidget() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(R.string.widget_configure_prompt_text),
+                    text = LocalContext.current.getString(R.string.widget_configure_prompt_text),
                     style = TextStyle(
                         color = GlanceTheme.colors.onPrimaryContainer,
                         fontWeight = FontWeight.Normal,
@@ -138,8 +138,8 @@ class LivePointWidget : GlanceAppWidget() {
             modifier = GlanceModifier
                 .fillMaxSize()
                 .clickable(
-                onClick = actionStartActivity<MainActivity>()
-            ),
+                    onClick = actionStartActivity<MainActivity>()
+                ),
             horizontalPadding = 16.dp,
             titleBar = {
                 Row(
@@ -155,7 +155,7 @@ class LivePointWidget : GlanceAppWidget() {
                 ) {
                     Text(
                         modifier = GlanceModifier,
-                        text =  displayName,
+                        text = displayName,
                         style = TextStyle(
                             color = GlanceTheme.colors.onPrimaryContainer,
                             fontSize = 25.sp,
@@ -183,9 +183,11 @@ class LivePointWidget : GlanceAppWidget() {
             horizontalAlignment = Alignment.CenterHorizontally,
 
             ) {
-            itemsIndexed(latestArrivals) { index, arrival  ->
-                Column(modifier = GlanceModifier
-                    .fillMaxWidth())
+            itemsIndexed(latestArrivals) { index, arrival ->
+                Column(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                )
                 {
                     Row(
                         modifier = GlanceModifier
@@ -210,9 +212,14 @@ class LivePointWidget : GlanceAppWidget() {
                             contentAlignment = Alignment.CenterEnd
                         ) {
                             Text(
-                                text = if (arrival.remainingS < 60) stringResource(R.string.widget_arrival_imminent_text) else stringResource(
-                                    R.string.widget_arrival_minute_text, (arrival.remainingS / 60)
-                                ),
+                                text =
+                                    if (arrival.remainingS < 60)
+                                        LocalContext.current.getString(R.string.widget_arrival_imminent_text)
+                                    else
+                                        LocalContext.current.getString(
+                                            R.string.widget_arrival_minute_text,
+                                            (arrival.remainingS / 60)
+                                        ),
                                 style = TextStyle(
                                     color = GlanceTheme.colors.primary,
                                     fontWeight = FontWeight.Bold,
@@ -252,7 +259,7 @@ class LivePointWidget : GlanceAppWidget() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(R.string.widget_start_tracking_prompt_text),
+                    text = LocalContext.current.getString(R.string.widget_start_tracking_prompt_text),
                     style = TextStyle(
                         color = GlanceTheme.colors.onPrimaryContainer,
                         fontWeight = FontWeight.Normal,
