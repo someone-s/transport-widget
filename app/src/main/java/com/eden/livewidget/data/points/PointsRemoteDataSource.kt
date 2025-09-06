@@ -1,5 +1,7 @@
 package com.eden.livewidget.data.points
 
+import android.content.Context
+import android.util.Log
 import com.eden.livewidget.data.utils.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
@@ -7,18 +9,26 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PointsRemoteDataSource(
+    context: Context,
     private val pointsApi: PointsRemoteApi,
     private val apiProvider: Provider,
-    cacheDatabase: PointsCacheDatabase,
     private val ioDispatcher: CoroutineDispatcher
 ): PointsDataSource {
 
-    private val pointsDao = cacheDatabase.pointDao()
+    private var pointsDao = PointsCacheDatabase.getInstance(context, apiProvider).pointDao()
+
+    override fun reset(context: Context) {
+        Log.i(this.javaClass.name, "Database reset")
+        PointsCacheDatabase.deleteDatabase(context, apiProvider)
+        pointsDao = PointsCacheDatabase.getInstance(context, apiProvider).pointDao()
+    }
 
     override suspend fun refresh(statusUpdate: (status: String) -> Unit) {
         // Move the execution to an IO-optimized thread since the ApiService
         // doesn't support coroutines and makes synchronous requests.
+
         pointsDao.deleteAll()
+
         val pageBatch = 10
         var pageSet = 0
         while(true) {

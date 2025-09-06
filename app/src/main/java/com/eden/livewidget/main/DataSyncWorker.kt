@@ -10,9 +10,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
@@ -20,32 +22,34 @@ import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.data.utils.Provider
 import com.eden.livewidget.data.utils.providerFromString
 import com.eden.livewidget.data.utils.providerToString
+import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
 class DataSyncWorker(
     val context: Context,
-    params: WorkerParameters
-): CoroutineWorker(context, params) {
+    params: WorkerParameters,
+) : CoroutineWorker(context, params) {
 
     companion object {
         const val KEY_PROVIDER = "provider"
         const val NOTIFICATION_ID = 50002
 
-        private val currentRequestIds = mutableMapOf<Provider, UUID>()
+        private fun getUniqueWorkName(apiProvider: Provider) =
+            "Data Sync Worker ${providerToString(apiProvider)}"
 
-        fun cancelCurrentRequest(context: Context, provider: Provider) {
+        fun getWorkInfoFlow(context: Context, provider: Provider): Flow<List<WorkInfo>> {
 
-            val current = currentRequestIds[provider]
-            if (current == null) return
-
-            WorkManager.Companion.getInstance(context).cancelWorkById(current)
-
-            currentRequestIds.remove(provider)
+            return WorkManager.Companion.getInstance(context)
+                .getWorkInfosForUniqueWorkFlow(getUniqueWorkName(provider))
         }
 
-        fun schedule(context: Context, provider: Provider) {
+        fun cancelCurrentRequest(context: Context, provider: Provider) {
+            WorkManager.Companion.getInstance(context).cancelUniqueWork(
+                getUniqueWorkName(provider)
+            )
+        }
 
-            cancelCurrentRequest(context, provider)
+        fun schedule(context: Context, provider: Provider): UUID {
 
             val inputData = Data.Builder()
                 .putString(KEY_PROVIDER, providerToString(provider))
@@ -56,9 +60,13 @@ class DataSyncWorker(
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             val workerRequest = builder.build()
 
-            currentRequestIds[provider] = workerRequest.id
+            WorkManager.Companion.getInstance(context).enqueueUniqueWork(
+                getUniqueWorkName(provider),
+                ExistingWorkPolicy.REPLACE,
+                workerRequest
+            )
 
-            WorkManager.Companion.getInstance(context).enqueue(workerRequest)
+            return workerRequest.id
         }
 
     }
@@ -87,6 +95,7 @@ class DataSyncWorker(
         }
 
     }
+
     // Creates an instance of ForegroundInfo which can be used to update the
     // ongoing notification.
     private fun createForegroundInfo(progress: String): ForegroundInfo {

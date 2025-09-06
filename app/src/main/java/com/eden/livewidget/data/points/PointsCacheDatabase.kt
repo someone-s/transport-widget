@@ -62,10 +62,20 @@ abstract class PointsCacheDatabase : RoomDatabase() {
             return instances[apiProvider] as PointsCacheDatabase
         }
 
+        fun getDatabaseName(apiProvider: Provider) = "${DATABASE_NAME_BASE}_${apiProvider}"
+
         private const val DATABASE_NAME_BASE = "PointsCacheDB"
 
+        fun deleteDatabase(context: Context, apiProvider: Provider) {
+            val databaseName = getDatabaseName(apiProvider)
+
+            context.deleteDatabase(databaseName)
+
+            instances.remove(apiProvider)
+        }
+
         fun buildDatabase(context: Context, apiProvider: Provider): PointsCacheDatabase {
-            val databaseName = "${DATABASE_NAME_BASE}_${apiProvider}"
+            val databaseName = getDatabaseName(apiProvider)
 
             val db = Room.databaseBuilder(
                 context,

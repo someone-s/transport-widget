@@ -43,6 +43,11 @@ class PointsRepository(
         pointsDataSource.refresh(statusUpdate)
     }
 
+
+    fun reset(context: Context) {
+        pointsDataSource.reset(context)
+    }
+
     companion object {
         private var instances: MutableMap<Provider, PointsRepository> = mutableMapOf()
 
@@ -61,4 +66,5 @@ class PointsRepository(
 interface PointsDataSource {
     suspend fun fetchMatching(input: String): List<PointModel>
     suspend fun refresh(statusUpdate: (status: String) -> Unit)
+    fun reset(context: Context)
 }

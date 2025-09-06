@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
@@ -25,8 +24,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.eden.livewidget.main.DataSyncWorker
-import com.eden.livewidget.data.utils.Provider
 import kotlinx.serialization.Serializable
 
 
@@ -94,7 +91,7 @@ fun MainContent(context: Context) {
         }
     ) { innerPadding ->
         NavHost(navController, startDestination = Browse, Modifier.padding(innerPadding)) {
-            composable<Browse> { BrowseContent(context) }
+            composable<Browse> { DataSyncScreen(context) }
             composable<About> { AboutContent() }
         }
     }
@@ -102,19 +99,6 @@ fun MainContent(context: Context) {
 }
 
 
-@Composable
-fun BrowseContent(context: Context) {
-
-    Button(
-        onClick = {
-            DataSyncWorker.schedule(context, Provider.TFL)
-        }
-    ) {
-        Text(
-            text = "update TFL"
-        )
-    }
-}
 
 @Composable
 fun AboutContent() {

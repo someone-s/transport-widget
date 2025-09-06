@@ -3,7 +3,6 @@ package com.eden.livewidget.data.utils
 import android.content.Context
 import com.eden.livewidget.data.arrivals.ArrivalsApi
 import com.eden.livewidget.data.arrivals.api.ArrivalsTflApi
-import com.eden.livewidget.data.points.PointsCacheDatabase
 import com.eden.livewidget.data.points.PointsDataSource
 import com.eden.livewidget.data.points.PointsRemoteDataSource
 import com.eden.livewidget.data.points.remoteapi.PointsRemoteTflApi
@@ -17,9 +16,9 @@ enum class Provider(
     TFL(
         pointsDataSourceConstructor = { context ->
             PointsRemoteDataSource(
+                context,
                 PointsRemoteTflApi(),
                 TFL,
-                PointsCacheDatabase.getInstance(context, TFL),
                 Dispatchers.IO
             )
         },
