@@ -129,4 +129,9 @@ class DataSyncWorker(
         )
         NotificationManagerCompat.from(context).createNotificationChannel(notificationChannel)
     }
+
+    // Needed for pre android 12
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return createForegroundInfo("Fetching Points Data")
+    }
 }
