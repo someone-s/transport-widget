@@ -1,9 +1,13 @@
 package com.eden.livewidget.widget
 
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -136,10 +140,25 @@ class LivePointWidgetUpdateWorker(
 
     private fun createNotification() : Notification {
 
+        // Create a Notification channel if necessary
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannel()
+        }
         return NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentTitle(context.getString(R.string.widget_update_worker_notification_title))
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createChannel() {
+
+        val notificationChannel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID,
+            context.getString(R.string.widget_update_worker_notification_title),
+            NotificationManager.IMPORTANCE_LOW
+        )
+        NotificationManagerCompat.from(context).createNotificationChannel(notificationChannel)
     }
 }
