@@ -16,7 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -26,7 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.eden.livewidget.DataSyncWorker
+import com.eden.livewidget.main.DataSyncWorker
 import com.eden.livewidget.data.utils.Provider
 import kotlinx.serialization.Serializable
 
@@ -105,8 +104,6 @@ fun MainContent(context: Context) {
 
 @Composable
 fun BrowseContent(context: Context) {
-
-    val coroutineScope = rememberCoroutineScope()
 
     Button(
         onClick = {

@@ -18,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TransportWidgets">
         <activity
-            android:name=".MainActivity"
+            android:name=".main.MainActivity"
             android:exported="true"
             android:label="@string/app_main_activity"
             android:theme="@style/Theme.TransportWidgets">
