@@ -72,6 +72,7 @@ abstract class PointsCacheDatabase : RoomDatabase() {
                 PointsCacheDatabase::class.java,
                 databaseName
             )
+                .createFromAsset("database/$databaseName")
                 .setJournalMode(JournalMode.TRUNCATE)
                 .openHelperFactory { configuration ->
                     val config = SQLiteDatabaseConfiguration(
