@@ -1,133 +1,82 @@
 package com.eden.livewidget.data.points.remoteapi
 
 import android.util.Log
-import com.eden.livewidget.data.points.PointModel
+import com.eden.livewidget.data.points.PointEntity
 import com.eden.livewidget.data.points.PointsRemoteApi
-import com.eden.livewidget.data.utils.Provider
+import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
-import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
-private data class StopPointResponse(
+private data class StopPoint(
     val id: String,
-//    val url: String,
     val commonName: String,
-    val stopLetter: String?,
-    val children: List<StopPointResponse>, // recursive
-    val stopType: String // i,e. "NaptanBusCoachStation" "NaptanMetroStation"
-)
-
-private data class Match(
-    val id: String,
-//    val url: String,
-    val name: String,
-//    val lat: String,
-//    val lon: String,
-)
-
-private data class SearchResponse(
-//    val query: String,
-//    val from: Int,
-//    val page: Int,
-//    val pageSize: Int,
-//    val provider: String,
-//    val total: Int,
-    val matches: List<Match>,
-//    val maxScore: Int,
+    val indicator: String?,
 )
 
 private const val BASE_URL = "https://api.tfl.gov.uk"
 
+private val okHttpClient = OkHttpClient.Builder()
+    .readTimeout(30, TimeUnit.SECONDS)
+    .connectTimeout(30, TimeUnit.SECONDS)
+    .writeTimeout(30, TimeUnit.SECONDS)
+    .build()
+
 private val retrofit = Retrofit.Builder()
+    .client(okHttpClient)
     .addConverterFactory(GsonConverterFactory.create())
     .baseUrl(BASE_URL)
     .build()
 
 private interface PointsTflApiService {
-    @GET("StopPoint/Search")
-    fun getMatching(
-        @Query("query")
-        input: String,
-    ): Call<SearchResponse>
-
-
-    @GET("StopPoint/{ids}")
-    fun getActual(
-        @Path("ids")
-        id: String,
-    ): Call<StopPointResponse>
+    @GET("StopPoint/Type/{types}/page/{page}")
+    fun getPage(
+        @Path("types") types: String,
+        @Path("page") page: Int
+    ): Call<List<StopPoint>>
 }
 
 class PointsRemoteTflApi: PointsRemoteApi {
+
+    private val fetchTypes = "NaptanFerryPort,NaptanPublicBusCoachTram,NaptanMetroStation"
 
     private val service: PointsTflApiService by lazy {
         retrofit.create(PointsTflApiService::class.java)
     }
 
-    override fun fetchMatching(input: String): List<PointModel> {
-        Log.i(this.javaClass.name, "Data fetched")
-        val searchRequest = service.getMatching(input)
-        val searchResponse = searchRequest.execute()
-        if (searchResponse == null) {
-            Log.i(this.javaClass.name, "no response")
-            return emptyList()
-        } else if (searchResponse.body() !is SearchResponse) {
-            Log.i(this.javaClass.name, "no search")
-            return emptyList()
+    override fun fetchPage(pageZeroIndexed: Int, add: (PointEntity) -> Unit): Int {
+
+        val page = pageZeroIndexed + 1
+
+        Log.i(this.javaClass.name, "request page $page")
+
+        val pageRequest = service.getPage(fetchTypes, page)
+        pageRequest.request()
+        val pageResponse = pageRequest.execute()
+        if (pageResponse == null) {
+            Log.i(this.javaClass.name, "failed to fetch page $page")
+            return -1
+        } else if (pageResponse.body() !is List<StopPoint>) {
+            Log.i(this.javaClass.name, "failed to find page body $page")
+            return -1
+        }
+        val pageResult = pageResponse.body() as List<StopPoint>
+        if (pageResult.isEmpty())
+            return -1
+
+        for (stopPoint in pageResult) {
+            add(PointEntity(
+                name = stopPoint.commonName + if (stopPoint.indicator != null) " (${stopPoint.indicator})" else "",
+                apiValue = stopPoint.id
+            ))
         }
 
-        val matches = (searchResponse.body() as SearchResponse).matches
+        Log.i(this.javaClass.name, "added ${pageResult.size} entries from page $page")
 
-        val outputs = mutableListOf<PointModel>()
-        for (match in matches) {
-            val actualRequest = service.getActual(match.id)
-            val actualResponse = actualRequest.execute()
-            if (actualResponse == null) {
-                Log.i(this.javaClass.name, "no response 2")
-                continue
-            } else if (actualResponse.body() !is StopPointResponse) {
-                Log.i(this.javaClass.name, "no actual")
-                continue
-            }
+        return pageResult.size
 
-            traverseStopPoint(actualResponse.body() as StopPointResponse, outputs)
-        }
-
-        return outputs
-
-    }
-
-    private fun traverseStopPoint(stopPoint: StopPointResponse, outputs: MutableList<PointModel>) {
-       Log.i("AAAA", stopPoint.stopType)
-        when (stopPoint.stopType) {
-            "NaptanMetroStation" -> {
-                outputs.add(
-                    PointModel(
-                        name = stopPoint.commonName,
-                        apiProvider = Provider.TFL,
-                        apiValue = stopPoint.id,
-                        context = null,
-                    )
-                )
-            }
-            "NaptanPublicBusCoachTram" -> {
-                outputs.add(
-                    PointModel(
-                        name = stopPoint.commonName + if (stopPoint.stopLetter != null) " (${stopPoint.stopLetter})" else "",
-                        apiProvider = Provider.TFL,
-                        apiValue = stopPoint.id,
-                        context = null,
-                    )
-                )
-            }
-            else -> {
-                for (child in stopPoint.children) {
-                    traverseStopPoint(child, outputs)
-                }
-            }
-        }
     }
 }

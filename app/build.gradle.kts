@@ -3,9 +3,17 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialize)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
+}
+
+// https://developer.android.com/training/data-storage/room/migrating-db-versions#set_schema_location_using_room_gradle_plugin
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 android {
+
     namespace = "com.eden.livewidget"
     compileSdk = 36
 
@@ -37,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+
     }
 }
 
@@ -68,4 +77,10 @@ dependencies {
     implementation(libs.squareup.retrofit2.retrofit)
     implementation(libs.squareup.retrofit2.converter.gson)
     implementation(libs.me.xdrop.fuzzywuzzy)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.sqlite.bundled)
+    androidTestImplementation(libs.androidx.room.testing)
+    implementation(libs.requery.sqlite.android)
+    ksp(libs.androidx.room.compiler)
+    annotationProcessor(libs.androidx.room.compiler)
 }

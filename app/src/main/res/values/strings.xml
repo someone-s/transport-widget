@@ -3,4 +3,9 @@
     <string name="live_point_widget_description">Widget to display live transport data at stop</string>
     <string name="live_point_widget_configuration_activity_label">Configure widget</string>
     <string name="app_main_activity">Main entry point of application</string>
+
+    <string name="data_sync_notification_channel_id">Data Sync Worker</string>
+    <string name="data_sync_notification_channel_name">Data Sync</string>
+    <string name="data_sync_notification_title">Updating Database</string>
+    <string name="data_sync_notification_cancel">Cancel</string>
 </resources>

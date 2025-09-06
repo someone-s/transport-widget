@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.eden.livewidget.data.points.PointsRepository
@@ -40,13 +41,14 @@ import kotlinx.coroutines.launch
 fun ConfiguratorSelectProviderScreen(
     navController: NavController
 ) {
+    val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
     // Controls expansion state of the search bar
     val textFieldState = rememberTextFieldState()
 
     val apiProvider = remember { mutableStateOf(Provider.TFL) }
-    val repository = remember(key1 = apiProvider) { PointsRepository.getInstance(apiProvider.value) }
+    val repository = remember(key1 = apiProvider) { PointsRepository.getInstance(context, apiProvider.value) }
     val matchingPoints by repository.matchingPoints.collectAsState()
 
     Box(
@@ -61,7 +63,7 @@ fun ConfiguratorSelectProviderScreen(
                         textFieldState.edit { replace(0, length, it) }
                         coroutineScope.launch {
                             val repository =
-                                PointsRepository.getInstance(apiProvider.value)
+                                PointsRepository.getInstance(context, apiProvider.value)
                             repository.fetchMatching(it)
                         }
                     },

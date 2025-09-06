@@ -1,5 +1,6 @@
 package com.eden.livewidget.ui.configuration
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
@@ -50,6 +52,7 @@ fun ConfiguratorSelectPointScreen(
     navController: NavHostController,
     createWidget: (apiProvider: Provider, apiValue: String, displayName: String) -> Unit,
 ) {
+    val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
     // Controls expansion state of the search bar
@@ -57,17 +60,8 @@ fun ConfiguratorSelectPointScreen(
 
     val apiProvider = remember { mutableStateOf(Provider.TFL) }
     val repository =
-        remember(key1 = apiProvider) { PointsRepository.getInstance(apiProvider.value) }
+        remember(key1 = apiProvider) { PointsRepository.getInstance(context, apiProvider.value) }
     val matchingPoints by repository.matchingPoints.collectAsState()
-
-//    val matchingPoints = listOf(
-//        PointModel("adsdafas", Provider.TFL, "sfasdfsafd", "asdfasdfdsa"),
-//        PointModel("adsdafas", Provider.TFL, "sfasdfsafd"),
-//        PointModel("adsdafas", Provider.TFL, "sfasdfsafd"),
-//        PointModel("adsdafas", Provider.TFL, "sfasdfsafd"),
-//        PointModel("adsdafas", Provider.TFL, "sfasdfsafd"),
-//        PointModel("adsdafas", Provider.TFL, "sfasdfsafd"),
-//    )
 
     Scaffold(
         modifier = Modifier
@@ -80,26 +74,27 @@ fun ConfiguratorSelectPointScreen(
                     CustomizableSearchBar(
                         onQueryChange = {
                             textFieldState.edit { replace(0, length, it) }
-//                            coroutineScope.launch {
-//                                val repository =
-//                                    PointsRepository.getInstance(apiProvider.value)
-//                                repository.fetchMatching(it)
-//                            }
+                            coroutineScope.launch {
+                                val repository =
+                                    PointsRepository.getInstance(context, apiProvider.value)
+                                repository.fetchMatching(it)
+                            }
                         },
                         query = textFieldState.text.toString(),
                         onSearch = {
                             coroutineScope.launch {
                                 val repository =
-                                    PointsRepository.getInstance(apiProvider.value)
+                                    PointsRepository.getInstance(context, apiProvider.value)
                                 repository.fetchMatching(it)
                             }
                         },
                         searchResults = matchingPoints.map { points -> points.name },
                         onResultClick = { index, _ ->
+                            Log.i("AAAAA", "BBBBBB")
                             if (index >= matchingPoints.size)
                                 return@CustomizableSearchBar
-                            if (matchingPoints[index].context == null)
-                                return@CustomizableSearchBar
+                            Log.i("AAAAA", "TTTTTT")
+                            Log.i("AAAAA", "CCCCCCCCC")
 
                             createWidget(matchingPoints[index].apiProvider, matchingPoints[index].apiValue, matchingPoints[index].name)
                         },

@@ -1,9 +1,12 @@
 package com.eden.livewidget.data.points
 
+import android.content.Context
 import com.eden.livewidget.data.utils.Provider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class PointsRepository(
     private val pointsDataSource: PointsDataSource,
@@ -11,19 +14,44 @@ class PointsRepository(
     private val matchingPointsMutable = MutableStateFlow(emptyList<PointModel>())
     val matchingPoints = matchingPointsMutable.asStateFlow()
 
+    private val mutex = Mutex()
+    private var queued: String? = null
+    private var fetching = false
     suspend fun fetchMatching(input: String) {
+        mutex.withLock {
+            if (fetching) {
+                queued = input
+                return
+            }
+            fetching = true
+        }
         matchingPointsMutable.update { pointsDataSource.fetchMatching(input) }
 
+        var queuedCopy: String?
+        mutex.withLock {
+            fetching = false
+            queuedCopy = queued
+            queued = null
+        }
+
+        // Probably race condition, but not significant
+        if (queuedCopy != null)
+            fetchMatching(queuedCopy)
+    }
+
+    suspend fun refresh(statusUpdate: (status: String) -> Unit) {
+        pointsDataSource.refresh(statusUpdate)
     }
 
     companion object {
         private var instances: MutableMap<Provider, PointsRepository> = mutableMapOf()
 
-        fun getInstance(apiProvider: Provider): PointsRepository {
+        fun getInstance(context: Context, apiProvider: Provider): PointsRepository {
             if (!instances.contains(apiProvider))
                 instances[apiProvider] = PointsRepository(
-                    apiProvider.pointsDataSourceConstructor()
+                    apiProvider.pointsDataSourceConstructor(context)
                 )
+
 
             return instances[apiProvider] as PointsRepository
         }
@@ -32,4 +60,5 @@ class PointsRepository(
 
 interface PointsDataSource {
     suspend fun fetchMatching(input: String): List<PointModel>
+    suspend fun refresh(statusUpdate: (status: String) -> Unit)
 }

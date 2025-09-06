@@ -1,7 +1,9 @@
 package com.eden.livewidget.data.utils
 
+import android.content.Context
 import com.eden.livewidget.data.arrivals.ArrivalsApi
 import com.eden.livewidget.data.arrivals.api.ArrivalsTflApi
+import com.eden.livewidget.data.points.PointsCacheDatabase
 import com.eden.livewidget.data.points.PointsDataSource
 import com.eden.livewidget.data.points.PointsRemoteDataSource
 import com.eden.livewidget.data.points.remoteapi.PointsRemoteTflApi
@@ -9,13 +11,15 @@ import kotlinx.coroutines.Dispatchers
 
 
 enum class Provider(
-    val pointsDataSourceConstructor: () -> PointsDataSource,
+    val pointsDataSourceConstructor: (context: Context) -> PointsDataSource,
     val arrivalsApiConstructor: (apiValue: String) -> ArrivalsApi,
 ) {
     TFL(
-        pointsDataSourceConstructor = {
+        pointsDataSourceConstructor = { context ->
             PointsRemoteDataSource(
                 PointsRemoteTflApi(),
+                TFL,
+                PointsCacheDatabase.getInstance(context, TFL),
                 Dispatchers.IO
             )
         },
