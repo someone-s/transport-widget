@@ -20,4 +20,6 @@
     <string name="widget_update_worker_notification_title">Updating Widget</string>
     <string name="configure_point_screen_search_bar_placeholder">Search for a stop</string>
     <string name="configure_point_screen_location_icon_description">Location Icon</string>
+    <string name="data_sync_worker_begin_progress_text">Starting data download</string>
+    <string name="provider_tfl_api_fetch_status_update_text">Fetching page %1$d to %2$d</string>
 </resources>

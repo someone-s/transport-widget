@@ -39,8 +39,8 @@ class PointsRepository(
             fetchMatching(queuedCopy)
     }
 
-    suspend fun refresh(statusUpdate: (status: String) -> Unit) {
-        pointsDataSource.refresh(statusUpdate)
+    suspend fun refresh(context: Context, statusUpdate: (status: String) -> Unit) {
+        pointsDataSource.refresh(context, statusUpdate)
     }
 
 
@@ -65,6 +65,6 @@ class PointsRepository(
 
 interface PointsDataSource {
     suspend fun fetchMatching(input: String): List<PointModel>
-    suspend fun refresh(statusUpdate: (status: String) -> Unit)
+    suspend fun refresh(context: Context, statusUpdate: (String) -> Unit)
     fun reset(context: Context)
 }

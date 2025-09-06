@@ -2,6 +2,7 @@ package com.eden.livewidget.data.points
 
 import android.content.Context
 import android.util.Log
+import com.eden.livewidget.R
 import com.eden.livewidget.data.utils.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
@@ -23,7 +24,7 @@ class PointsRemoteDataSource(
         pointsDao = PointsCacheDatabase.getInstance(context, apiProvider).pointDao()
     }
 
-    override suspend fun refresh(statusUpdate: (status: String) -> Unit) {
+    override suspend fun refresh(context: Context, statusUpdate: (status: String) -> Unit) {
         // Move the execution to an IO-optimized thread since the ApiService
         // doesn't support coroutines and makes synchronous requests.
 
@@ -45,7 +46,12 @@ class PointsRemoteDataSource(
                     }
                 }
 
-                statusUpdate("Fetching page ${pageSet * pageBatch} to ${pageSet * pageBatch + pageBatch - 1}")
+                statusUpdate(
+                    context.getString(
+                        R.string.provider_tfl_api_fetch_status_update_text,
+                        pageSet * pageBatch,
+                        pageSet * pageBatch + pageBatch - 1
+                    ))
             }
 
             if (hasEmpty)

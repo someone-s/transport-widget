@@ -77,7 +77,7 @@ class DataSyncWorker(
             ?: return Result.failure()
 
         // Mark the Worker as important
-        val progress = "Starting data download"
+        val progress = context.getString(R.string.data_sync_worker_begin_progress_text)
         setForeground(createForegroundInfo(progress))
 
         download(provider)
@@ -90,7 +90,7 @@ class DataSyncWorker(
         // Calls setForeground() periodically when it needs to update
         // the ongoing Notification
         val repository = PointsRepository.Companion.getInstance(context, provider)
-        repository.refresh { status ->
+        repository.refresh(context) { status ->
             setForegroundAsync(createForegroundInfo(status))
         }
 
@@ -146,6 +146,6 @@ class DataSyncWorker(
 
     // Needed for pre android 12
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        return createForegroundInfo("Fetching Points Data")
+        return createForegroundInfo(context.getString(R.string.data_sync_worker_begin_progress_text))
     }
 }
