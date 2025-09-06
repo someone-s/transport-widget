@@ -45,7 +45,6 @@ import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.main.DataSyncWorker
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 
 // context nullable for preview only
 @Composable
@@ -68,20 +67,7 @@ fun DataSyncSourceContainer(
     context: Context?, agency: Agency
 ) {
 
-    val flow =
-        if (context != null)
-            DataSyncWorker.getWorkInfoFlow(context, agency.apiProvider)
-                .map { workInfos ->
-                    if (workInfos.isEmpty()) return@map false
-
-                    for (info in workInfos) {
-                        if (!info.state.isFinished)
-                            return@map true
-                    }
-                    return@map false
-                }
-        else
-            flow { }
+    val flow = if (context != null) DataSyncWorker.getIsActiveFlow(context, agency.apiProvider) else flow { }
     val fetching by flow.collectAsState(false)
 
     Surface(

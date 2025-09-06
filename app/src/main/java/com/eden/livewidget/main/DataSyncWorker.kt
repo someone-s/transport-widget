@@ -23,6 +23,7 @@ import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.data.providerToString
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.UUID
 
 class DataSyncWorker(
@@ -41,6 +42,19 @@ class DataSyncWorker(
 
             return WorkManager.Companion.getInstance(context)
                 .getWorkInfosForUniqueWorkFlow(getUniqueWorkName(provider))
+        }
+
+        fun getIsActiveFlow(context: Context, provider: Provider): Flow<Boolean>  {
+            return getWorkInfoFlow(context, provider)
+                .map { workInfos ->
+                    if (workInfos.isEmpty()) return@map false
+
+                    for (info in workInfos) {
+                        if (!info.state.isFinished)
+                            return@map true
+                    }
+                    return@map false
+                }
         }
 
         fun cancelCurrentRequest(context: Context, provider: Provider) {
