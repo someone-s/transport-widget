@@ -15,7 +15,7 @@
     <string name="widget_configure_prompt_text">Configure widget by long pressing widget</string>
     <string name="widget_arrival_imminent_text">Arriving</string>
     <string name="widget_arrival_minute_text">%1$d Mins</string>
-    <string name="widget_start_tracking_prompt_text">Paused, press to start tracking</string>
+    <string name="widget_start_tracking_prompt_text">Paused, Press to start tracking</string>
     <string name="widget_create_worker_notification_title">Configuring Widget</string>
     <string name="widget_update_worker_notification_title">Updating Widget</string>
     <string name="configure_point_screen_search_bar_placeholder">Search for a stop</string>
@@ -31,6 +31,6 @@
     <string name="configure_battery_prompt_explain_title">Battery Optimization</string>
     <string name="configure_battery_prompt_explain_body">To reliably fetch live departure information, the app and it\'s widgets need to operate with unrestricted background usage. Disabling battery optimization for this app is optional but highly recommended.</string>
     <string name="widget_mock_content_title">Station/Stop</string>
-    <string name="widget_start_tracking_error_text">Failed to fetch data, press to retry</string>
-    <string name="widget_start_tracking_battery_text">Failed to fetch data, possibly due to battery saving, press to retry</string>
+    <string name="widget_start_tracking_error_text">Failed to fetch data. Press to retry</string>
+    <string name="widget_start_tracking_battery_text">Failed to fetch data, possibly due to battery saving, consider giving the app unrestricted battery usage. Press to retry</string>
 </resources>
