@@ -45,6 +45,7 @@ import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.main.MainActivity
 import java.util.Calendar
 
@@ -55,7 +56,11 @@ class LivePointWidget : GlanceAppWidget() {
         val API_PROVIDER_KEY = stringPreferencesKey("apiProvider")
         val API_VALUE_KEY = stringPreferencesKey("apiValue")
         val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
+        val INACTIVE_TEXT_OPTION_KEY = stringPreferencesKey("inactiveText")
 
+        const val INACTIVE_TEXT_OPTION_ERROR = "error"
+        const val INACTIVE_TEXT_OPTION_BATTERY = "battery"
+        const val INACTIVE_TEXT_OPTION_NORMAL =  "normal"
 
 
     }
@@ -76,8 +81,8 @@ class LivePointWidget : GlanceAppWidget() {
 
                 var apiProvider: Provider
                 try {
-                    apiProvider = Provider.valueOf(apiProviderString)
-                } catch (_: IllegalArgumentException) {
+                    apiProvider = providerFromString(apiProviderString) as Provider
+                } catch (_: Exception) {
                     PlaceholderContent()
                     return@GlanceTheme
                 }
@@ -94,7 +99,15 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
-                MyContent(context, id, apiProvider, apiValue, displayName)
+                val inactiveTextOption = currentState(INACTIVE_TEXT_OPTION_KEY)
+                val inactiveText = when (inactiveTextOption) {
+                    INACTIVE_TEXT_OPTION_ERROR -> LocalContext.current.getString(R.string.widget_start_tracking_error_text)
+                    INACTIVE_TEXT_OPTION_BATTERY -> LocalContext.current.getString(R.string.widget_start_tracking_battery_text)
+                    else ->LocalContext.current.getString(R.string.widget_start_tracking_prompt_text)
+                }
+
+
+                MyContent(context, id, apiProvider, apiValue, displayName, inactiveText)
             }
         }
     }
@@ -145,6 +158,7 @@ class LivePointWidget : GlanceAppWidget() {
         apiProvider: Provider,
         apiValue: String,
         displayName: String,
+        inactiveText: String,
     ) {
 
         val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
@@ -198,7 +212,7 @@ class LivePointWidget : GlanceAppWidget() {
             if (isActive)
                 ActiveList(apiProvider, apiValue)
             else
-                DisableBlock()
+                DisableBlock(inactiveText)
         }
 
     }
@@ -243,7 +257,7 @@ class LivePointWidget : GlanceAppWidget() {
                 }
             }
         ) {
-            DisableBlock()
+            DisableBlock(LocalContext.current.getString(R.string.widget_start_tracking_prompt_text))
         }
 
     }
@@ -316,7 +330,7 @@ class LivePointWidget : GlanceAppWidget() {
     }
 
     @Composable
-    fun DisableBlock() {
+    fun DisableBlock(inactiveText: String) {
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -334,13 +348,13 @@ class LivePointWidget : GlanceAppWidget() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = LocalContext.current.getString(R.string.widget_start_tracking_prompt_text),
+                    text = inactiveText,
                     style = TextStyle(
                         color = GlanceTheme.colors.onPrimaryContainer,
                         fontWeight = FontWeight.Normal,
                         fontSize = 20.sp,
+                        textAlign = TextAlign.Center
                     ),
-                    maxLines = 1
                 )
             }
         }

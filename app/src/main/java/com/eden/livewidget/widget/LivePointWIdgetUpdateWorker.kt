@@ -4,12 +4,16 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Context.POWER_SERVICE
 import android.os.Build
+import android.os.PowerManager
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.work.CoroutineWorker
 import androidx.work.Data
@@ -25,15 +29,13 @@ import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.providerFromString
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.sync.Mutex
-import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 class LivePointWidgetUpdateWorker(
     val context: Context,
-    val params: WorkerParameters,
+    params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -41,11 +43,6 @@ class LivePointWidgetUpdateWorker(
         const val REMAINING_TIMES = "remainingTimes"
         const val NOTIFICATION_ID = 50001
         const val NOTIFICATION_CHANNEL_ID = "Widget Worker"
-
-        private val mutex = Mutex()
-
-        private val currentRequestIds = mutableMapOf<Int, UUID>()
-
 
 
         private fun getUniqueWorkName(appWidgetId: Int) =
@@ -111,7 +108,6 @@ class LivePointWidgetUpdateWorker(
             setForeground(getForegroundInfo())
 
 
-
         val appWidgetId = inputData.getInt(APP_WIDGET_ID, -1)
 
 
@@ -126,11 +122,15 @@ class LivePointWidgetUpdateWorker(
         val remainingTimes = inputData.getInt(REMAINING_TIMES, -1)
 
         if (remainingTimes < 0) {
+
+            updateAppWidgetState(context, glanceId) { preferences ->
+                preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
+                    LivePointWidget.INACTIVE_TEXT_OPTION_NORMAL
+            }
+
             // update one more cycle then end
             updater.update(context, glanceId)
-        }
-        else {
-
+        } else {
 
             // PreferencesGlanceStateDefinition is the default state definition used
             val preferences = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
@@ -143,9 +143,41 @@ class LivePointWidgetUpdateWorker(
             if (apiValue == null)
                 return Result.failure()
 
-            // Update data source
-            val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
-            repository.fetchLatestArrival()
+            try {
+                // Update data source
+                val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
+                repository.fetchLatestArrival()
+            } catch (e: Exception) {
+                Log.e(javaClass.name, e.message ?: "Failed with no message", e)
+
+                val powerService = context.getSystemService(POWER_SERVICE)
+                if (powerService == null)
+                    updateAppWidgetState(context, glanceId) { preferences ->
+                        preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
+                            LivePointWidget.INACTIVE_TEXT_OPTION_ERROR
+                    }
+                else {
+                    val powerManager = powerService as PowerManager
+                    if (powerManager.isIgnoringBatteryOptimizations(context.packageName))
+                        updateAppWidgetState(context, glanceId) { preferences ->
+                            preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
+                                LivePointWidget.INACTIVE_TEXT_OPTION_ERROR
+                        }
+                    else
+                        updateAppWidgetState(context, glanceId) { preferences ->
+                            preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
+                                LivePointWidget.INACTIVE_TEXT_OPTION_BATTERY
+                        }
+                }
+                updater.update(context, glanceId)
+
+                return Result.failure()
+            }
+
+            updateAppWidgetState(context, glanceId) { preferences ->
+                preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
+                    LivePointWidget.INACTIVE_TEXT_OPTION_NORMAL
+            }
 
             updater.update(context, glanceId)
 
@@ -156,7 +188,7 @@ class LivePointWidgetUpdateWorker(
         return Result.success()
     }
 
-    private fun createNotification() : Notification {
+    private fun createNotification(): Notification {
 
         // Create a Notification channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

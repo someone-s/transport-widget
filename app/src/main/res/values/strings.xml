@@ -31,4 +31,6 @@
     <string name="configure_battery_prompt_explain_title">Battery Optimization</string>
     <string name="configure_battery_prompt_explain_body">To reliably fetch live departure information, the app and it\'s widgets need to operate with unrestricted background usage. Disabling battery optimization for this app is optional but highly recommended.</string>
     <string name="widget_mock_content_title">Station/Stop</string>
+    <string name="widget_start_tracking_error_text">Failed to fetch data, press to retry</string>
+    <string name="widget_start_tracking_battery_text">Failed to fetch data, possibly due to battery saving, press to retry</string>
 </resources>
