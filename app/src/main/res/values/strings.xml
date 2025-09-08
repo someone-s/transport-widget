@@ -25,4 +25,9 @@
     <string name="agency_tfl_about_short">London\'s transport authority</string>
     <string name="configure_provider_screen_search_bar_placeholder">Search for an agency</string>
     <string name="configure_points_screen_Instruction_text">Use the search bar to find a stop</string>
+    <string name="configure_battery_prompt_confirm_text">Open Settings</string>
+    <string name="configure_battery_prompt_icon_description">Battery Icon</string>
+    <string name="configure_battery_prompt_dismiss_text">Dismiss</string>
+    <string name="configure_battery_prompt_explain_title">Battery Optimization</string>
+    <string name="configure_battery_prompt_explain_body">To reliably fetch live departure information, the app and it\'s widgets need to operate with unrestricted background usage. Disabling battery optimization for this app is optional but highly recommended.</string>
 </resources>

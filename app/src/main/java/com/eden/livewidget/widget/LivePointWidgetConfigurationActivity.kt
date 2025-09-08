@@ -8,6 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
@@ -17,6 +20,7 @@ import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.providerToString
 import com.eden.livewidget.widget.ui.ConfiguratorContent
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
+import com.eden.livewidget.widget.ui.ConfigurationBatteryPrompt
 
 class LivePointWidgetConfigurationActivity: ComponentActivity()  {
 
@@ -36,7 +40,11 @@ class LivePointWidgetConfigurationActivity: ComponentActivity()  {
             TransportWidgetsTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     ConfiguratorContent({ apiProvider, apiValue, displayName -> createWidget(appWidgetId, apiProvider, apiValue, displayName) })
+
+                    val (visible, setVisible) = remember { mutableStateOf(true) }
+                    if (visible) ConfigurationBatteryPrompt(this, setVisible)
                 }
+
             }
         }
     }
