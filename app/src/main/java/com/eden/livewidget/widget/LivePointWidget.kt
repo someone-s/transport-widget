@@ -56,6 +56,8 @@ class LivePointWidget : GlanceAppWidget() {
         val API_VALUE_KEY = stringPreferencesKey("apiValue")
         val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
 
+
+
     }
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -94,6 +96,13 @@ class LivePointWidget : GlanceAppWidget() {
 
                 MyContent(context, id, apiProvider, apiValue, displayName)
             }
+        }
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+
+        provideContent {
+            MockContent()
         }
     }
 
@@ -194,6 +203,50 @@ class LivePointWidget : GlanceAppWidget() {
 
     }
 
+    @Composable
+    private fun MockContent() {
+
+
+        Scaffold(
+            backgroundColor = GlanceTheme.colors.widgetBackground,
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .clickable(
+                    onClick = actionStartActivity<MainActivity>()
+                )
+            ,
+            horizontalPadding = 16.dp,
+            titleBar = {
+                Row(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = 16.dp,
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 8.dp
+                        ),
+                    horizontalAlignment = Alignment.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = GlanceModifier
+                            .defaultWeight(),
+                        text = LocalContext.current.getString(R.string.widget_mock_content_title),
+                        style = TextStyle(
+                            color = GlanceTheme.colors.onBackground,
+                            fontSize = 25.sp,
+                        ),
+
+                        maxLines = 1
+                    )
+                }
+            }
+        ) {
+            DisableBlock()
+        }
+
+    }
     @Composable
     fun ActiveList(apiProvider: Provider, apiValue: String) {
         val repository = remember { ArrivalsRepository.getInstance(apiProvider, apiValue) }
