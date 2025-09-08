@@ -8,6 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import kotlin.math.max
 
 //private data class ArrivalTiming(
 //    val countdownServerAdjustment: String,
@@ -85,7 +86,7 @@ class ArrivalsTflApi(
                 Log.i("ARRIVAL-INFO", entry.timeToStation.toString())
                 ArrivalModel(
                     entry.lineName,
-                    entry.timeToStation
+                    max(0, entry.timeToStation - 60)
                 )
             }
             .sortedBy { model -> model.remainingS }
