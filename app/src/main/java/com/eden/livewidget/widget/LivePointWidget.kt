@@ -1,6 +1,7 @@
 package com.eden.livewidget.widget
 
 import android.content.Context
+import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -11,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionStartActivity
@@ -19,6 +21,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.components.Scaffold
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -43,6 +46,7 @@ import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.main.MainActivity
+import java.util.Calendar
 
 class LivePointWidget : GlanceAppWidget() {
 
@@ -126,7 +130,13 @@ class LivePointWidget : GlanceAppWidget() {
 
 
     @Composable
-    private fun MyContent(context: Context, glanceId: GlanceId, apiProvider: Provider, apiValue: String, displayName: String) {
+    private fun MyContent(
+        context: Context,
+        glanceId: GlanceId,
+        apiProvider: Provider,
+        apiValue: String,
+        displayName: String,
+    ) {
 
         val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
 
@@ -139,7 +149,8 @@ class LivePointWidget : GlanceAppWidget() {
                 .fillMaxSize()
                 .clickable(
                     onClick = actionStartActivity<MainActivity>()
-                ),
+                )
+            ,
             horizontalPadding = 16.dp,
             titleBar = {
                 Row(
@@ -151,18 +162,27 @@ class LivePointWidget : GlanceAppWidget() {
                             end = 16.dp,
                             bottom = 8.dp
                         ),
+                    horizontalAlignment = Alignment.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        modifier = GlanceModifier,
+                        modifier = GlanceModifier
+                            .defaultWeight(),
                         text = displayName,
                         style = TextStyle(
-                            color = GlanceTheme.colors.onPrimaryContainer,
+                            color = GlanceTheme.colors.onBackground,
                             fontSize = 25.sp,
                         ),
 
                         maxLines = 1
                     )
+
+                    if (isActive)
+                        FilledButton(
+                            icon = ImageProvider(R.drawable.ic_widget_refresh),
+                            text = DateFormat.getTimeFormat(context).format(Calendar.getInstance().time),
+                            onClick = actionRunCallback<RefreshLivePointWidgetCallback>(),
+                        )
                 }
             }
         ) {
@@ -238,6 +258,8 @@ class LivePointWidget : GlanceAppWidget() {
                 Spacer(modifier = GlanceModifier.height(16.dp))
             }
         }
+
+
     }
 
     @Composable
