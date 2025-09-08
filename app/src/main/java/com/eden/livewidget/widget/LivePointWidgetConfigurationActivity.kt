@@ -3,6 +3,7 @@ package com.eden.livewidget.widget
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
+import android.os.PowerManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -34,13 +35,28 @@ class LivePointWidgetConfigurationActivity: ComponentActivity()  {
         val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         setResult(RESULT_CANCELED, resultValue)
 
+
         enableEdgeToEdge()
         setContent {
             TransportWidgetsTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     ConfiguratorContent({ apiProvider, apiValue, displayName -> createWidget(appWidgetId, apiProvider, apiValue, displayName) })
 
-                    val (visible, setVisible) = remember { mutableStateOf(true) }
+                    val (visible, setVisible) = remember {
+
+                        var initialState: Boolean
+                        val powerService = getSystemService(POWER_SERVICE)
+                        if (powerService == null)
+                            initialState = false
+                        else {
+                            val powerManager = powerService as PowerManager
+                            if (powerManager.isIgnoringBatteryOptimizations(packageName))
+                                initialState = false
+                            else
+                                initialState = true
+                        }
+                        mutableStateOf(initialState)
+                    }
                     if (visible) ConfigurationBatteryPrompt(this, setVisible)
                 }
 
