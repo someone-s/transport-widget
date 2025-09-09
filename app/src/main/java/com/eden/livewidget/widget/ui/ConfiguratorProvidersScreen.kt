@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +53,7 @@ fun ConfiguratorSelectProviderScreen(
     val agencyLookup: Map<String, Agency> =
         Agency.entries.associateBy { agency -> stringResource(agency.agencyName) }
 
-    var topAgencyMatch = remember { listOf<String>() }
+    val (topAgencyMatch, setTopAgencyMatch) = remember { mutableStateOf(listOf<String>()) }
 
 
 
@@ -66,7 +67,7 @@ fun ConfiguratorSelectProviderScreen(
                     onQueryChange = {
                         textFieldState.edit { replace(0, length, it) }
                         val results = FuzzySearch.extractTop(it, agencyLookup.keys, 10)
-                        topAgencyMatch = results.map { result -> result.string }
+                        setTopAgencyMatch(results.map { result -> result.string })
                     },
                     query = textFieldState.text.toString(),
                     onSearch = { },
