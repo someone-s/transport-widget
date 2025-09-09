@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -51,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -59,6 +61,8 @@ import com.eden.livewidget.R
 import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.main.DataSyncWorker
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
+import com.eden.livewidget.widget.LivePointWidget
+import com.eden.livewidget.widget.LivePointWidgetReceiver
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import me.xdrop.fuzzywuzzy.FuzzySearch
@@ -125,13 +129,43 @@ fun DataSyncScreen(context: Context?) {
                 )
                 Spacer(Modifier.height(8.dp))
             }
+            item { Spacer(Modifier.height(64.dp)) }
         }
     }
 
+    PlaceWidgetButton(context)
     if (downloadWarningState)
         DownloadWarningDialog(setDownloadWarningState, currentDownloadAction)
     if (resetWarningState)
         ResetWarningDialog(setResetWarningState, currentResetAction)
+}
+
+@Composable
+private fun PlaceWidgetButton(context: Context?) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        val coroutineScope = rememberCoroutineScope()
+
+        ExtendedFloatingActionButton(
+            text = { Text(stringResource(R.string.data_sync_place_widget_text)) },
+            icon = { Icon(painterResource(R.drawable.ic_data_sync_place_widget_icon),
+                stringResource(R.string.data_sync_place_widget_icon_description)
+            ) },
+            onClick = {
+                coroutineScope.launch {
+                    if (context == null) return@launch
+                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
+                        receiver = LivePointWidgetReceiver::class.java,
+                        preview = LivePointWidget(),
+                    )
+                }
+            },
+            modifier = Modifier.padding(16.dp)
+        )
+
+    }
 }
 
 @Composable

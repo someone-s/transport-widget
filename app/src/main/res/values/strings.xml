@@ -58,4 +58,6 @@
     <string name="about_user_interface_url">https://developer.android.com/compose</string>
     <string name="about_caching_url">https://github.com/xdrop/fuzzywuzzy</string>
     <string name="about_source_code_url">https://github.com/someone-s/transport-widget</string>
+    <string name="data_sync_place_widget_text">Place Widget</string>
+    <string name="data_sync_place_widget_icon_description">Add Icon</string>
 </resources>
