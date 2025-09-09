@@ -33,4 +33,14 @@
     <string name="widget_mock_content_title">Station/Stop</string>
     <string name="widget_start_tracking_error_text">Failed to fetch data. Press to retry</string>
     <string name="widget_start_tracking_battery_text">Failed to fetch data, possibly due to battery saving, consider giving the app unrestricted battery usage. Press to retry</string>
+    <string name="data_sync_download_warning_dialog_body">If performed, the app will fetch all stop point information from the selected service provider. This may take up to 10 minutes, and can corrupt the stored stop information from the provider.\n\nIf the data is corrupted, please use the refresh button to restore to the dataset distributed as part of the app.</string>
+    <string name="data_sync_download_warning_dialog_title">Download all stops</string>
+    <string name="data_sync_download_warning_dialog_icon_description">Download Icon</string>
+    <string name="data_sync_download_warning_dialog_cancel">Cancel</string>
+    <string name="data_sync_download_warning_dialog_confirm">Continue</string>
+    <string name="data_sync_reset_warning_dialog_confirm">Confirm</string>
+    <string name="data_sync_reset_warning_dialog_cancel">Cancel</string>
+    <string name="data_sync_reset_warning_dialog_icon_description">Reset Icon</string>
+    <string name="data_sync_reset_warning_title">Reset all stops</string>
+    <string name="data_sync_reset_warning_body">If confirmed, the app will restore its list of stops for the selected provider to the one packaged with the app.</string>
 </resources>

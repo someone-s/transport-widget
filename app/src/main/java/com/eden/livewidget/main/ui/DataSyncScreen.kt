@@ -2,6 +2,7 @@ package com.eden.livewidget.main.ui
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -24,9 +27,12 @@ import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -50,21 +56,115 @@ import kotlinx.coroutines.flow.flow
 @Composable
 fun DataSyncScreen(context: Context?) {
 
+    val (currentDownloadAction, setCurrentDownloadAction) = remember { mutableStateOf<(() -> Unit)?>(null) }
+    val (downloadWarningState, setDownloadWarningState) = remember { mutableStateOf(false) }
+
+    val (currentResetAction, setCurrentResetAction) = remember { mutableStateOf<(() -> Unit)?>(null) }
+    val (resetWarningState, setResetWarningState) = remember { mutableStateOf(false) }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
         items(Agency.entries) { agency ->
             DataSyncSourceContainer(
-                context, agency
+                context, agency,
+                setCurrentDownloadAction, setDownloadWarningState,
+                setCurrentResetAction, setResetWarningState
             )
         }
     }
+
+    if (downloadWarningState)
+    DownloadWarningDialog(setDownloadWarningState, currentDownloadAction)
+    if (resetWarningState)
+    ResetWarningDialog(setResetWarningState, currentResetAction)
+}
+
+@Composable
+private fun DownloadWarningDialog(
+    setDownloadWarningState: (Boolean) -> Unit,
+    currentDownloadAction: (() -> Unit)?,
+) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            AlertDialog(
+                onDismissRequest = {
+                    setDownloadWarningState(false)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            if (currentDownloadAction != null)
+                                currentDownloadAction()
+                            setDownloadWarningState(false)
+                        }
+                    ) { Text(stringResource(R.string.data_sync_download_warning_dialog_confirm)) }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        setDownloadWarningState(false)
+                    }) { Text(stringResource(R.string.data_sync_download_warning_dialog_cancel)) }
+                },
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.ic_data_sync_download),
+                        stringResource(R.string.data_sync_download_warning_dialog_icon_description)
+                    )
+                },
+                title = { Text(stringResource(R.string.data_sync_download_warning_dialog_title)) },
+                text = { Text(stringResource(R.string.data_sync_download_warning_dialog_body)) }
+            )
+        }
+}
+
+
+@Composable
+private fun ResetWarningDialog(
+    setResetWarningState: (Boolean) -> Unit,
+    currentResetAction: (() -> Unit)?,
+) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            AlertDialog(
+                onDismissRequest = {
+                    setResetWarningState(false)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            if (currentResetAction != null)
+                                currentResetAction()
+                            setResetWarningState(false)
+                        }
+                    ) { Text(stringResource(R.string.data_sync_reset_warning_dialog_confirm)) }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        setResetWarningState(false)
+                    }) { Text(stringResource(R.string.data_sync_reset_warning_dialog_cancel)) }
+                },
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.ic_data_sync_reset),
+                        stringResource(R.string.data_sync_reset_warning_dialog_icon_description)
+                    )
+                },
+                title = { Text(stringResource(R.string.data_sync_reset_warning_title)) },
+                text = { Text(stringResource(R.string.data_sync_reset_warning_body)) }
+            )
+        }
 }
 
 @Composable
 fun DataSyncSourceContainer(
-    context: Context?, agency: Agency
+    context: Context?, agency: Agency,
+    setCurrentDownloadAction: ((() -> Unit)?) -> Unit, setDownloadWarningState: (Boolean) -> Unit,
+    setCurrentResetAction: ((() -> Unit)?) -> Unit, setResetWarningState: (Boolean) -> Unit
 ) {
 
     val flow = if (context != null) DataSyncWorker.getIsActiveFlow(context, agency.apiProvider) else flow { }
@@ -125,7 +225,11 @@ fun DataSyncSourceContainer(
                     FilledTonalButton(
                         onClick = {
                             if (context == null) return@FilledTonalButton
-                            DataSyncWorker.schedule(context, agency.apiProvider)
+                            setCurrentDownloadAction {
+                                DataSyncWorker.schedule(context, agency.apiProvider)
+                            }
+                            setDownloadWarningState(true)
+
                         },
                     ) {
                         Text(text = stringResource(R.string.data_sync_screen_update_data_button_text))
@@ -134,8 +238,11 @@ fun DataSyncSourceContainer(
                 FilledTonalIconButton(
                     onClick = {
                         if (context == null) return@FilledTonalIconButton
-                        DataSyncWorker.cancelCurrentRequest(context, agency.apiProvider)
-                        PointsRepository.getInstance(context, agency.apiProvider).reset(context)
+                        setCurrentResetAction {
+                            DataSyncWorker.cancelCurrentRequest(context, agency.apiProvider)
+                            PointsRepository.getInstance(context, agency.apiProvider).reset(context)
+                        }
+                        setResetWarningState(true)
                     },
                     enabled = true
                 ) {
