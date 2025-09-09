@@ -3,9 +3,9 @@ package com.eden.livewidget.main.ui
 import android.content.Context
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -24,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.eden.livewidget.R
 import kotlinx.serialization.Serializable
 
 
@@ -35,7 +37,7 @@ data class TopLevelRoute<T : Any>(
 )
 
 @Serializable
-object Browse
+object Providers
 
 @Serializable
 object About
@@ -43,8 +45,8 @@ object About
 @Composable
 fun MainContent(context: Context) {
     val topLevelRoutes = listOf(
-        TopLevelRoute("Browse", Browse, Icons.Filled.Add, Icons.Outlined.Add),
-        TopLevelRoute("About", About, Icons.Filled.Settings, Icons.Outlined.Settings),
+        TopLevelRoute(stringResource(R.string.navigation_providers), Providers, Icons.Filled.Info, Icons.Outlined.Info),
+        TopLevelRoute(stringResource(R.string.navigation_about), About, Icons.Filled.Settings, Icons.Outlined.Settings),
     )
 
     val navController = rememberNavController()
@@ -90,8 +92,8 @@ fun MainContent(context: Context) {
             }
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = Browse, Modifier.padding(innerPadding)) {
-            composable<Browse> { DataSyncScreen(context) }
+        NavHost(navController, startDestination = Providers, Modifier.padding(innerPadding)) {
+            composable<Providers> { DataSyncScreen(context) }
             composable<About> { AboutContent() }
         }
     }

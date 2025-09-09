@@ -367,8 +367,8 @@ fun DataSyncScreenPreview() {
                 NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {}
             }
         ) { innerPadding ->
-            NavHost(navController, startDestination = Browse, Modifier.padding(innerPadding)) {
-                composable<Browse> { DataSyncScreen(null) }
+            NavHost(navController, startDestination = Providers, Modifier.padding(innerPadding)) {
+                composable<Providers> { DataSyncScreen(null) }
             }
         }
     }

@@ -43,4 +43,6 @@
     <string name="data_sync_reset_warning_dialog_icon_description">Reset Icon</string>
     <string name="data_sync_reset_warning_title">Reset all stops</string>
     <string name="data_sync_reset_warning_body">If confirmed, the app will restore its list of stops for the selected provider to the one packaged with the app.</string>
+    <string name="navigation_about">About</string>
+    <string name="navigation_providers">Providers</string>
 </resources>
