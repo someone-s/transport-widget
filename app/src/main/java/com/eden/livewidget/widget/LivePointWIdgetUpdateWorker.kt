@@ -29,6 +29,7 @@ import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.providerFromString
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -82,8 +83,12 @@ class LivePointWidgetUpdateWorker(
                 .setInputData(inputData)
             if (delay == null)
                 builder.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            else
-                builder.setInitialDelay(delay.toJavaDuration())
+            else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    builder.setInitialDelay(delay.toJavaDuration())
+                else
+                    builder.setInitialDelay(delay.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+            }
             val workerRequest = builder.build()
 
             WorkManager.Companion.getInstance(context).enqueueUniqueWork(
