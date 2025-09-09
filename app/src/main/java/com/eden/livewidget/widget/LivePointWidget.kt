@@ -1,6 +1,8 @@
 package com.eden.livewidget.widget
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,6 +23,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.components.Scaffold
 import androidx.glance.appwidget.cornerRadius
@@ -75,7 +78,7 @@ class LivePointWidget : GlanceAppWidget() {
             GlanceTheme {
                 val apiProviderString = currentState(API_PROVIDER_KEY)
                 if (apiProviderString == null) {
-                    PlaceholderContent()
+                    PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
 
@@ -83,19 +86,19 @@ class LivePointWidget : GlanceAppWidget() {
                 try {
                     apiProvider = providerFromString(apiProviderString) as Provider
                 } catch (_: Exception) {
-                    PlaceholderContent()
+                    PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
 
                 val apiValue = currentState(API_VALUE_KEY)
                 if (apiValue == null) {
-                    PlaceholderContent()
+                    PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
 
                 val displayName = currentState(DISPLAY_NAME_KEY)
                 if (displayName == null) {
-                    PlaceholderContent()
+                    PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
 
@@ -120,12 +123,22 @@ class LivePointWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun PlaceholderContent() {
+    private fun PlaceholderContent(context: Context, id: GlanceId) {
+
+        val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
+
+        val configureIntent = Intent(
+            context,
+            LivePointWidgetConfigurationActivity::class.java)
+            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
 
         Scaffold(
             backgroundColor = GlanceTheme.colors.widgetBackground,
             modifier = GlanceModifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .clickable(
+                    onClick = actionStartActivity(intent = configureIntent)
+                ),
 
             ) {
             Box(
