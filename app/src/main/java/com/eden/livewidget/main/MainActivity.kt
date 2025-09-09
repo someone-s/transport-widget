@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TransportWidgetsTheme {
                 Surface(modifier = Modifier.Companion.fillMaxSize()) {
-                    MainContent(this.application)
+                    MainContent(this.application, this)
                 }
             }
         }

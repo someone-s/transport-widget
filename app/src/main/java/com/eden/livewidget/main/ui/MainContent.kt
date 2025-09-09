@@ -43,7 +43,7 @@ object Providers
 object About
 
 @Composable
-fun MainContent(context: Context) {
+fun MainContent(applicationContext: Context, activityContext: Context) {
     val topLevelRoutes = listOf(
         TopLevelRoute(stringResource(R.string.navigation_providers), Providers, Icons.Filled.Info, Icons.Outlined.Info),
         TopLevelRoute(stringResource(R.string.navigation_about), About, Icons.Filled.Settings, Icons.Outlined.Settings),
@@ -93,16 +93,9 @@ fun MainContent(context: Context) {
         }
     ) { innerPadding ->
         NavHost(navController, startDestination = Providers, Modifier.padding(innerPadding)) {
-            composable<Providers> { DataSyncScreen(context) }
-            composable<About> { AboutContent() }
+            composable<Providers> { DataSyncScreen(applicationContext) }
+            composable<About> { AboutScreen(activityContext) }
         }
     }
-
-}
-
-
-
-@Composable
-fun AboutContent() {
 
 }
