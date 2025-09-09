@@ -58,48 +58,48 @@ fun AboutScreen(context: Context?) {
         }
 
         AboutPanel(
-            "Data Source",
-            "Made possible with open data provided by transit agencies."
+            stringResource(R.string.about_data_source_title),
+            stringResource(R.string.about_data_source_body)
         ) {
             if (context == null) return@AboutPanel
 
-            val uri = "https://findtransportdata.dft.gov.uk/browse".toUri()
+            val uri = context.getString(R.string.about_data_source_url).toUri()
             val intent = Intent(Intent.ACTION_VIEW, uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
 
         AboutPanel(
-            "User Interface",
-            "Jetpack Compose and Jetpack Glance for native Android UI."
+            stringResource(R.string.about_user_interface_title),
+            stringResource(R.string.about_user_interface_body)
         ) {
             if (context == null) return@AboutPanel
 
-            val uri = "https://developer.android.com/compose".toUri()
+            val uri = context.getString(R.string.about_user_interface_url).toUri()
             val intent = Intent(Intent.ACTION_VIEW, uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
 
         AboutPanel(
-            "Stops Caching",
-            "Android Room on top of SQLite combined with JavaWuzzy for responsive fuzzy search over larger data set."
+            stringResource(R.string.about_caching_title),
+            stringResource(R.string.about_caching_body)
         ) {
             if (context == null) return@AboutPanel
 
-            val uri = "https://github.com/xdrop/fuzzywuzzy".toUri()
+            val uri = context.getString(R.string.about_caching_url).toUri()
             val intent = Intent(Intent.ACTION_VIEW, uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
 
         AboutPanel(
-            "Source Code",
-            "Available on Github at\nsomeone-s/transport-widget"
+            stringResource(R.string.about_source_code_title),
+            stringResource(R.string.about_source_code_body)
         ) {
             if (context == null) return@AboutPanel
 
-            val uri = "https://github.com/someone-s/transport-widget".toUri()
+            val uri = context.getString(R.string.about_source_code_url).toUri()
             val intent = Intent(Intent.ACTION_VIEW, uri)
             context.startActivity(intent)
         }

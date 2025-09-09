@@ -46,4 +46,16 @@
     <string name="navigation_about">About</string>
     <string name="navigation_providers">Providers</string>
     <string name="data_sync_search_placeholder">Search for a provider</string>
+    <string name="about_data_source_title">Data Source</string>
+    <string name="about_data_source_body">Made possible with open data provided by transit agencies.</string>
+    <string name="about_user_interface_title">User Interface</string>
+    <string name="about_user_interface_body">Jetpack Compose and Jetpack Glance for native Android UI.</string>
+    <string name="about_caching_title">Stops Caching</string>
+    <string name="about_caching_body">Android Room on top of SQLite combined with JavaWuzzy for responsive fuzzy search over larger data set.</string>
+    <string name="about_source_code_title">Source Code</string>
+    <string name="about_source_code_body">Available on Github at\nsomeone-s/transport-widget</string>
+    <string name="about_data_source_url">https://findtransportdata.dft.gov.uk/browse</string>
+    <string name="about_user_interface_url">https://developer.android.com/compose</string>
+    <string name="about_caching_url">https://github.com/xdrop/fuzzywuzzy</string>
+    <string name="about_source_code_url">https://github.com/someone-s/transport-widget</string>
 </resources>
