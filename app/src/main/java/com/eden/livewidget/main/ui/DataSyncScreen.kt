@@ -89,7 +89,7 @@ fun DataSyncScreen(context: Context?) {
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
-                text = "Providers",
+                text = stringResource(R.string.navigation_providers),
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.displayMedium,
                 modifier = Modifier.padding(
@@ -172,7 +172,7 @@ private fun InplaceSearch(lazyListState: LazyListState) {
                 onSearch = { },
                 expanded = false,
                 onExpandedChange = { },
-                placeholder = { Text("Search for a provider") },
+                placeholder = { Text(stringResource(R.string.data_sync_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = null,
             )
