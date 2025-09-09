@@ -53,7 +53,7 @@
     <string name="about_caching_title">Stops Caching</string>
     <string name="about_caching_body">Android Room on top of SQLite combined with JavaWuzzy for responsive fuzzy search over larger data set.</string>
     <string name="about_source_code_title">Source Code</string>
-    <string name="about_source_code_body">Available on Github at\nsomeone-s/transport-widget</string>
+    <string name="about_source_code_body">Available on Github at someone-s/transport-widget</string>
     <string name="about_data_source_url">https://findtransportdata.dft.gov.uk/browse</string>
     <string name="about_user_interface_url">https://developer.android.com/compose</string>
     <string name="about_caching_url">https://github.com/xdrop/fuzzywuzzy</string>
