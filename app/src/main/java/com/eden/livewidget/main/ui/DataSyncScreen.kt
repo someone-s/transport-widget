@@ -185,20 +185,24 @@ private fun PlaceWidgetGuide(
                 setPlaceGuideState(false)
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         setPlaceGuideState(false)
                     }
-                ) { Text(stringResource(R.string.data_sync_download_warning_dialog_confirm)) }
+                ) { Text(stringResource(R.string.data_sync_place_widget_dismiss)) }
             },
             icon = {
                 Icon(
                     painterResource(R.drawable.ic_data_sync_place_widget_icon),
-                    stringResource(R.string.data_sync_download_warning_dialog_icon_description)
+                    stringResource(R.string.data_sync_place_widget_icon_description)
                 )
             },
-            title = { Text("Placing a Widget") },
-            text = { Text("Navigate to the home screen, long press on the home screen, and choose widgets.\n\nThe widget provided with the app is under the name ${stringResource(R.string.app_name)}.") }
+            title = { Text(stringResource(R.string.data_sync_place_widget_title)) },
+            text = { Text(
+                stringResource(
+                    R.string.data_sync_place_widget_body,
+                    stringResource(R.string.app_name)
+                )) }
         )
     }
 }

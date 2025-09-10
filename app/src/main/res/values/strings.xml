@@ -60,4 +60,7 @@
     <string name="about_source_code_url">https://github.com/someone-s/transport-widget</string>
     <string name="data_sync_place_widget_text">Place Widget</string>
     <string name="data_sync_place_widget_icon_description">Add Icon</string>
+    <string name="data_sync_place_widget_title">Placing a Widget</string>
+    <string name="data_sync_place_widget_body">Navigate to the home screen, long press on the home screen, and choose widgets.\n\nThe widget provided with the app is under the name %1$s.</string>
+    <string name="data_sync_place_widget_dismiss">Dismiss</string>
 </resources>
