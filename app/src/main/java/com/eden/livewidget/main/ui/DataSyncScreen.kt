@@ -1,6 +1,7 @@
 package com.eden.livewidget.main.ui
 
 import android.content.Context
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,16 +73,13 @@ import me.xdrop.fuzzywuzzy.FuzzySearch
 @Composable
 fun DataSyncScreen(context: Context?) {
 
-    val (currentDownloadAction, setCurrentDownloadAction) = remember {
-        mutableStateOf<(() -> Unit)?>(
-            null
-        )
-    }
+    val (currentDownloadAction, setCurrentDownloadAction) = remember { mutableStateOf<(() -> Unit)?>(null) }
     val (downloadWarningState, setDownloadWarningState) = remember { mutableStateOf(false) }
 
     val (currentResetAction, setCurrentResetAction) = remember { mutableStateOf<(() -> Unit)?>(null) }
     val (resetWarningState, setResetWarningState) = remember { mutableStateOf(false) }
 
+    val (placeWidgetState, setPlaceWidgetState) = remember { mutableStateOf(false) }
 
     val lazyListState = rememberLazyListState()
 
@@ -133,7 +131,10 @@ fun DataSyncScreen(context: Context?) {
         }
     }
 
-    PlaceWidgetButton(context)
+    PlaceWidgetButton(context, setPlaceWidgetState)
+    if (placeWidgetState)
+        PlaceWidgetGuide(setPlaceWidgetState)
+
     if (downloadWarningState)
         DownloadWarningDialog(setDownloadWarningState, currentDownloadAction)
     if (resetWarningState)
@@ -141,7 +142,7 @@ fun DataSyncScreen(context: Context?) {
 }
 
 @Composable
-private fun PlaceWidgetButton(context: Context?) {
+private fun PlaceWidgetButton(context: Context?, setPlaceGuideState: (Boolean) -> Unit) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
@@ -156,15 +157,49 @@ private fun PlaceWidgetButton(context: Context?) {
             onClick = {
                 coroutineScope.launch {
                     if (context == null) return@launch
-                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
-                        receiver = LivePointWidgetReceiver::class.java,
-                        preview = LivePointWidget(),
-                    )
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
+                            receiver = LivePointWidgetReceiver::class.java,
+                            preview = LivePointWidget(),
+                        )
+                    else
+                        setPlaceGuideState(true)
                 }
             },
             modifier = Modifier.padding(16.dp)
         )
 
+    }
+}
+
+@Composable
+private fun PlaceWidgetGuide(
+    setPlaceGuideState: (Boolean) -> Unit,
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        AlertDialog(
+            onDismissRequest = {
+                setPlaceGuideState(false)
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        setPlaceGuideState(false)
+                    }
+                ) { Text(stringResource(R.string.data_sync_download_warning_dialog_confirm)) }
+            },
+            icon = {
+                Icon(
+                    painterResource(R.drawable.ic_data_sync_place_widget_icon),
+                    stringResource(R.string.data_sync_download_warning_dialog_icon_description)
+                )
+            },
+            title = { Text("Placing a Widget") },
+            text = { Text("Navigate to the home screen, long press on the home screen, and choose widgets.\n\nThe widget provided with the app is under the name ${stringResource(R.string.app_name)}.") }
+        )
     }
 }
 
