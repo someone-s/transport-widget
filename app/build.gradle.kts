@@ -91,3 +91,17 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.room.compiler)
 }
+
+tasks.register("Build_PointsCacheDB_TFL", Exec::class.java) {
+    workingDir = File("src/main/assets/database")
+    commandLine = listOf(
+        "sh", "-c", "cat PointsCacheDB_TFL_TEXT | sqlite3 PointsCacheDB_TFL"
+    )
+}
+
+tasks.register("Remove_PointsCacheDB_TFL", Exec::class.java) {
+    workingDir = File("src/main/assets/database")
+    commandLine = listOf(
+        "rm", "PointsCacheDB_TFL"
+    )
+}
