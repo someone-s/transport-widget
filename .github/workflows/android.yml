@@ -25,6 +25,6 @@ jobs:
     - name: Build database file
       run: ./gradlew Build_PointsCacheDB_TFL
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew :app:assembleRelease
     - name: Remove database file
       run: ./gradlew Remove_PointsCacheDB_TFL
