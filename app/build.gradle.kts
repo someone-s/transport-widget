@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.serialize)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.jaredsburrows.license)
 }
 
 // https://developer.android.com/training/data-storage/room/migrating-db-versions#set_schema_location_using_room_gradle_plugin

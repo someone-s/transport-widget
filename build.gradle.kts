@@ -6,4 +6,5 @@ plugins {
     alias(libs.plugins.kotlin.serialize) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.androidx.room) apply false
+    alias(libs.plugins.jaredsburrows.license) apply false
 }
