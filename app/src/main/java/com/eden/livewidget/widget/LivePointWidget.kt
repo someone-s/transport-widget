@@ -384,6 +384,6 @@ class RefreshLivePointWidgetCallback : ActionCallback {
 
 
         val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
-        LivePointWidgetUpdateWorker.schedule(context, widgetId, 10, null)
+        LivePointWidgetUpdateWorker.schedule(context, widgetId, 3, null)
     }
 }

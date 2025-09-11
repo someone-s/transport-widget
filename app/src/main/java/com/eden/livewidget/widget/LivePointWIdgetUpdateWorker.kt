@@ -186,7 +186,7 @@ class LivePointWidgetUpdateWorker(
 
             updater.update(context, glanceId)
 
-            schedule(context, appWidgetId, remainingTimes - 1, 10.seconds)
+            schedule(context, appWidgetId, remainingTimes - 1, 30.seconds)
 
         }
 
