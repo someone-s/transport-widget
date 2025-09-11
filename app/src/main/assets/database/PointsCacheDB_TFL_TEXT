@@ -1,8 +1,6 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
-CREATE TABLE android_metadata (locale TEXT);
-INSERT INTO android_metadata VALUES('en_GB_#u-fw-sun-mu-celsius');
-CREATE TABLE `PointEntity` (`name` TEXT NOT NULL, `apiValue` TEXT NOT NULL, PRIMARY KEY(`apiValue`));
+DELETE FROM PointEntity;
 INSERT INTO PointEntity VALUES('Bramley Road (westbound)','040000002546');
 INSERT INTO PointEntity VALUES('Bramley Road (adj)','40004406048A');
 INSERT INTO PointEntity VALUES('Anglo European College (opp)','210021305560');
@@ -55087,6 +55085,4 @@ INSERT INTO PointEntity VALUES('Village Hall (o/s)','40004403017A');
 INSERT INTO PointEntity VALUES('Windsor Drive (adj)','210021312662');
 INSERT INTO PointEntity VALUES('Village Hall (opp)','40004403017B');
 INSERT INTO PointEntity VALUES('Windsor Drive (opp)','2400105236');
-CREATE TABLE room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT);
-INSERT INTO room_master_table VALUES(42,'7c5bddebd63a3ac53f3c865a4cb0c899');
 COMMIT;

@@ -1,6 +1,7 @@
 package com.eden.livewidget.data.points
 
 import android.content.Context
+import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -18,6 +19,9 @@ import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
 import io.requery.android.database.sqlite.SQLiteFunction
 import me.xdrop.fuzzywuzzy.FuzzySearch
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
 
 
 @Entity()
@@ -32,9 +36,11 @@ interface PointDao {
     fun getAll(): List<PointEntity>
 
     @SkipQueryVerification
-    @Query("SELECT *, fuzzy_ratio(lower(:search), name) AS SCORE FROM pointentity " +
-            "WHERE SCORE > 50 " +
-            "ORDER BY SCORE DESC")
+    @Query(
+        "SELECT *, fuzzy_ratio(lower(:search), name) AS SCORE FROM pointentity " +
+                "WHERE SCORE > 50 " +
+                "ORDER BY SCORE DESC"
+    )
     fun getAllFuzzyMatches(search: String): List<PointEntity>
 
     @Insert
@@ -63,6 +69,8 @@ abstract class PointsCacheDatabase : RoomDatabase() {
         }
 
         fun getDatabaseName(apiProvider: Provider) = "${DATABASE_NAME_BASE}_${apiProvider}"
+        fun getDatabaseAssetName(apiProvider: Provider) =
+            "${DATABASE_NAME_BASE}_${apiProvider}_TEXT"
 
         private const val DATABASE_NAME_BASE = "PointsCacheDB"
 
@@ -82,7 +90,6 @@ abstract class PointsCacheDatabase : RoomDatabase() {
                 PointsCacheDatabase::class.java,
                 databaseName
             )
-                .createFromAsset("database/$databaseName")
                 .setJournalMode(JournalMode.TRUNCATE)
                 .openHelperFactory { configuration ->
                     val config = SQLiteDatabaseConfiguration(
@@ -106,6 +113,37 @@ abstract class PointsCacheDatabase : RoomDatabase() {
                     RequerySQLiteOpenHelperFactory(listOf(options)).create(configuration)
                 }
                 .build()
+
+            val messageClassName = PointsCacheDatabase::class.java.name
+
+            // not packaging binary of the database and use createFromAsset to comply with f-droid no binary during build rules
+            db.openHelper.writableDatabase
+                .use { writableDB ->
+                    Log.i(messageClassName, "Open Writable DB OK")
+
+                    context.assets.open("database/${getDatabaseAssetName(apiProvider)}")
+                        .use { inputStream ->
+
+                            Log.i(messageClassName, "Open InputStream OK")
+                            BufferedReader(
+                                InputStreamReader(
+                                    inputStream,
+                                    StandardCharsets.UTF_8
+                                )
+                            ).use { reader ->
+                                Log.i(messageClassName, "Open BufferReader OK")
+                                var line = reader.readLine()
+                                while (line != null) {
+                                    writableDB.execSQL(line)
+                                    line = reader.readLine()
+                                }
+                            }
+                        }
+                }
+
+            Log.i(messageClassName, "Load packaged data Complete")
+
+
             return db
         }
 
