@@ -1,0 +1,1 @@
+An app that provides home screen widgets displaying live arrival times of buses, tube and river boat services. Currently only support London services.
