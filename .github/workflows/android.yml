@@ -43,12 +43,15 @@ jobs:
         # override default build-tools version (33.0.0) -- optional
         BUILD_TOOLS_VERSION: "34.0.0"
 
+    - name: Rename file 
+      run: mv ${{steps.sign_app.outputs.signedReleaseFile}} ${{github.ref_name}}_signed.apk
+
     - uses: actions/upload-artifact@v4
       with:
         name: signed release
-        path: ${{steps.sign_app.outputs.signedReleaseFile}}
+        path: ${{github.ref_name}}_signed.apk
 
     - uses: ncipollo/release-action@v1
       with:
-        artifacts: ${{steps.sign_app.outputs.signedReleaseFile}}
+        artifacts: ${{github.ref_name}}_signed.apk
         body: "release"
