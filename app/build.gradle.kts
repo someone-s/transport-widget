@@ -54,6 +54,10 @@ android {
         compose = true
 
     }
+
+    dependenciesInfo {
+        includeInApk = false
+    }
 }
 
 dependencies {
