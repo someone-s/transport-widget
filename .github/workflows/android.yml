@@ -49,4 +49,4 @@ jobs:
     - uses: ncipollo/release-action@v1
       with:
         artifacts: ${{steps.sign_app.outputs.signedReleaseFile}}
-        bodyFile: "body.md"
+        body: "release"
