@@ -1,4 +1,7 @@
 # Transport Widget
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.eden.livewidget/)
+
+
 Only London buses, tubes and riverbus services supported at the moment.
 
 View live arrival information at stops directly on your home screen. Simply search for your stop by name and add it to the home screen widget. View multiple stops simultaneously with multiple widgets.
