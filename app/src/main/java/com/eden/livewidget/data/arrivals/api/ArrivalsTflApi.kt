@@ -1,5 +1,6 @@
 package com.eden.livewidget.data.arrivals.api
 
+import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.arrivals.ArrivalModel
 import com.eden.livewidget.data.arrivals.ArrivalsApi
@@ -66,7 +67,7 @@ class ArrivalsTflApi(
         retrofit.create(ArrivalsTflApiService::class.java)
     }
 
-    override fun fetchLatestArrivals(): List<ArrivalModel> {
+    override fun fetchLatestArrivals(context: Context): List<ArrivalModel> {
 
         Log.i(this.javaClass.name, "Data fetched")
         val request = service.getStopPointArrivals(stopPointId)

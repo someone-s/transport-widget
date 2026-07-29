@@ -151,7 +151,7 @@ class LivePointWidgetUpdateWorker(
             try {
                 // Update data source
                 val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
-                repository.fetchLatestArrival()
+                repository.fetchLatestArrival(context)
             } catch (e: Exception) {
                 Log.e(javaClass.name, e.message ?: "Failed with no message", e)
 
