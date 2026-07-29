@@ -17,7 +17,9 @@ enum class Provider(
         pointsDataSourceConstructor = { context ->
             PointsRemoteDataSource(
                 context,
-                PointsRemoteTflApi(),
+                PointsRemoteTflApi(
+                    Dispatchers.IO
+                ),
                 TFL,
                 Dispatchers.IO
             )

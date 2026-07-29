@@ -1,8 +1,14 @@
 package com.eden.livewidget.data.points.remoteapi
 
+import android.content.Context
 import android.util.Log
+import com.eden.livewidget.R
 import com.eden.livewidget.data.points.PointEntity
 import com.eden.livewidget.data.points.PointsRemoteApi
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -39,7 +45,9 @@ private interface PointsTflApiService {
     ): Call<List<StopPoint>>
 }
 
-class PointsRemoteTflApi: PointsRemoteApi {
+class PointsRemoteTflApi(
+    val ioDispatcher: CoroutineDispatcher
+): PointsRemoteApi {
 
     private val fetchTypes = "NaptanFerryPort,NaptanPublicBusCoachTram,NaptanMetroStation"
 
@@ -47,7 +55,44 @@ class PointsRemoteTflApi: PointsRemoteApi {
         retrofit.create(PointsTflApiService::class.java)
     }
 
-    override fun fetchPage(pageZeroIndexed: Int, add: (PointEntity) -> Unit): Int {
+    override suspend fun fetchPoints(
+        context: Context,
+        add: (PointEntity) -> Unit,
+        statusUpdate: (String) -> Unit
+    ) {
+
+        val pageBatch = 10
+        var pageSet = 0
+        while(true) {
+
+            var hasEmpty = false
+
+            coroutineScope {
+                for (i in 0..<pageBatch) {
+                    launch {
+                        withContext(ioDispatcher) {
+                            if (fetchPage(pageSet * pageBatch + i, add) <= 0)
+                                hasEmpty = true
+                        }
+                    }
+                }
+
+                statusUpdate(
+                    context.getString(
+                        R.string.provider_tfl_api_fetch_status_update_text,
+                        pageSet * pageBatch,
+                        pageSet * pageBatch + pageBatch - 1
+                    ))
+            }
+
+            if (hasEmpty)
+                break
+
+            pageSet++
+        }
+    }
+
+    private fun fetchPage(pageZeroIndexed: Int, add: (PointEntity) -> Unit): Int {
 
         val page = pageZeroIndexed + 1
 

@@ -2,11 +2,8 @@ package com.eden.livewidget.data.points
 
 import android.content.Context
 import android.util.Log
-import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PointsRemoteDataSource(
@@ -30,35 +27,7 @@ class PointsRemoteDataSource(
 
         pointsDao.deleteAll()
 
-        val pageBatch = 10
-        var pageSet = 0
-        while(true) {
-
-            var hasEmpty = false
-
-            coroutineScope {
-                for (i in 0..<pageBatch) {
-                    launch {
-                        withContext(ioDispatcher) {
-                            if (pointsApi.fetchPage(pageSet * pageBatch + i, { pointsDao.insertAll(it) }) <= 0)
-                                hasEmpty = true
-                        }
-                    }
-                }
-
-                statusUpdate(
-                    context.getString(
-                        R.string.provider_tfl_api_fetch_status_update_text,
-                        pageSet * pageBatch,
-                        pageSet * pageBatch + pageBatch - 1
-                    ))
-            }
-
-            if (hasEmpty)
-                break
-
-            pageSet++
-        }
+        pointsApi.fetchPoints(context, { pointsDao.insertAll(it) }, statusUpdate)
 
     }
 
@@ -75,5 +44,5 @@ class PointsRemoteDataSource(
 }
 
 interface PointsRemoteApi {
-    fun fetchPage(pageZeroIndexed: Int, add: (PointEntity) -> Unit): Int
+    suspend fun fetchPoints(context: Context, add: (PointEntity) -> Unit, statusUpdate: (status: String) -> Unit)
 }
