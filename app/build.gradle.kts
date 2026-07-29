@@ -94,4 +94,5 @@ dependencies {
     implementation(libs.requery.sqlite.android)
     ksp(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.room.compiler)
+    testImplementation(libs.mockito.core)
 }
