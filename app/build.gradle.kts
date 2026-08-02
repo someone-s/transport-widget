@@ -1,6 +1,8 @@
+import com.android.build.api.dsl.ApplicationExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialize)
     alias(libs.plugins.ksp)
@@ -15,19 +17,27 @@ room {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
-android {
+kotlin {
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+    }
+}
+
+extensions.configure<ApplicationExtension> {
 
     namespace = "com.eden.livewidget"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.eden.livewidget"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 10000
         versionName = "1.0.0"
 
@@ -44,15 +54,12 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
-
     }
 
     dependenciesInfo {
@@ -60,9 +67,10 @@ android {
     }
 }
 
-dependencies {
 
+dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.concurrent.futures.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -76,7 +84,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.glance)
+    implementation(libs.androidx.glance.preview)
     implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.appwidget.preview)
     implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -95,4 +106,5 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.room.compiler)
     testImplementation(libs.mockito.core)
+    coreLibraryDesugaring(libs.desugarjdklibs)
 }

@@ -1,4 +1,4 @@
-package com.eden.livewidget.widget
+package com.eden.livewidget.configurator
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
@@ -18,9 +18,10 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.providerToString
-import com.eden.livewidget.widget.ui.ConfiguratorContent
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
-import com.eden.livewidget.widget.ui.ConfigurationBatteryPrompt
+import com.eden.livewidget.widget.LivePointWidgetCreateWorker
+import com.eden.livewidget.configurator.ui.ConfigurationBatteryPrompt
+import com.eden.livewidget.configurator.ui.ConfiguratorContent
 
 class LivePointWidgetConfigurationActivity: ComponentActivity()  {
 
@@ -40,7 +41,14 @@ class LivePointWidgetConfigurationActivity: ComponentActivity()  {
         setContent {
             TransportWidgetsTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    ConfiguratorContent({ apiProvider, apiValue, displayName -> createWidget(appWidgetId, apiProvider, apiValue, displayName) })
+                    ConfiguratorContent({ apiProvider, apiValue, displayName ->
+                        createWidget(
+                            appWidgetId,
+                            apiProvider,
+                            apiValue,
+                            displayName
+                        )
+                    })
 
                     val (visible, setVisible) = remember {
 

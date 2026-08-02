@@ -44,5 +44,5 @@ class PointsRemoteDataSource(
 }
 
 interface PointsRemoteApi {
-    suspend fun fetchPoints(context: Context, add: (PointEntity) -> Unit, statusUpdate: (status: String) -> Unit)
+    suspend fun fetchPoints(context: Context, outputPoint: (PointEntity) -> Unit, statusUpdate: (status: String) -> Unit)
 }

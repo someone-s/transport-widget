@@ -50,7 +50,7 @@ class LivePointWidgetUpdateWorker(
             "Widget Update Worker $appWidgetId"
 
         fun getWorkInfoFlow(context: Context, appWidgetId: Int): Flow<List<WorkInfo>> {
-            return WorkManager.Companion.getInstance(context)
+            return WorkManager.getInstance(context)
                 .getWorkInfosForUniqueWorkFlow(getUniqueWorkName(appWidgetId))
         }
 
@@ -68,7 +68,7 @@ class LivePointWidgetUpdateWorker(
 
 
         fun cancelCurrentRequest(context: Context, appWidgetId: Int) {
-            WorkManager.Companion.getInstance(context).cancelUniqueWork(
+            WorkManager.getInstance(context).cancelUniqueWork(
                 getUniqueWorkName(appWidgetId)
             )
         }
@@ -91,7 +91,7 @@ class LivePointWidgetUpdateWorker(
             }
             val workerRequest = builder.build()
 
-            WorkManager.Companion.getInstance(context).enqueueUniqueWork(
+            WorkManager.getInstance(context).enqueueUniqueWork(
                 getUniqueWorkName(appWidgetId),
                 ExistingWorkPolicy.REPLACE,
                 workerRequest
@@ -141,17 +141,15 @@ class LivePointWidgetUpdateWorker(
             val preferences = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
 
             val apiProvider = providerFromString(preferences[LivePointWidget.API_PROVIDER_KEY])
-            if (apiProvider == null)
-                return Result.failure()
+                ?: return Result.failure()
 
             val apiValue = preferences[LivePointWidget.API_VALUE_KEY]
-            if (apiValue == null)
-                return Result.failure()
+                ?: return Result.failure()
 
             try {
                 // Update data source
                 val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
-                repository.fetchLatestArrival()
+                repository.fetchLatestArrival(context)
             } catch (e: Exception) {
                 Log.e(javaClass.name, e.message ?: "Failed with no message", e)
 

@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -39,8 +36,8 @@ fun CustomizableSearchBar(
     searchResults: List<String>,
     onResultClick: (Int, String) -> Unit,
     // Customization options
-    placeholder: @Composable () -> Unit = { Text("Search") },
-    leadingIcon: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
+    placeholder: @Composable () -> Unit,
+    leadingIcon: @Composable (() -> Unit)?,
     trailingIcon: @Composable (() -> Unit)? = null,
     supportingContent: (@Composable (Int, String) -> Unit)? = null,
     leadingContent: (@Composable (Int, String) -> Unit)? = null,
@@ -82,20 +79,25 @@ fun CustomizableSearchBar(
                 items(count = searchResults.size) { index ->
                     val resultText = searchResults[index]
                     ListItem(
-                        headlineContent = { Text(
-                            text = resultText,
-                            style = MaterialTheme.typography.titleMedium
-                        ) },
-                        supportingContent = supportingContent?.let { { it(index, resultText) } },
-                        leadingContent = leadingContent?.let { { it(index, resultText) } },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                         modifier = Modifier
                             .clickable {
                                 onResultClick(index, resultText)
                                 expanded = false
                             }
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        leadingContent = leadingContent?.let { { it(index, resultText) } },
+                        trailingContent = null,
+                        overlineContent = null,
+                        supportingContent = supportingContent?.let { { it(index, resultText) } },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        elevation = ListItemDefaults.elevation(ListItemDefaults.Elevation),
+                        content = {
+                            Text(
+                                text = resultText,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
                     )
                 }
             }

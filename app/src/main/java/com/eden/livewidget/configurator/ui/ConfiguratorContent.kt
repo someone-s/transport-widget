@@ -1,4 +1,4 @@
-package com.eden.livewidget.widget.ui
+package com.eden.livewidget.configurator.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf

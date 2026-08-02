@@ -35,7 +35,7 @@
             tools:node="merge" />
 
         <activity
-            android:name=".widget.LivePointWidgetConfigurationActivity"
+            android:name=".configurator.LivePointWidgetConfigurationActivity"
             android:exported="true"
             android:label="@string/live_point_widget_configuration_activity_label">
             <intent-filter>

@@ -1,6 +1,7 @@
 // See: https://developer.android.com/topic/architecture/data-layer
 package com.eden.livewidget.data.arrivals
 
+import android.content.Context
 import com.eden.livewidget.data.Provider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,8 +14,8 @@ class ArrivalsRepository(
     private val latestArrivalsMutable = MutableStateFlow(emptyList<ArrivalModel>())
     val latestArrivals = latestArrivalsMutable.asStateFlow()
 
-    suspend fun fetchLatestArrival() {
-        latestArrivalsMutable.update { arrivalsDataSource.fetchLatestArrivals() }
+    suspend fun fetchLatestArrival(context: Context) {
+        latestArrivalsMutable.update { arrivalsDataSource.fetchLatestArrivals(context) }
 
     }
 
