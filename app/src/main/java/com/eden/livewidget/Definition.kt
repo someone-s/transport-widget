@@ -14,5 +14,11 @@ enum class Agency(
         agencyShortDescription = R.string.agency_tfl_about_short,
         agencyDescription = R.string.agency_tfl_about_full,
         apiProvider = Provider.TFL
+    ),
+    RDG(
+        agencyName = R.string.agency_rdg_title,
+        agencyShortDescription = R.string.agency_rdg_about_short,
+        agencyDescription = R.string.agency_rdg_about_full,
+        apiProvider = Provider.RDG
     )
 }

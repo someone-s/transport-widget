@@ -85,4 +85,7 @@
     <string name="data_sync_key_input_dialog_title">Update API key</string>
     <string name="data_sync_screen_key_configure_value_empty_text">Not set</string>
     <string name="data_sync_key_input_field_label">Key String</string>
+    <string name="agency_rdg_title">Rail Delivery Group</string>
+    <string name="agency_rdg_about_short">Represents Britain\'s train operators</string>
+    <string name="agency_rdg_about_full">Represent britain\'s train operators, provides live tracking data for all national rail services in Britain.</string>
 </resources>
