@@ -6,6 +6,8 @@ import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.arrivals.ArrivalModel
 import com.eden.livewidget.data.arrivals.ArrivalsApi
 import com.eden.livewidget.data.keys.KeyPurpose
+import com.eden.livewidget.data.keys.getKeyProviderConstructor
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.SerialName
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -85,7 +87,11 @@ class ArrivalsRdgApi(
 
         Log.i(this.javaClass.name, "Data fetching")
 
-        val headers = mapOf("x-apikey" to apiProvider.keyProviders[KeyPurpose.ARRIVALS]!!.getKey(context))
+        val headers = mapOf(
+            "x-apikey" to apiProvider
+                .keyProviders.getKeyProviderConstructor(KeyPurpose.ARRIVALS)!!()
+                .getKey(context)
+        )
         val request = service.getDepartureBoardWithDetails(
             headers,
             crsCode,

@@ -5,6 +5,7 @@ import android.util.Log
 import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.keys.KeyPurpose
+import com.eden.livewidget.data.keys.getKeyProviderConstructor
 import com.eden.livewidget.data.points.PointEntity
 import com.eden.livewidget.data.points.PointsRemoteApi
 import com.google.gson.annotations.SerializedName
@@ -86,7 +87,11 @@ class PointsRemoteRdgApi(
     ) {
         Log.i(this.javaClass.name, "request data")
 
-        val headers = mapOf("x-apikey" to apiProvider.keyProviders[KeyPurpose.POINTS]!!.getKey(context))
+        val headers = mapOf(
+            "x-apikey" to apiProvider
+                .keyProviders.getKeyProviderConstructor(KeyPurpose.POINTS)!!()
+                .getKey(context)
+        )
         val pageRequest = service.getStationList(headers)
         pageRequest.request()
 
