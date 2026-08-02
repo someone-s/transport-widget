@@ -1,4 +1,4 @@
-package com.eden.livewidget.widget
+package com.eden.livewidget.widget.ui
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -41,6 +41,8 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.preview.ExperimentalGlancePreviewApi
+import androidx.glance.preview.Preview
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -50,6 +52,8 @@ import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.main.MainActivity
+import com.eden.livewidget.widget.LivePointWidgetUpdateWorker
+import com.eden.livewidget.configurator.LivePointWidgetConfigurationActivity
 import java.util.Calendar
 
 class LivePointWidget : GlanceAppWidget() {
@@ -75,43 +79,50 @@ class LivePointWidget : GlanceAppWidget() {
         // operations.
 
         provideContent {
-            GlanceTheme {
-                val apiProviderString = currentState(API_PROVIDER_KEY)
-                if (apiProviderString == null) {
-                    PlaceholderContent(context, id)
-                    return@GlanceTheme
-                }
+            ContentScreen(context, id)
+        }
+    }
 
-                var apiProvider: Provider
-                try {
-                    apiProvider = providerFromString(apiProviderString) as Provider
-                } catch (_: Exception) {
-                    PlaceholderContent(context, id)
-                    return@GlanceTheme
-                }
-
-                val apiValue = currentState(API_VALUE_KEY)
-                if (apiValue == null) {
-                    PlaceholderContent(context, id)
-                    return@GlanceTheme
-                }
-
-                val displayName = currentState(DISPLAY_NAME_KEY)
-                if (displayName == null) {
-                    PlaceholderContent(context, id)
-                    return@GlanceTheme
-                }
-
-                val inactiveTextOption = currentState(INACTIVE_TEXT_OPTION_KEY)
-                val inactiveText = when (inactiveTextOption) {
-                    INACTIVE_TEXT_OPTION_ERROR -> LocalContext.current.getString(R.string.widget_start_tracking_error_text)
-                    INACTIVE_TEXT_OPTION_BATTERY -> LocalContext.current.getString(R.string.widget_start_tracking_battery_text)
-                    else ->LocalContext.current.getString(R.string.widget_start_tracking_prompt_text)
-                }
-
-
-                MyContent(context, id, apiProvider, apiValue, displayName, inactiveText)
+    @OptIn(ExperimentalGlancePreviewApi::class)
+    @Preview(widthDp = 200, heightDp = 50)
+    @Composable
+    private fun ContentScreen(context: Context, id: GlanceId) {
+        GlanceTheme {
+            val apiProviderString = currentState(API_PROVIDER_KEY)
+            if (apiProviderString == null) {
+                PlaceholderContent(context, id)
+                return@GlanceTheme
             }
+
+            var apiProvider: Provider
+            try {
+                apiProvider = providerFromString(apiProviderString) as Provider
+            } catch (_: Exception) {
+                PlaceholderContent(context, id)
+                return@GlanceTheme
+            }
+
+            val apiValue = currentState(API_VALUE_KEY)
+            if (apiValue == null) {
+                PlaceholderContent(context, id)
+                return@GlanceTheme
+            }
+
+            val displayName = currentState(DISPLAY_NAME_KEY)
+            if (displayName == null) {
+                PlaceholderContent(context, id)
+                return@GlanceTheme
+            }
+
+            val inactiveTextOption = currentState(INACTIVE_TEXT_OPTION_KEY)
+            val inactiveText = when (inactiveTextOption) {
+                INACTIVE_TEXT_OPTION_ERROR -> LocalContext.current.getString(R.string.widget_start_tracking_error_text)
+                INACTIVE_TEXT_OPTION_BATTERY -> LocalContext.current.getString(R.string.widget_start_tracking_battery_text)
+                else -> LocalContext.current.getString(R.string.widget_start_tracking_prompt_text)
+            }
+
+
+            MyContent(context, id, apiProvider, apiValue, displayName, inactiveText)
         }
     }
 

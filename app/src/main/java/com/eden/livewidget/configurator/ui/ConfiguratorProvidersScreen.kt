@@ -1,11 +1,10 @@
-package com.eden.livewidget.widget.ui
+package com.eden.livewidget.configurator.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -22,42 +21,42 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.eden.livewidget.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.ui.component.CustomizableSearchBar
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
-import kotlinx.coroutines.launch
+import me.xdrop.fuzzywuzzy.FuzzySearch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConfiguratorSelectPointScreen(
-    apiProvider: Provider,
-    createWidget: (apiProvider: Provider, apiValue: String, displayName: String) -> Unit,
+fun ConfiguratorSelectProviderScreen(
+    navController: NavController,
+    setApiProvider: (Provider) -> Unit
 ) {
-    val context = LocalContext.current
 
-    val coroutineScope = rememberCoroutineScope()
     // Controls expansion state of the search bar
     val textFieldState = rememberTextFieldState()
 
-    val repository =
-        remember(key1 = apiProvider) { PointsRepository.getInstance(context, apiProvider) }
-    val matchingPoints by repository.matchingPoints.collectAsState()
+    val agencyLookup: Map<String, Agency> =
+        Agency.entries.associateBy { agency -> stringResource(agency.agencyName) }
+
+    val (topAgencyMatch, setTopAgencyMatch) = remember { mutableStateOf(listOf<String>()) }
+
+
 
     Scaffold(
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
@@ -68,37 +67,24 @@ fun ConfiguratorSelectPointScreen(
                 CustomizableSearchBar(
                     onQueryChange = {
                         textFieldState.edit { replace(0, length, it) }
-                        coroutineScope.launch {
-                            val repository =
-                                PointsRepository.getInstance(context, apiProvider)
-                            repository.fetchMatching(it)
-                        }
+                        val results = FuzzySearch.extractTop(it, agencyLookup.keys, 10)
+                        setTopAgencyMatch(results.map { result -> result.string })
                     },
                     query = textFieldState.text.toString(),
-                    onSearch = {
-                        coroutineScope.launch {
-                            val repository =
-                                PointsRepository.getInstance(context, apiProvider)
-                            repository.fetchMatching(it)
-                        }
-                    },
-                    searchResults = matchingPoints.map { points -> points.name },
+                    onSearch = { },
+                    searchResults = topAgencyMatch,
                     onResultClick = { index, _ ->
-                        if (index >= matchingPoints.size) return@CustomizableSearchBar
+                        if (index >= topAgencyMatch.size) return@CustomizableSearchBar
 
-                        createWidget(
-                            matchingPoints[index].apiProvider,
-                            matchingPoints[index].apiValue,
-                            matchingPoints[index].name
-                        )
+                        setApiProvider((agencyLookup[topAgencyMatch[index]] as Agency).apiProvider)
+                        navController.navigate(SelectPoint)
                     },
                     leadingIcon = { painterResource(R.drawable.ic_shared_search) },
-                    placeholder = { Text(stringResource(R.string.configure_point_screen_search_bar_placeholder)) },
+                    placeholder = { Text(stringResource(R.string.configure_provider_screen_search_bar_placeholder)) },
                     supportingContent = { index, _ ->
-                        if (index >= matchingPoints.size) return@CustomizableSearchBar
-                        if (matchingPoints[index].context == null) return@CustomizableSearchBar
+                        if (index >= topAgencyMatch.size) return@CustomizableSearchBar
                         Text(
-                            text = matchingPoints[index].context as String,
+                            text = stringResource((agencyLookup[topAgencyMatch[index]] as Agency).agencyShortDescription),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     },
@@ -108,19 +94,6 @@ fun ConfiguratorSelectPointScreen(
         },
         content = { contentPadding ->
 
-            if (matchingPoints.isEmpty())
-                Box(
-                    modifier = Modifier
-                        .semantics {
-                            traversalIndex = 1f
-                        }
-                        .padding(contentPadding)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(stringResource(R.string.configure_points_screen_Instruction_text))
-                }
-            else
             LazyColumn(
 
                 contentPadding = PaddingValues(20.dp),
@@ -132,15 +105,15 @@ fun ConfiguratorSelectPointScreen(
                     .padding(contentPadding)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                itemsIndexed(matchingPoints) { index, item ->
+                itemsIndexed(Agency.entries) { index, agency ->
                     Surface(
                         modifier = Modifier.widthIn(0.dp, 360.dp),
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
                         shape = RoundedCornerShape(
                             topStart = if (index == 0) 16.dp else 2.dp,
                             topEnd = if (index == 0) 16.dp else 2.dp,
-                            bottomStart = if (index == matchingPoints.size - 1) 16.dp else 2.dp,
-                            bottomEnd = if (index == matchingPoints.size - 1) 16.dp else 2.dp
+                            bottomStart = if (index == Agency.entries.size - 1) 16.dp else 2.dp,
+                            bottomEnd = if (index == Agency.entries.size - 1) 16.dp else 2.dp
                         ),
 
                         ) {
@@ -148,22 +121,23 @@ fun ConfiguratorSelectPointScreen(
                         ListItem(
                             headlineContent = {
                                 Text(
-                                    text = item.name,
+                                    text = stringResource(agency.agencyName),
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = LocalTextStyle.current
                                 )
                             },
-                            leadingContent = {
-                                painterResource(R.drawable.ic_shared_rounded_location_on)
+                            supportingContent = {
+                                Text(
+                                    text = stringResource(agency.agencyShortDescription),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier
                                 .clickable {
-                                    createWidget(
-                                        matchingPoints[index].apiProvider,
-                                        matchingPoints[index].apiValue,
-                                        matchingPoints[index].name
-                                    )
+                                    setApiProvider(agency.apiProvider)
+                                    navController.navigate(SelectPoint)
                                 }
                                 .fillMaxWidth())
                     }
@@ -176,10 +150,10 @@ fun ConfiguratorSelectPointScreen(
 
 @PreviewScreenSizes
 @Composable
-fun PreviewConfiguratorSelectPointScreen() {
+fun PreviewConfiguratorSelectProviderScreen() {
 
     TransportWidgetsTheme {
 
-        ConfiguratorSelectPointScreen(Provider.TFL) { _, _, _ -> }
+        ConfiguratorSelectProviderScreen(rememberNavController()) { _ -> }
     }
 }

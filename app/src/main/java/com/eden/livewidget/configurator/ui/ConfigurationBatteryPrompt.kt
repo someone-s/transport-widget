@@ -1,4 +1,4 @@
-package com.eden.livewidget.widget.ui
+package com.eden.livewidget.configurator.ui
 
 import android.content.Context
 import android.content.Intent
