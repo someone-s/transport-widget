@@ -17,7 +17,6 @@ import androidx.work.WorkerParameters
 import com.eden.livewidget.R
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.data.providerToString
-import com.eden.livewidget.widget.ui.LivePointWidget
 
 class LivePointWidgetCreateWorker(
     val context: Context,

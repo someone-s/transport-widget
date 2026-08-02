@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.eden.livewidget.R
-import com.eden.livewidget.widget.ui.LivePointWidget
+import com.eden.livewidget.widget.LivePointWidget
 import com.eden.livewidget.widget.LivePointWidgetReceiver
 import kotlinx.coroutines.launch
 

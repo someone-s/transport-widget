@@ -27,7 +27,6 @@ import androidx.work.WorkerParameters
 import com.eden.livewidget.R
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.providerFromString
-import com.eden.livewidget.widget.ui.LivePointWidget
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
