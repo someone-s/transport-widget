@@ -12,7 +12,7 @@ class ArrivalsDataSource(
 ) {
 
     suspend fun fetchLatestArrivals(context: Context): List<ArrivalModel> =
-    // Move the execution to an IO-optimized thread since the ApiService
+        // Move the execution to an IO-optimized thread since the ApiService
         // doesn't support coroutines and makes synchronous requests.
         withContext(ioDispatcher) {
             arrivalsApi.fetchLatestArrivals(context)

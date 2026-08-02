@@ -46,7 +46,7 @@ fun ActiveList(latestArrivals: List<ArrivalModel>) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = arrival.service,
+                        text = arrival.serviceName,
                         style = TextStyle(
                             color = GlanceTheme.colors.onPrimaryContainer,
                             fontWeight = FontWeight.Bold,

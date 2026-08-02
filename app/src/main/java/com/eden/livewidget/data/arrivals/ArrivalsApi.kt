@@ -4,7 +4,7 @@ import android.content.Context
 
 
 interface ArrivalsApi {
-    fun fetchLatestArrivals(context: Context): List<ArrivalModel>
+    suspend fun fetchLatestArrivals(context: Context): List<ArrivalModel>
 }
 
 

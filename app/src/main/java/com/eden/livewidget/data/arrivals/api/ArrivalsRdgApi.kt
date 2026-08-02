@@ -8,7 +8,6 @@ import com.eden.livewidget.data.arrivals.ArrivalsApi
 import com.eden.livewidget.data.keys.KeyPurpose
 import com.eden.livewidget.data.keys.getKeyProviderConstructor
 import com.google.gson.annotations.SerializedName
-import kotlinx.serialization.SerialName
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -26,8 +25,14 @@ private data class RdgDepartureResponse(
     val services: List<RdgService>?
 )
 private data class RdgService(
+    @SerializedName("operator")
+    val operator: String,
+    @SerializedName("trainid")
+    val trainId: String,
     @SerializedName("destination")
     val destinations: List<RdgDestination>?,
+    @SerializedName("platform")
+    val platform: String,
     @SerializedName("atdSpecified")
     val hasActualTime: Boolean,
     @SerializedName("atd")
@@ -43,8 +48,10 @@ private data class RdgService(
 )
 
 private data class RdgDestination(
-    @SerialName("locationName")
-    val locationName: String
+    @SerializedName("locationName")
+    val locationName: String,
+    @SerializedName("via")
+    val viaText: String?,
 )
 
 private const val BASE_URL = "https://api1.raildata.org.uk"
@@ -79,7 +86,7 @@ class ArrivalsRdgApi(
         retrofit.create(ArrivalsRdgApiService::class.java)
     }
 
-    override fun fetchLatestArrivals(context: Context): List<ArrivalModel> {
+    override suspend fun fetchLatestArrivals(context: Context): List<ArrivalModel> {
 
         val currentTime = LocalDateTime.now()
         val requestTimeFormatter = DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss")
@@ -135,10 +142,16 @@ class ArrivalsRdgApi(
 
                 val secondsToDeparture = Math.toIntExact(ChronoUnit.SECONDS.between(currentTime, expectTime))
 
+                val firstDestination = service.destinations!!.first()
+
                 Log.i("ARRIVAL-INFO", secondsToDeparture.toString())
                 ArrivalModel(
-                    service.destinations!!.first().locationName,
-                    max(0, secondsToDeparture - 60)
+                    operatorName = service.operator,
+                    serviceName = service.trainId,
+                    destinationName = firstDestination.locationName,
+                    viaText = firstDestination.viaText ?: "",
+                    platformName = service.platform,
+                    remainingS = max(0, secondsToDeparture - 60),
                 )
             }
             .sortedBy { model -> model.remainingS }

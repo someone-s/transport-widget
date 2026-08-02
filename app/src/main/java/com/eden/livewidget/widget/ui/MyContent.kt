@@ -114,9 +114,30 @@ fun MyContentPreview() {
             "Display name",
             "Inactive text",
             listOf(
-                ArrivalModel("Service 1", 60),
-                ArrivalModel("Service 2", 240),
-                ArrivalModel("Service 1", 4096)
+                ArrivalModel(
+                    operatorName = "Operator 1",
+                    serviceName = "Service 1",
+                    destinationName = "Dest 1",
+                    viaText = "via Intermediate, More text",
+                    platformName = "PF1",
+                    remainingS = 60
+                ),
+                ArrivalModel(
+                    operatorName = "Operator 1",
+                    serviceName = "Service 1",
+                    destinationName = "Dest 1",
+                    viaText = "via Intermediate, More text",
+                    platformName = "PF1",
+                    remainingS = 240
+                ),
+                ArrivalModel(
+                    operatorName = "Operator 1",
+                    serviceName = "Service 1",
+                    destinationName = "Dest 1",
+                    viaText = "via Intermediate, More text",
+                    platformName = "PF1",
+                    remainingS = 4096
+                ),
             )
         )
     }

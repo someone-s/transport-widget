@@ -5,22 +5,32 @@ import android.util.Log
 import com.eden.livewidget.R
 import com.eden.livewidget.data.points.PointEntity
 import com.eden.livewidget.data.points.PointsRemoteApi
+import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
-private data class StopPoint(
-    val id: String,
+private data class TflStopPoint(
+    @SerializedName("naptanId")
+    val naptanId: String,
+    @SerializedName("modes")
+    val modes: List<String>?,
+    @SerializedName("stopType")
+    val stopType: String,
+    @SerializedName("commonName")
     val commonName: String,
-    val indicator: String?,
+    @SerializedName("children")
+    val children: List<TflStopPoint>,
 )
 
 private const val BASE_URL = "https://api.tfl.gov.uk"
@@ -40,16 +50,38 @@ private val retrofit = Retrofit.Builder()
 private interface PointsTflApiService {
     @GET("StopPoint/Type/{types}/page/{page}")
     fun getPage(
-        @Path("types") types: String,
+        @Path("types") commaSeparatedTypes: String,
         @Path("page") page: Int
-    ): Call<List<StopPoint>>
+    ): Call<List<TflStopPoint>>
 }
 
 class PointsRemoteTflApi(
     val ioDispatcher: CoroutineDispatcher
 ): PointsRemoteApi {
 
-    private val fetchTypes = "NaptanFerryPort,NaptanPublicBusCoachTram,NaptanMetroStation"
+    private val fetchStopTypes = setOf(
+        "NaptanFerryPort",
+        "NaptanOnstreetBusCoachStopPair",
+        "NaptanOnstreetBusCoachStopCluster",
+        "NaptanBusCoachStation",
+        "NaptanMetroStation"
+    )
+    private val validModes = mapOf(
+        "bus" to 1,
+        "river-bus" to 2,
+        "dlr" to 4,
+        "tram" to 8,
+        "tube" to 16
+    )
+    private val busModeMask =
+        validModes["bus"]!!
+    private val busChildStopType =
+        "NaptanPublicBusCoachTram"
+    private val directModeMask =
+        validModes["river-bus"]!! +
+        validModes["dlr"]!! +
+        validModes["tram"]!! +
+        validModes["tube"]!!
 
     private val service: PointsTflApiService by lazy {
         retrofit.create(PointsTflApiService::class.java)
@@ -57,24 +89,36 @@ class PointsRemoteTflApi(
 
     override suspend fun fetchPoints(
         context: Context,
-        add: (PointEntity) -> Unit,
+        outputPoint: (PointEntity) -> Unit,
         statusUpdate: (String) -> Unit
     ) {
 
-        val pageBatch = 10
+        val pageBatch = 3
+        val maxAttempt = 3
         var pageSet = 0
         while(true) {
 
             var hasEmpty = false
 
             coroutineScope {
-                for (i in 0..<pageBatch) {
+                fun startFetch(page: Int, tryCount: Int) {
+                    if (tryCount >= maxAttempt) {
+                        Log.e(this.javaClass.name, "failed to fetch page $page despite retry")
+                    }
                     launch {
                         withContext(ioDispatcher) {
-                            if (fetchPage(pageSet * pageBatch + i, add) <= 0)
-                                hasEmpty = true
+                            fetchPage(
+                                pageZeroIndexed = page,
+                                outputPoint = outputPoint,
+                                onSuccess = { count -> if (count == 0) hasEmpty = true },
+                                onFailure = { startFetch(page, tryCount + 1) }
+                            )
                         }
                     }
+                }
+
+                for (i in 0..<pageBatch) {
+                    startFetch(pageSet * pageBatch + i, 0)
                 }
 
                 statusUpdate(
@@ -92,36 +136,68 @@ class PointsRemoteTflApi(
         }
     }
 
-    private fun fetchPage(pageZeroIndexed: Int, add: (PointEntity) -> Unit): Int {
+    private fun fetchPage(pageZeroIndexed: Int, outputPoint: (PointEntity) -> Unit, onSuccess: (Int) -> Unit, onFailure: () -> Unit) {
 
         val page = pageZeroIndexed + 1
 
         Log.i(this.javaClass.name, "request page $page")
 
-        val pageRequest = service.getPage(fetchTypes, page)
+        val pageRequest = service.getPage(fetchStopTypes.joinToString(","), page)
         pageRequest.request()
-        val pageResponse = pageRequest.execute()
-        if (pageResponse == null) {
-            Log.i(this.javaClass.name, "failed to fetch page $page")
-            return -1
-        } else if (pageResponse.body() !is List<StopPoint>) {
+
+        val pageResponse: Response<List<TflStopPoint>>
+        try {
+            pageResponse = pageRequest.execute()
+        }
+        catch (_: SocketTimeoutException) {
+            Log.w(this.javaClass.name, "timeout for page $page")
+            onFailure()
+            return
+        }
+
+        if (pageResponse.body() !is List<TflStopPoint>) {
             Log.i(this.javaClass.name, "failed to find page body $page")
-            return -1
+            onFailure()
+            return
         }
-        val pageResult = pageResponse.body() as List<StopPoint>
-        if (pageResult.isEmpty())
-            return -1
-
-        for (stopPoint in pageResult) {
-            add(PointEntity(
-                name = stopPoint.commonName + if (stopPoint.indicator != null) " (${stopPoint.indicator})" else "",
-                apiValue = stopPoint.id
-            ))
+        val stopPoints = pageResponse.body() as List<TflStopPoint>
+        if (stopPoints.isEmpty()) {
+            onSuccess(0)
+            return
         }
 
-        Log.i(this.javaClass.name, "added ${pageResult.size} entries from page $page")
+        stopPoints
+            .filter { !it.modes.isNullOrEmpty() }
+            .forEach { stopPoint ->
 
-        return pageResult.size
+                fun constructMask(): Int {
+                    var temp = 0
+                    stopPoint.modes!!.forEach { mode -> temp += validModes.getOrDefault(mode, 0) }
+                    return temp
+                }
+                val modeMask = constructMask()
+
+                val arrivalNaptanIds = buildSet {
+                    if ((modeMask and busModeMask) > 0)
+                        stopPoint.children
+                            .filter { child -> child.stopType == busChildStopType }
+                            .forEach { child -> add(child.naptanId) }
+                    if ((modeMask and directModeMask) > 0)
+                        add(stopPoint.naptanId)
+                }
+
+                outputPoint(
+                    PointEntity(
+                        name = stopPoint.commonName,
+                        apiValue = arrivalNaptanIds.joinToString(",")
+                    )
+                )
+            }
+
+        Log.i(this.javaClass.name, "processed ${stopPoints.size} entries from page $page")
+
+        onSuccess(stopPoints.size)
+        return
 
     }
 }

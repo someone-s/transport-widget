@@ -4,6 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.arrivals.ArrivalModel
 import com.eden.livewidget.data.arrivals.ArrivalsApi
+import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -11,37 +14,17 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import kotlin.math.max
 
-//private data class ArrivalTiming(
-//    val countdownServerAdjustment: String,
-//    val source: String,
-//    val insert: String,
-//    val read: String,
-//    val sent: String,
-//    val received: String,
-//)
-
-
-private data class ArrivalEntry(
-//    val id: String,
-//    val operationType: Int,
-//    val vehicleId: String,
-//    val naptanId: String,
-//    val stationName: String,
-//    val lineId: String,
+private data class TflArrivalEntry(
+    @SerializedName("lineName")
     val lineName: String,
-//    val platformName: String,
-//    val direction: String,
-//    val bearing: String,
-//    val destinationNaptanId: String,
+    @SerializedName("platformName")
+    val platformName: String,
+    @SerializedName("destinationName")
     val destinationName: String,
-//    val timestamp: String,
+    @SerializedName("towards")
+    val towards: String,
+    @SerializedName("timeToStation")
     val timeToStation: Int,
-//    val currentLocation: String,
-//    val towards: String,
-//    val expectedArrival: String,
-//    val timeToLive: String,
-//    val modeName: String,
-//    val timing: ArrivalTiming,
 )
 
 private const val BASE_URL = "https://api.tfl.gov.uk"
@@ -56,38 +39,59 @@ private interface ArrivalsTflApiService {
     fun getStopPointArrivals(
         @Path("id")
         stopPointId: String,
-    ): Call<List<ArrivalEntry>>
+    ): Call<List<TflArrivalEntry>>
 }
 
 class ArrivalsTflApi(
-    private val stopPointId: String,
+    commaSeparatedNaptanIds: String,
 ) : ArrivalsApi {
+
+    private val naptanIds: List<String> = commaSeparatedNaptanIds.split(",")
 
     private val service: ArrivalsTflApiService by lazy {
         retrofit.create(ArrivalsTflApiService::class.java)
     }
 
-    override fun fetchLatestArrivals(context: Context): List<ArrivalModel> {
+    override suspend fun fetchLatestArrivals(context: Context): List<ArrivalModel> {
 
-        Log.i(this.javaClass.name, "Data fetched")
-        val request = service.getStopPointArrivals(stopPointId)
-        val response = request.execute()
-        if (response == null) {
-            Log.i(this.javaClass.name, "no response")
-            return emptyList()
-        } else if (response.body() !is List<ArrivalEntry>) {
-            Log.i(this.javaClass.name, "no body")
-            return emptyList()
+        val entries = mutableListOf<TflArrivalEntry>()
+
+        coroutineScope {
+            naptanIds.forEach { naptanId ->
+                launch {
+                    Log.i(this.javaClass.name, "Fetching data for $naptanId")
+                    val request = service.getStopPointArrivals(naptanId)
+
+                    val response = request.execute()
+                    if (response == null) {
+                        Log.i(this.javaClass.name, "no response")
+                        return@launch
+                    }
+
+                    val body = response.body()
+                    if (body !is List<TflArrivalEntry>) {
+                        Log.i(this.javaClass.name, "no body")
+                        return@launch
+                    }
+
+                    entries.addAll(body)
+                }
+            }
         }
 
-        val entries = response.body() as List<ArrivalEntry>
+        entries.sortBy { entry -> entry.timeToStation }
+
 
         return entries
             .map { entry ->
                 Log.i("ARRIVAL-INFO", entry.timeToStation.toString())
                 ArrivalModel(
-                    entry.lineName,
-                    max(0, entry.timeToStation - 60)
+                    operatorName = "Transport for London",
+                    serviceName = entry.lineName,
+                    destinationName = entry.destinationName,
+                    viaText = entry.towards,
+                    platformName = entry.platformName,
+                    remainingS = max(0, entry.timeToStation - 60)
                 )
             }
             .sortedBy { model -> model.remainingS }

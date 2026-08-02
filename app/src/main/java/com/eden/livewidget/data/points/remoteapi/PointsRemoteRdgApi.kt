@@ -65,13 +65,13 @@ class PointsRemoteRdgApi(
 
     override suspend fun fetchPoints(
         context: Context,
-        add: (PointEntity) -> Unit,
+        outputPoint: (PointEntity) -> Unit,
         statusUpdate: (String) -> Unit
     ) {
         coroutineScope {
             launch {
                 withContext(ioDispatcher) {
-                    fetchData(context, add)
+                    fetchData(context, outputPoint)
                 }
             }
 

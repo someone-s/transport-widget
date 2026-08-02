@@ -30,8 +30,8 @@ enum class Provider(
                 Dispatchers.IO
             )
         },
-        arrivalsApiConstructor = { stopPointId ->
-            ArrivalsTflApi(stopPointId)
+        arrivalsApiConstructor = { commaSeparatedNaptanIds ->
+            ArrivalsTflApi(commaSeparatedNaptanIds)
         },
     ),
     RDG(
