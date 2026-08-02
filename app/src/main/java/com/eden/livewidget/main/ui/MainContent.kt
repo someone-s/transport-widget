@@ -2,11 +2,6 @@ package com.eden.livewidget.main.ui
 
 import android.content.Context
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
@@ -16,7 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -26,14 +22,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.eden.livewidget.R
+import com.eden.livewidget.main.ui.about.AboutScreen
+import com.eden.livewidget.main.ui.datasync.DataSyncScreen
 import kotlinx.serialization.Serializable
 
 
 data class TopLevelRoute<T : Any>(
     val name: String,
     val route: T,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector
+    val selectedIcon: Painter,
+    val unselectedIcon: Painter
 )
 
 @Serializable
@@ -45,8 +43,18 @@ object About
 @Composable
 fun MainContent(applicationContext: Context, activityContext: Context) {
     val topLevelRoutes = listOf(
-        TopLevelRoute(stringResource(R.string.navigation_providers), Providers, Icons.Filled.Info, Icons.Outlined.Info),
-        TopLevelRoute(stringResource(R.string.navigation_about), About, Icons.Filled.Settings, Icons.Outlined.Settings),
+        TopLevelRoute(
+            stringResource(R.string.navigation_providers),
+            Providers,
+            painterResource(R.drawable.ic_shared_outlined_corporate_fare),
+            painterResource(R.drawable.ic_shared_outlined_corporate_fare)
+        ),
+        TopLevelRoute(
+            stringResource(R.string.navigation_about),
+            About,
+            painterResource(R.drawable.ic_shared_outlined_info),
+            painterResource(R.drawable.ic_shared_outlined_info)
+        ),
     )
 
     val navController = rememberNavController()
@@ -61,15 +69,14 @@ fun MainContent(applicationContext: Context, activityContext: Context) {
                     NavigationBarItem(
                         icon = {
                             Icon(
-                                imageVector =
-                                    if (currentDestination?.hierarchy?.any {
-                                            it.hasRoute(
-                                                topLevelRoute.route::class
-                                            )
-                                        } == true)
-                                        topLevelRoute.selectedIcon
-                                    else
-                                        topLevelRoute.unselectedIcon,
+                                painter = if (currentDestination?.hierarchy?.any {
+                                        it.hasRoute(
+                                            topLevelRoute.route::class
+                                        )
+                                    } == true)
+                                    topLevelRoute.selectedIcon
+                                else
+                                    topLevelRoute.unselectedIcon,
                                 contentDescription = topLevelRoute.name
                             )
                         },

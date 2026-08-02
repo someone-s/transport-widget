@@ -13,10 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
@@ -33,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -94,6 +92,7 @@ fun ConfiguratorSelectPointScreen(
                             matchingPoints[index].name
                         )
                     },
+                    leadingIcon = { painterResource(R.drawable.ic_shared_search) },
                     placeholder = { Text(stringResource(R.string.configure_point_screen_search_bar_placeholder)) },
                     supportingContent = { index, _ ->
                         if (index >= matchingPoints.size) return@CustomizableSearchBar
@@ -155,10 +154,7 @@ fun ConfiguratorSelectPointScreen(
                                 )
                             },
                             leadingContent = {
-                                Icon(
-                                    Icons.Rounded.LocationOn,
-                                    stringResource(R.string.configure_point_screen_location_icon_description)
-                                )
+                                painterResource(R.drawable.ic_shared_rounded_location_on)
                             },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier

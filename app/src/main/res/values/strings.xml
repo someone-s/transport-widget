@@ -8,8 +8,8 @@
     <string name="data_sync_notification_channel_name">Data Sync</string>
     <string name="data_sync_notification_title">Updating Database</string>
     <string name="data_sync_notification_cancel">Cancel</string>
-    <string name="data_sync_screen_update_data_button_text">Update Data</string>
-    <string name="data_sync_screen_reset_data_button_description">Reset Data</string>
+    <string name="data_sync_screen_download_data_button_main_text">Update</string>
+    <string name="data_sync_screen_reset_data_button_description">Reset</string>
     <string name="agency_tfl_title">Transport for London</string>
     <string name="agency_tfl_about_full">London\'s transport authority, provides live tracking data for buses, underground and riverboat services</string>
     <string name="widget_configure_prompt_text">Press to configure widget</string>
@@ -64,4 +64,25 @@
     <string name="data_sync_place_widget_body">Navigate to the home screen, long press on the home screen, and choose widgets.\n\nThe widget provided with the app is under the name %1$s.</string>
     <string name="data_sync_place_widget_dismiss">Dismiss</string>
     <string name="provider_rdg_api_fetch_status_update_text">Fetching all National Rail stations</string>
+    <string name="data_sync_screen_icon_description">Corporate style building icon, signifying an agency</string>
+    <string name="data_sync_screen_key_configure_expand_button_main_text">Configure</string>
+    <string name="data_sync_screen_key_configure_expand_button_icon">Configure icon</string>
+    <string name="shared_arrow_drop_up_icon">Drop up icon</string>
+    <string name="shared_arrow_drop_down_icon">Drop down icon</string>
+    <string name="data_sync_screen_key_configure_expand_button_support_text">Enter API keys</string>
+    <string name="data_sync_screen_key_configure_purpose_point_text">Stops API key</string>
+    <string name="data_sync_screen_key_configure_purpose_arrivals_text">Arrivals API key</string>
+    <string name="data_sync_screen_key_configure_purpose_point_and_arrivals_text">Stops and arrivals API key</string>
+    <string name="data_sync_screen_key_configure_purpose_unknown_text">Unknown API key</string>
+    <string name="data_sync_screen_download_data_button_support_text">Pull latest stop information</string>
+    <string name="data_sync_screen_data_expand_button_icon">Update icon</string>
+    <string name="data_sync_screen_reset_data_button_icon">Reset icon</string>
+    <string name="data_sync_screen_reset_data_button_main_text">Reset</string>
+    <string name="data_sync_screen_reset_data_button_support_text">Revert to empty or out of box information</string>
+    <string name="data_sync_screen_data_expand_button_main_text">Data</string>
+    <string name="data_sync_screen_download_data_button_in_progress_text">In progress</string>
+    <string name="data_sync_key_input_dialog_icon_description">Key icon</string>
+    <string name="data_sync_key_input_dialog_title">Update API key</string>
+    <string name="data_sync_screen_key_configure_value_empty_text">Not set</string>
+    <string name="data_sync_key_input_field_label">Key String</string>
 </resources>
