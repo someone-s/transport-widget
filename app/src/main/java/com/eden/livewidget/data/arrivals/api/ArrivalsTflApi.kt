@@ -12,6 +12,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
 private data class TflArrivalEntry(
@@ -20,11 +22,13 @@ private data class TflArrivalEntry(
     @SerializedName("platformName")
     val platformName: String,
     @SerializedName("destinationName")
-    val destinationName: String,
+    val destinationName: String?,
     @SerializedName("towards")
     val towards: String,
     @SerializedName("timeToStation")
     val timeToStation: Int,
+    @SerializedName("expectedArrival")
+    val expectedArrivalString: String
 )
 
 private const val BASE_URL = "https://api.tfl.gov.uk"
@@ -82,18 +86,43 @@ class ArrivalsTflApi(
         entries.sortBy { entry -> entry.timeToStation }
 
 
+        val responseTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss'Z'")
+
         return entries
+            .filter { it.destinationName != null }
             .map { entry ->
                 Log.i("ARRIVAL-INFO", entry.timeToStation.toString())
                 ArrivalModel(
-                    operatorName = "Transport for London",
-                    serviceName = entry.lineName,
-                    destinationName = entry.destinationName,
+                    operatorName = "TfLondon",
+                    serviceName = processServiceName(entry.lineName),
+                    destinationName = processDestinationName(entry.destinationName!!),
                     viaText = entry.towards,
-                    platformName = entry.platformName,
-                    remainingS = max(0, entry.timeToStation - 60)
+                    platformName = processPlatformName(entry.platformName),
+                    remainingS = max(0, entry.timeToStation - 60),
+                    expectedDateTime = LocalDateTime.from(responseTimeFormatter.parse(entry.expectedArrivalString))
                 )
             }
             .sortedBy { model -> model.remainingS }
     }
+
+    private val stripDestinationNameRegex = Regex("( Underground Station)|( Station)|( DLR)")
+    private fun processDestinationName(input: String): String {
+        return stripDestinationNameRegex.replace(input, "")
+    }
+
+    private val stripPlatformDirectionRegex = Regex(".+?(?=Platform)|(Platform)|(\\s)")
+    private fun processPlatformName(input: String): String {
+        return stripPlatformDirectionRegex.replace(input, "")
+    }
+
+    private val stripServiceNameRegex = Regex("(Line)|[^A-Z0-9&]")
+    private fun processServiceName(input: String): String {
+        if (input.length <= 5)
+            return input
+        if (input.length <= 8)
+            return input.take(5)
+        else
+            return stripServiceNameRegex.replace(input, "").take(5)
+    }
+
 }

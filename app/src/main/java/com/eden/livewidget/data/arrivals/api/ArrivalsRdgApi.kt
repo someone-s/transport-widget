@@ -138,22 +138,36 @@ class ArrivalsRdgApi(
                         service.estimatedTimeText
                     else // (service.hasScheduledTime)
                         service.scheduledTimeText
-                val expectTime = LocalDateTime.from(responseTimeFormatter.parse(expectTimeText))
+                val expectDateTime = LocalDateTime.from(responseTimeFormatter.parse(expectTimeText))
 
-                val secondsToDeparture = Math.toIntExact(ChronoUnit.SECONDS.between(currentTime, expectTime))
+                val secondsToDeparture = Math.toIntExact(ChronoUnit.SECONDS.between(currentTime, expectDateTime))
 
                 val firstDestination = service.destinations!!.first()
 
                 Log.i("ARRIVAL-INFO", secondsToDeparture.toString())
                 ArrivalModel(
-                    operatorName = service.operator,
+                    operatorName = processOperatorName(service.operator),
                     serviceName = service.trainId,
                     destinationName = firstDestination.locationName,
-                    viaText = firstDestination.viaText ?: "",
+                    viaText = if (firstDestination.viaText != null) processViaText(firstDestination.viaText) else "",
                     platformName = service.platform,
                     remainingS = max(0, secondsToDeparture - 60),
+                    expectedDateTime = expectDateTime
                 )
             }
             .sortedBy { model -> model.remainingS }
+    }
+
+    private val stripViaTextRegex = Regex("[Vv]ia ")
+    private fun processViaText(input: String): String {
+        return stripViaTextRegex.replace(input, "")
+    }
+
+    private val stripOperatorNameRegex = Regex("(?<=[^\\s])[^A-Z]")
+    private fun processOperatorName(input: String): String {
+        return if (input.length <= 8)
+            input
+        else
+            stripOperatorNameRegex.replace(input, "").take(5)
     }
 }
