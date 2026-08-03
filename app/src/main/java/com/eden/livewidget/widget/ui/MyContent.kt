@@ -32,6 +32,7 @@ import com.eden.livewidget.main.MainActivity
 import com.eden.livewidget.widget.LivePointWidgetUpdateWorker
 import com.eden.livewidget.widget.RefreshLivePointWidgetCallback
 import kotlinx.coroutines.flow.flow
+import java.time.LocalDateTime
 import java.util.Calendar
 
 @Composable
@@ -104,7 +105,7 @@ fun MyContent(
 }
 
 @OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 800, heightDp = 300)
+@Preview(widthDp = 430, heightDp = 300)
 @Composable
 fun MyContentPreview() {
     GlanceTheme {
@@ -117,26 +118,29 @@ fun MyContentPreview() {
                 ArrivalModel(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
-                    destinationName = "Dest 1",
+                    destinationName = "Really long destination name to display name to display",
                     viaText = "via Intermediate, More text",
-                    platformName = "PF1",
-                    remainingS = 60
+                    platformName = "PF2",
+                    remainingS = 30,
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 39)
+                ),
+                ArrivalModel(
+                    operatorName = "Operator 1",
+                    serviceName = "SRV2A",
+                    destinationName = "Really short",
+                    viaText = "",
+                    platformName = "A",
+                    remainingS = 240,
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 42)
                 ),
                 ArrivalModel(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
-                    destinationName = "Dest 1",
+                    destinationName = "Really long destination name to display name to display",
                     viaText = "via Intermediate, More text",
-                    platformName = "PF1",
-                    remainingS = 240
-                ),
-                ArrivalModel(
-                    operatorName = "Operator 1",
-                    serviceName = "Service 1",
-                    destinationName = "Dest 1",
-                    viaText = "via Intermediate, More text",
-                    platformName = "PF1",
-                    remainingS = 4096
+                    platformName = "23",
+                    remainingS = 4096,
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 54)
                 ),
             )
         )
