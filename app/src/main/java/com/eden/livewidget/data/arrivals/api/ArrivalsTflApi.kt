@@ -93,7 +93,7 @@ class ArrivalsTflApi(
             .map { entry ->
                 Log.i("ARRIVAL-INFO", entry.timeToStation.toString())
                 ArrivalModel(
-                    operatorName = "TfLondon",
+                    operatorName = "TfL",
                     serviceName = processServiceName(entry.lineName),
                     destinationName = processDestinationName(entry.destinationName!!),
                     viaText = entry.towards,
