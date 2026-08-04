@@ -3,17 +3,13 @@ package com.eden.livewidget.widget.ui
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.components.Scaffold
@@ -29,25 +25,26 @@ import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
 import com.eden.livewidget.data.arrivals.ArrivalModel
 import com.eden.livewidget.main.MainActivity
-import com.eden.livewidget.widget.LivePointWidgetUpdateWorker
 import com.eden.livewidget.widget.RefreshLivePointWidgetCallback
-import kotlinx.coroutines.flow.flow
 import java.time.LocalDateTime
 import java.util.Calendar
 
+enum class MyContentMode {
+    ACTIVE,
+    PAUSED_OK_READY,
+    PAUSED_ERROR_UNKNOWN,
+    PAUSED_ERROR_BATTERY,
+    PAUSED_ERROR_AUTHENTICATE,
+    PAUSED_ERROR_UNREACHABLE,
+}
+
 @Composable
 fun MyContent(
+    mode: MyContentMode,
     context: Context?,
-    glanceId: GlanceId?,
     displayName: String,
-    inactiveText: String,
-    latestArrivals: List<ArrivalModel>,
+    latestArrivalsData: List<ArrivalModel>,
 ) {
-
-    val widgetId = if (context != null && glanceId != null) GlanceAppWidgetManager(context).getAppWidgetId(glanceId) else -1
-
-    val flow = if (context != null) LivePointWidgetUpdateWorker.getIsActiveFlow(context, widgetId) else flow { }
-    val isActive by flow.collectAsState(true)
 
     Scaffold(
         backgroundColor = GlanceTheme.colors.widgetBackground,
@@ -82,7 +79,7 @@ fun MyContent(
                     maxLines = 1
                 )
 
-                if (isActive)
+                if (mode == MyContentMode.ACTIVE)
                     FilledButton(
                         icon = ImageProvider(R.drawable.ic_widget_refresh),
                         text =
@@ -96,24 +93,27 @@ fun MyContent(
             }
         }
     ) {
-        if (isActive)
-            ActiveList(latestArrivals)
-        else
-            DisableBlock(inactiveText)
+        when (mode) {
+            MyContentMode.ACTIVE -> ActiveList(latestArrivalsData)
+            MyContentMode.PAUSED_OK_READY -> ReadyBlock()
+            MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
+            MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock()
+            MyContentMode.PAUSED_ERROR_AUTHENTICATE -> AuthenticateErrorBlock()
+            MyContentMode.PAUSED_ERROR_UNKNOWN -> UnknownErrorBlock()
+        }
     }
 
 }
 
 @OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 430, heightDp = 300)
+@Preview(widthDp = 380, heightDp = 300)
 @Composable
 fun MyContentPreview() {
     GlanceTheme {
         MyContent(
-            null,
+            mode = MyContentMode.PAUSED_ERROR_AUTHENTICATE,
             null,
             "Display name",
-            "Inactive text",
             listOf(
                 ArrivalModel(
                     operatorName = "Operator 1",

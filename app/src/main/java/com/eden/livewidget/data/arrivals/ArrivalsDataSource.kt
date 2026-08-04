@@ -11,10 +11,20 @@ class ArrivalsDataSource(
     private val ioDispatcher: CoroutineDispatcher
 ) {
 
-    suspend fun fetchLatestArrivals(context: Context): List<ArrivalModel> =
+    suspend fun fetchLatestArrivals(context: Context): Pair<FetchResult, List<ArrivalModel>> =
         // Move the execution to an IO-optimized thread since the ApiService
         // doesn't support coroutines and makes synchronous requests.
         withContext(ioDispatcher) {
-            arrivalsApi.fetchLatestArrivals(context)
+            try {
+                Pair(FetchResult.SUCCESS, arrivalsApi.fetchLatestArrivals(context))
+            } catch (_: ArrivalsApi.Companion.UnreachableException) {
+                Pair(FetchResult.ERROR_UNREACHABLE, emptyList())
+            } catch (_: ArrivalsApi.Companion.AuthenticationException) {
+                Pair(FetchResult.ERROR_AUTHENTICATION, emptyList())
+            }
         }
+
+    companion object {
+        enum class FetchResult { SUCCESS, ERROR_UNREACHABLE, ERROR_AUTHENTICATION }
+    }
 }

@@ -20,6 +20,8 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
+import androidx.glance.preview.ExperimentalGlancePreviewApi
+import androidx.glance.preview.Preview
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -70,4 +72,13 @@ fun PlaceholderContent(context: Context?, id: GlanceId?) {
         }
     }
 
+}
+
+@OptIn(ExperimentalGlancePreviewApi::class)
+@Preview(widthDp = 430, heightDp = 300)
+@Composable
+fun PlaceholderContentPreview() {
+    GlanceTheme {
+        PlaceholderContent(null, null)
+    }
 }

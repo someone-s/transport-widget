@@ -129,11 +129,11 @@ class LivePointWidgetUpdateWorker(
         if (remainingTimes < 0) {
 
             updateAppWidgetState(context, glanceId) { preferences ->
-                preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
-                    LivePointWidget.INACTIVE_TEXT_OPTION_NORMAL
+                preferences[LivePointWidget.FETCH_RESULT_KEY] =
+                    LivePointWidget.FETCH_RESULT_RAN_SKIPPED
             }
 
-            // update one more cycle then end
+            // update one more cycle than end
             updater.update(context, glanceId)
         } else {
 
@@ -150,26 +150,30 @@ class LivePointWidgetUpdateWorker(
                 // Update data source
                 val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
                 repository.fetchLatestArrival(context)
+
             } catch (e: Exception) {
                 Log.e(javaClass.name, e.message ?: "Failed with no message", e)
 
                 val powerService = context.getSystemService(POWER_SERVICE)
                 if (powerService == null)
                     updateAppWidgetState(context, glanceId) { preferences ->
-                        preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
-                            LivePointWidget.INACTIVE_TEXT_OPTION_ERROR
+                        preferences[LivePointWidget.FETCH_RESULT_KEY] =
+                            LivePointWidget.FETCH_RESULT_ERROR_UNKNOWN
                     }
                 else {
                     val powerManager = powerService as PowerManager
-                    if (powerManager.isIgnoringBatteryOptimizations(context.packageName))
+                    if (
+                        powerManager.isPowerSaveMode &&
+                        !powerManager.isIgnoringBatteryOptimizations(context.packageName)
+                    )
                         updateAppWidgetState(context, glanceId) { preferences ->
-                            preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
-                                LivePointWidget.INACTIVE_TEXT_OPTION_ERROR
+                            preferences[LivePointWidget.FETCH_RESULT_KEY] =
+                                LivePointWidget.FETCH_RESULT_ERROR_BATTERY
                         }
                     else
                         updateAppWidgetState(context, glanceId) { preferences ->
-                            preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
-                                LivePointWidget.INACTIVE_TEXT_OPTION_BATTERY
+                            preferences[LivePointWidget.FETCH_RESULT_KEY] =
+                                LivePointWidget.FETCH_RESULT_ERROR_UNKNOWN
                         }
                 }
                 updater.update(context, glanceId)
@@ -178,8 +182,8 @@ class LivePointWidgetUpdateWorker(
             }
 
             updateAppWidgetState(context, glanceId) { preferences ->
-                preferences[LivePointWidget.INACTIVE_TEXT_OPTION_KEY] =
-                    LivePointWidget.INACTIVE_TEXT_OPTION_NORMAL
+                preferences[LivePointWidget.FETCH_RESULT_KEY] =
+                    LivePointWidget.FETCH_RESULT_RAN_COMPLETED
             }
 
             updater.update(context, glanceId)

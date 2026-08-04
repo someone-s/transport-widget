@@ -3,14 +3,11 @@ package com.eden.livewidget.configurator
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import android.os.PowerManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
@@ -20,7 +17,6 @@ import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.providerToString
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.widget.LivePointWidgetCreateWorker
-import com.eden.livewidget.configurator.ui.ConfigurationBatteryPrompt
 import com.eden.livewidget.configurator.ui.ConfiguratorContent
 
 class LivePointWidgetConfigurationActivity: ComponentActivity()  {
@@ -41,31 +37,14 @@ class LivePointWidgetConfigurationActivity: ComponentActivity()  {
         setContent {
             TransportWidgetsTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    ConfiguratorContent({ apiProvider, apiValue, displayName ->
+                    ConfiguratorContent { apiProvider, apiValue, displayName ->
                         createWidget(
                             appWidgetId,
                             apiProvider,
                             apiValue,
                             displayName
                         )
-                    })
-
-                    val (visible, setVisible) = remember {
-
-                        var initialState: Boolean
-                        val powerService = getSystemService(POWER_SERVICE)
-                        if (powerService == null)
-                            initialState = false
-                        else {
-                            val powerManager = powerService as PowerManager
-                            if (powerManager.isIgnoringBatteryOptimizations(packageName))
-                                initialState = false
-                            else
-                                initialState = true
-                        }
-                        mutableStateOf(initialState)
                     }
-                    if (visible) ConfigurationBatteryPrompt(this, setVisible)
                 }
 
             }

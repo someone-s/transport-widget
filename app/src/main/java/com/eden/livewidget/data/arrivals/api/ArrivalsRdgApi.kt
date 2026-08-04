@@ -5,6 +5,8 @@ import android.util.Log
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.arrivals.ArrivalModel
 import com.eden.livewidget.data.arrivals.ArrivalsApi
+import com.eden.livewidget.data.arrivals.ArrivalsApi.Companion.UnreachableException
+import com.eden.livewidget.data.arrivals.ArrivalsApi.Companion.AuthenticationException
 import com.eden.livewidget.data.keys.KeyPurpose
 import com.eden.livewidget.data.keys.getKeyProviderConstructor
 import com.google.gson.annotations.SerializedName
@@ -109,8 +111,14 @@ class ArrivalsRdgApi(
 
         val response = request.execute()
         if (response == null) {
-            Log.i(this.javaClass.name, "no response")
-            return emptyList()
+            Log.w(this.javaClass.name, "no response")
+            throw UnreachableException("Unable to reach server")
+        }
+
+        val unauthorizedCode = 401
+        if (response.code() == unauthorizedCode) {
+            Log.w(this.javaClass.name, "unauthorized")
+            throw AuthenticationException("Unable to authenticate")
         }
 
         val body = response.body()

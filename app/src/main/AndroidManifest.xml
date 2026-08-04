@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TransportWidgets">
+
         <activity
             android:name=".main.MainActivity"
             android:exported="true"
@@ -36,14 +37,23 @@
 
         <activity
             android:name=".configurator.LivePointWidgetConfigurationActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/live_point_widget_configuration_activity_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".battery.LivePointWidgetBatteryActivity"
+            android:exported="false"
+            android:label="@string/live_point_widget_battery_activity_label"
+            android:theme="@style/Theme.TransportWidgets">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
         <receiver android:name=".widget.LivePointWidgetReceiver"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
