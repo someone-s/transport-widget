@@ -122,7 +122,7 @@ fun MyContentPreview() {
                     viaText = "via Intermediate, More text",
                     platformName = "PF2",
                     remainingS = 30,
-                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 39)
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
                 ),
                 ArrivalModel(
                     operatorName = "Operator 1",

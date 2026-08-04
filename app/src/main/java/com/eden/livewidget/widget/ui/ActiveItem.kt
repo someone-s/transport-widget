@@ -140,7 +140,7 @@ private fun TimeColumn(arrival: ArrivalModel) {
             ) {
                 Text(
                     modifier = GlanceModifier.fillMaxWidth(),
-                    text = "${arrival.expectedDateTime.hour}:${arrival.expectedDateTime.minute}",
+                    text = "${arrival.expectedDateTime.hour.toString().padStart(2, '0')}:${arrival.expectedDateTime.minute.toString().padStart(2, '0')}",
                     style = TextStyle(
                         color = GlanceTheme.colors.onSecondaryContainer,
                         fontWeight = FontWeight.Normal,
