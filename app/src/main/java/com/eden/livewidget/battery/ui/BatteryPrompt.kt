@@ -1,4 +1,4 @@
-package com.eden.livewidget.configurator.ui
+package com.eden.livewidget.battery.ui
 
 import android.content.Context
 import android.content.Intent
@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.R
 
 @Composable
-fun ConfigurationBatteryPrompt(context: Context, setVisible: (Boolean) -> Unit) {
+fun BatteryPrompt(context: Context, close: () -> Unit) {
 
 
     Box(
@@ -26,20 +26,20 @@ fun ConfigurationBatteryPrompt(context: Context, setVisible: (Boolean) -> Unit) 
         contentAlignment = Alignment.Center
     ) {
         AlertDialog(
-            onDismissRequest = {setVisible(false) },
+            onDismissRequest = {close() },
             confirmButton = {
                 Button(
                     onClick = {
                         val intent = Intent().apply {
-                            action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                            action = Settings.ACTION_BATTERY_SAVER_SETTINGS
                         }
                         context.startActivity(intent)
-                        setVisible(false)
+                        close()
                     }
                 ) { Text(text = stringResource(R.string.configure_battery_prompt_confirm_text)) }
             },
             dismissButton = {
-                TextButton( onClick = { setVisible(false) } ) {  Text( text = stringResource(R.string.configure_battery_prompt_dismiss_text)) }
+                TextButton( onClick = { close() } ) {  Text( text = stringResource(R.string.configure_battery_prompt_dismiss_text)) }
             },
             icon = { Icon(painterResource(R.drawable.ic_alert_battery),
                 stringResource(R.string.configure_battery_prompt_icon_description)

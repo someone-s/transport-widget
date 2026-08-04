@@ -17,9 +17,11 @@ import androidx.glance.currentState
 import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.arrivals.ArrivalsRepository.Companion.DataValidity
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.widget.ui.MockContent
 import com.eden.livewidget.widget.ui.MyContent
+import com.eden.livewidget.widget.ui.MyContentMode
 import com.eden.livewidget.widget.ui.PlaceholderContent
 
 class LivePointWidget : GlanceAppWidget() {
@@ -29,14 +31,14 @@ class LivePointWidget : GlanceAppWidget() {
         val API_PROVIDER_KEY = stringPreferencesKey("apiProvider")
         val API_VALUE_KEY = stringPreferencesKey("apiValue")
         val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
-        val INACTIVE_TEXT_OPTION_KEY = stringPreferencesKey("inactiveText")
+        val FETCH_RESULT_KEY = stringPreferencesKey("inactiveText")
 
-        const val INACTIVE_TEXT_OPTION_ERROR = "error"
-        const val INACTIVE_TEXT_OPTION_BATTERY = "battery"
-        const val INACTIVE_TEXT_OPTION_NORMAL =  "normal"
-
-
+        const val FETCH_RESULT_ERROR_UNKNOWN = "error-auth"
+        const val FETCH_RESULT_ERROR_BATTERY = "error-battery"
+        const val FETCH_RESULT_RAN_SKIPPED =  "ran-skipped"
+        const val FETCH_RESULT_RAN_COMPLETED = "ran-received"
     }
+
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
@@ -72,16 +74,33 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
-                val inactiveTextOption = currentState(INACTIVE_TEXT_OPTION_KEY)
-                val inactiveText = when (inactiveTextOption) {
-                    INACTIVE_TEXT_OPTION_ERROR -> LocalContext.current.getString(R.string.widget_start_tracking_error_text)
-                    INACTIVE_TEXT_OPTION_BATTERY -> LocalContext.current.getString(R.string.widget_start_tracking_battery_text)
-                    else -> LocalContext.current.getString(R.string.widget_start_tracking_prompt_text)
-                }
+                val fetchResultOptions = currentState(FETCH_RESULT_KEY)
 
                 val repository = remember { ArrivalsRepository.getInstance(apiProvider, apiValue) }
                 val latestArrivals by repository.latestArrivals.collectAsState()
-                MyContent(context, id, displayName, inactiveText, latestArrivals)
+                val latestArrivalsValidity = latestArrivals.first
+                val latestArrivalsData = latestArrivals.second
+
+                val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
+                val flow = LivePointWidgetUpdateWorker.getIsActiveFlow(context, widgetId)
+                val isActive by flow.collectAsState(false)
+
+                val mode = when(fetchResultOptions) {
+                    FETCH_RESULT_RAN_SKIPPED, FETCH_RESULT_RAN_COMPLETED -> {
+                        when(latestArrivalsValidity) {
+                            DataValidity.VALID,
+                            DataValidity.INVALID_UNINITIALIZED -> if (isActive) MyContentMode.ACTIVE else MyContentMode.PAUSED_OK_READY
+                            DataValidity.INVALID_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
+                            DataValidity.INVALID_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
+                        }
+                    }
+                    FETCH_RESULT_ERROR_BATTERY -> MyContentMode.PAUSED_ERROR_BATTERY
+                    FETCH_RESULT_ERROR_UNKNOWN -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                    else -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                }
+
+
+                MyContent(mode, context, displayName, latestArrivalsData)
             }
         }
     }

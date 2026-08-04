@@ -13,11 +13,10 @@ import java.time.LocalDateTime
 fun MockContent() {
 
     MyContent(
-        null,
-        null,
-        LocalContext.current.getString(R.string.widget_mock_station_text),
-        "",
-        listOf(
+        mode = MyContentMode.ACTIVE,
+        context = null,
+        displayName = LocalContext.current.getString(R.string.widget_mock_station_text),
+        latestArrivalsData = listOf(
             ArrivalModel(
                 operatorName = LocalContext.current.getString(R.string.widget_mock_arrival_0_operator_text),
                 serviceName = LocalContext.current.getString(R.string.widget_mock_arrival_0_service_text),
@@ -45,7 +44,7 @@ fun MockContent() {
                 remainingS = 4096,
                 expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 54)
             ),
-        )
+        ),
     )
 
 }
