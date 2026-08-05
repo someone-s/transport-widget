@@ -1,16 +1,23 @@
 package com.eden.livewidget.widget.ui
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
-import androidx.glance.action.actionStartActivity
 import androidx.glance.appwidget.components.FilledButton
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Row
@@ -24,7 +31,6 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.battery.LivePointWidgetBatteryActivity
 
 @Composable
 fun BatteryErrorBlock() {
@@ -68,6 +74,18 @@ fun BatteryErrorBlock() {
 
 @Composable
 private fun UpdateKeyGroup() {
+
+
+//    val appIntent = Intent().apply {
+//        setClass(LocalContext.current, LivePointWidgetBatteryActivity::class.java)
+//        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+//    }
+
+    val appSettingsIntent = getResolvedAppSettingsIntent(LocalContext.current.packageManager, LocalContext.current.packageName)
+
+    val batterySaverSettingsIntent = getResolvedBatterySaverSettingsIntent(LocalContext.current.packageManager)
+
     Row(
         modifier = GlanceModifier
             .fillMaxSize(),
@@ -82,7 +100,7 @@ private fun UpdateKeyGroup() {
                 .defaultWeight()
                 .fillMaxHeight(),
             maxLines = 2,
-            onClick = actionStartActivity<LivePointWidgetBatteryActivity>()
+            onClick = actionStartActivity(appSettingsIntent)
         )
         Image(
             provider = ImageProvider(R.drawable.ic_shared_outlined_arrow_outward),
@@ -92,12 +110,51 @@ private fun UpdateKeyGroup() {
         FilledButton(
             icon = ImageProvider(R.drawable.ic_shared_outlined_energy_savings_leaf),
             text = LocalContext.current.getString(R.string.widget_retry_battery_disable_saver_text),
-            onClick = {},
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .defaultWeight()
                 .fillMaxHeight(),
-            maxLines = 2
+            maxLines = 2,
+            onClick = actionStartActivity(batterySaverSettingsIntent),
         )
+    }
+}
+
+private fun getResolvedAppSettingsIntent(packageManager: PackageManager, packageName: String): Intent {
+
+    val applicationSettingsIntent = Intent().apply {
+        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+    }
+
+    // Settings app should be visible by default
+    @SuppressLint("QueryPermissionsNeeded")
+    val applicationSettingsComponentName =
+        applicationSettingsIntent.resolveActivity(packageManager)
+
+    return Intent().apply {
+        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        component = applicationSettingsComponentName
+        data = "package:$packageName".toUri()
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+    }
+}
+
+private fun getResolvedBatterySaverSettingsIntent(packageManager: PackageManager): Intent {
+    val batterySaverSettingsIntent = Intent().apply {
+        action = Settings.ACTION_BATTERY_SAVER_SETTINGS
+    }
+
+    // Settings app should be visible by default
+    @SuppressLint("QueryPermissionsNeeded")
+    val batterySaverComponentName =
+        batterySaverSettingsIntent.resolveActivity(packageManager)
+
+    return batterySaverSettingsIntent.apply {
+        component = batterySaverComponentName
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
     }
 }
