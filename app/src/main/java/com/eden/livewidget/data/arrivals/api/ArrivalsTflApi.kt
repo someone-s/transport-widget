@@ -119,7 +119,7 @@ class ArrivalsTflApi(
     private fun processServiceName(input: String): String {
         if (input.length <= 5)
             return input
-        if (input.length <= 8)
+        if (input.length <= 15)
             return input.take(5)
         else
             return stripServiceNameRegex.replace(input, "").take(5)
