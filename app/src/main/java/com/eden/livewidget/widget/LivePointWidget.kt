@@ -7,14 +7,12 @@ import androidx.compose.runtime.remember
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceTheme
-import androidx.glance.LocalContext
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
-import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.arrivals.ArrivalsRepository.Companion.DataValidity
