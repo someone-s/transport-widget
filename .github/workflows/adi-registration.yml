@@ -3,7 +3,7 @@ name: ADI Registration
 on:
   push:
     tags:
-    - 'adi-regisration'
+    - 'adi-registration'
 
 jobs:
 
