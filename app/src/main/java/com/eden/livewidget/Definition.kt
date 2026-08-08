@@ -22,3 +22,20 @@ enum class Agency(
         apiProvider = Provider.RDG
     )
 }
+
+fun agencyToString(agency: Agency): String = agency.name
+
+fun agencyFromString(string: String?): Agency? {
+
+    if (string == null)
+        return null
+
+    var agency: Agency
+    try {
+        agency = Agency.valueOf(string)
+    } catch (_: IllegalArgumentException) {
+        return null
+    }
+
+    return agency
+}

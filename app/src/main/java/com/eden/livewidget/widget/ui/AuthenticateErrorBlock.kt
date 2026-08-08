@@ -1,6 +1,7 @@
 package com.eden.livewidget.widget.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Settings
@@ -14,6 +15,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -27,10 +29,14 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
+import com.eden.livewidget.Agency
 import com.eden.livewidget.R
+import com.eden.livewidget.main.MainActivity
 
 @Composable
-fun AuthenticateErrorBlock() {
+fun AuthenticateErrorBlock(
+    agency: Agency?
+) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -63,14 +69,17 @@ fun AuthenticateErrorBlock() {
                     .fillMaxWidth()
                     .height(64.dp)
             ) {
-                UpdateKeyGroup()
+                UpdateKeyGroup(agency)
             }
         }
     }
 }
 
 @Composable
-private fun UpdateKeyGroup() {
+private fun UpdateKeyGroup(agency: Agency?) {
+
+    val explicitKeySettingsIntent = if (agency != null) getExplicitKeySettingsIntent(LocalContext.current, agency) else Intent()
+
     Row(
         modifier = GlanceModifier
             .fillMaxSize(),
@@ -95,7 +104,7 @@ private fun UpdateKeyGroup() {
         FilledButton(
             icon = ImageProvider(R.drawable.ic_shared_outlined_key),
             text = LocalContext.current.getString(R.string.widget_retry_authenticate_update_key_text),
-            onClick = {},
+            onClick = actionStartActivity(explicitKeySettingsIntent),
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .defaultWeight()
@@ -126,20 +135,9 @@ private fun getResolvedProviderIntent(packageManager: PackageManager, packageNam
     }
 }
 
-private fun getResolvedBatterySaverSettingsIntent(packageManager: PackageManager): Intent {
-    val batterySaverSettingsIntent = Intent().apply {
-        action = Settings.ACTION_BATTERY_SAVER_SETTINGS
-    }
+private fun getExplicitKeySettingsIntent(context: Context, agency: Agency): Intent {
 
-    // Settings app should be visible by default
-    @SuppressLint("QueryPermissionsNeeded")
-    val batterySaverComponentName =
-        batterySaverSettingsIntent.resolveActivity(packageManager)
-
-    return batterySaverSettingsIntent.apply {
-        component = batterySaverComponentName
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+    return Intent(context, MainActivity::class.java).apply {
+        putExtra(MainActivity.AGENCY_EXTRA_NAME, agency)
     }
 }

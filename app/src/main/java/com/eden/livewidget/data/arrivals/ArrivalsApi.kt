@@ -5,13 +5,16 @@ import android.content.Context
 
 interface ArrivalsApi {
 
-    @Throws(UnreachableException::class, AuthenticationException::class)
+    @Throws(
+        UnresolvedException::class,
+        UnreachableException::class,
+        AuthenticationException::class
+    )
     suspend fun fetchLatestArrivals(context: Context): List<ArrivalModel>
 
-    companion object {
-        class UnreachableException(message: String?) : RuntimeException(message)
-        class AuthenticationException(message: String?) : RuntimeException(message)
-    }
+    class UnresolvedException(message: String?) : RuntimeException(message)
+    class UnreachableException(message: String?) : RuntimeException(message)
+    class AuthenticationException(message: String?) : RuntimeException(message)
 }
 
 

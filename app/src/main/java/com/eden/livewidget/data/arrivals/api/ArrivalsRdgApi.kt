@@ -5,8 +5,6 @@ import android.util.Log
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.arrivals.ArrivalModel
 import com.eden.livewidget.data.arrivals.ArrivalsApi
-import com.eden.livewidget.data.arrivals.ArrivalsApi.Companion.UnreachableException
-import com.eden.livewidget.data.arrivals.ArrivalsApi.Companion.AuthenticationException
 import com.eden.livewidget.data.keys.KeyPurpose
 import com.eden.livewidget.data.keys.getKeyProviderConstructor
 import com.google.gson.annotations.SerializedName
@@ -17,6 +15,7 @@ import retrofit2.http.GET
 import retrofit2.http.HeaderMap
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -109,16 +108,19 @@ class ArrivalsRdgApi(
             60
         )
 
-        val response = request.execute()
+        val response = try { request.execute() } catch (e: IOException) {
+            Log.w(this.javaClass.name, e.message ?: "mo error message")
+            throw ArrivalsApi.UnresolvedException("Unable to reach server")
+        }
         if (response == null) {
             Log.w(this.javaClass.name, "no response")
-            throw UnreachableException("Unable to reach server")
+            throw ArrivalsApi.UnreachableException("Response empty")
         }
 
         val unauthorizedCode = 401
         if (response.code() == unauthorizedCode) {
             Log.w(this.javaClass.name, "unauthorized")
-            throw AuthenticationException("Unable to authenticate")
+            throw ArrivalsApi.AuthenticationException("Unable to authenticate")
         }
 
         val body = response.body()

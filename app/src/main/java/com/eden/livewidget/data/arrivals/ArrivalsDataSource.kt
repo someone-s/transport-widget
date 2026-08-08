@@ -17,14 +17,14 @@ class ArrivalsDataSource(
         withContext(ioDispatcher) {
             try {
                 Pair(FetchResult.SUCCESS, arrivalsApi.fetchLatestArrivals(context))
-            } catch (_: ArrivalsApi.Companion.UnreachableException) {
+            } catch (_: ArrivalsApi.UnresolvedException) {
+                Pair(FetchResult.ERROR_UNRESOLVED, emptyList())
+            } catch (_: ArrivalsApi.UnreachableException) {
                 Pair(FetchResult.ERROR_UNREACHABLE, emptyList())
-            } catch (_: ArrivalsApi.Companion.AuthenticationException) {
+            } catch (_: ArrivalsApi.AuthenticationException) {
                 Pair(FetchResult.ERROR_AUTHENTICATION, emptyList())
             }
         }
 
-    companion object {
-        enum class FetchResult { SUCCESS, ERROR_UNREACHABLE, ERROR_AUTHENTICATION }
-    }
+    enum class FetchResult { SUCCESS, ERROR_UNRESOLVED, ERROR_UNREACHABLE, ERROR_AUTHENTICATION }
 }

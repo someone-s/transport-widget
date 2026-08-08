@@ -18,6 +18,7 @@ fragment = "1.8.9"
 activity = "1.13.0"
 glance = "1.2.0-rc01"
 workRuntimeKtx = "2.11.2"
+okhttp = "5.4.0"
 retrofit = "3.0.0"
 fuzzywuzzy = "1.4.0"
 room = "2.8.4"
@@ -59,6 +60,8 @@ androidx-glance-preview = { group = "androidx.glance", name = "glance-preview", 
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance"}
 androidx-glance-appwidget-preview = { group = "androidx.glance", name = "glance-appwidget-preview", version.ref = "glance"}
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+squareup-okhttp3-okhttp = { group = "com.squareup.okhttp3", name="okhttp", version.ref = "okhttp" }
+squareup-okhttp3-okhttpdnsoverhttps = { group = "com.squareup.okhttp3", name="okhttp-dnsoverhttps", version.ref = "okhttp" }
 squareup-retrofit2-retrofit = { group = "com.squareup.retrofit2", name="retrofit", version.ref = "retrofit" }
 squareup-retrofit2-converter-gson = { group = "com.squareup.retrofit2", name="converter-gson", version.ref = "retrofit" }
 me-xdrop-fuzzywuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzywuzzy" }

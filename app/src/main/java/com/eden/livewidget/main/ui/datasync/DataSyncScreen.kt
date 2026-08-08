@@ -22,6 +22,7 @@ import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,7 +44,10 @@ import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 // context nullable for preview only
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DataSyncScreen(context: Context?) {
+fun DataSyncScreen(
+    context: Context?,
+    agency: Agency? = null
+) {
 
     val (inputKeyState, setInputKeyState) = remember { mutableStateOf(false) }
     val (currentKeyValue, setCurrentKeyValueAction) = remember { mutableStateOf("") }
@@ -126,6 +130,11 @@ fun DataSyncScreen(context: Context?) {
 
     if (resetWarningState)
         ResetWarningDialog(setResetWarningState, currentResetAction)
+
+    LaunchedEffect(true) {
+        if (agency != null)
+            lazyListState.scrollToItem(Agency.entries.indexOf(agency))
+    }
 }
 
 

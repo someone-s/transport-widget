@@ -1,6 +1,7 @@
 package com.eden.livewidget.configurator
 
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,17 +10,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkManager
+import androidx.glance.GlanceId
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.lifecycle.lifecycleScope
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.providerToString
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
-import com.eden.livewidget.widget.LivePointWidgetCreateWorker
 import com.eden.livewidget.configurator.ui.ConfiguratorContent
+import com.eden.livewidget.widget.LivePointWidget
+import com.eden.livewidget.widget.UpdateScheduler
+import kotlinx.coroutines.launch
 
-class LivePointWidgetConfigurationActivity: ComponentActivity()  {
+class LivePointWidgetConfigurationActivity: ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,13 +41,18 @@ class LivePointWidgetConfigurationActivity: ComponentActivity()  {
             TransportWidgetsTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     ConfiguratorContent { apiProvider, apiValue, displayName ->
-                        createWidget(
-                            appWidgetId,
-                            apiProvider,
-                            apiValue,
-                            displayName
-                        )
+                        val context = this
+                        lifecycleScope.launch {
+                            createWidget(
+                                context,
+                                appWidgetId,
+                                apiProvider,
+                                apiValue,
+                                displayName
+                            )
+                        }
                     }
+
                 }
 
             }
@@ -52,25 +60,37 @@ class LivePointWidgetConfigurationActivity: ComponentActivity()  {
     }
 
 
+    private suspend fun createWidget(
+        context: Context,
+        appWidgetId: Int,
+        apiProvider: Provider,
+        apiValue: String,
+        displayName: String
+    ) {
 
-    private fun createWidget(appWidgetId: Int, apiProvider: Provider, apiValue: String, displayName: String) {
 
         val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         setResult(RESULT_OK, resultValue)
+
+        val manager = GlanceAppWidgetManager(context)
+        var glanceId: GlanceId
+        try {
+            glanceId = manager.getGlanceIdBy(appWidgetId)
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+
+        // Stop any ongoing update
+        UpdateScheduler.cancelCurrentRequest(context, appWidgetId)
+
+        updateAppWidgetState(context, glanceId) { preferences ->
+            preferences[LivePointWidget.AGENCY_KEY] = providerToString(apiProvider)
+            preferences[LivePointWidget.API_VALUE_KEY] = apiValue
+            preferences[LivePointWidget.DISPLAY_NAME_KEY] = displayName
+        }
+
+        LivePointWidget().update(context, glanceId)
+
         finish()
-
-        val inputData = Data.Builder()
-            .putInt(LivePointWidgetCreateWorker.APP_WIDGET_ID, appWidgetId)
-            .putString(LivePointWidgetCreateWorker.API_PROVIDER, providerToString(apiProvider))
-            .putString(LivePointWidgetCreateWorker.API_VALUE, apiValue) // "490001015BJ"
-            .putString(LivePointWidgetCreateWorker.DISPLAY_NAME, displayName) // "490001015BJ"
-            .build()
-
-        val workerRequest = OneTimeWorkRequestBuilder<LivePointWidgetCreateWorker>()
-            .setInputData(inputData)
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .build()
-
-        WorkManager.getInstance(this).enqueue(workerRequest)
     }
 }

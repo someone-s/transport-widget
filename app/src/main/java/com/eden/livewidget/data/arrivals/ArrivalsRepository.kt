@@ -6,35 +6,33 @@ import com.eden.livewidget.data.Provider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import com.eden.livewidget.data.arrivals.ArrivalsDataSource.Companion.FetchResult
+import kotlinx.coroutines.flow.getAndUpdate
 
 class ArrivalsRepository(
     private val arrivalsDataSource: ArrivalsDataSource,
 ) {
 
-    private val latestArrivalsMutable = MutableStateFlow(Pair(DataValidity.INVALID_UNINITIALIZED, emptyList<ArrivalModel>()))
-    val latestArrivals = latestArrivalsMutable.asStateFlow()
+    private val arrivalsDataMutable = MutableStateFlow(ArrivalsData())
+    val arrivalsData = arrivalsDataMutable.asStateFlow()
 
     suspend fun fetchLatestArrival(context: Context) {
-        latestArrivalsMutable.update {
+        arrivalsDataMutable.getAndUpdate { previousData ->
             val output = arrivalsDataSource.fetchLatestArrivals(context)
 
-            Pair(
-                first =
-                    when (output.first) {
-                        FetchResult.SUCCESS -> DataValidity.VALID
-                        FetchResult.ERROR_UNREACHABLE -> DataValidity.INVALID_UNREACHABLE
-                        FetchResult.ERROR_AUTHENTICATION -> DataValidity.INVALID_AUTHENTICATION
-                    },
-                second = output.second
-            )
+            when (output.first) {
+                ArrivalsDataSource.FetchResult.SUCCESS ->
+                    ArrivalsData(ArrivalsData.Validity.VALID, output.second)
+                ArrivalsDataSource.FetchResult.ERROR_UNRESOLVED ->
+                    ArrivalsData(ArrivalsData.Validity.INVALID_UNRESOLVED, previousData.lastValidData)
+                ArrivalsDataSource.FetchResult.ERROR_UNREACHABLE ->
+                    ArrivalsData(ArrivalsData.Validity.INVALID_UNREACHABLE, previousData.lastValidData)
+                ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION ->
+                    ArrivalsData(ArrivalsData.Validity.INVALID_AUTHENTICATION, previousData.lastValidData)
+            }
         }
     }
 
     companion object {
-
-        enum class DataValidity { VALID, INVALID_AUTHENTICATION, INVALID_UNREACHABLE, INVALID_UNINITIALIZED }
 
         data class ArrivalsKey(
             val apiProvider: Provider,

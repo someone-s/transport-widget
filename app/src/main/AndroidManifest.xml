@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" android:maxSdkVersion="30"/>
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -25,7 +30,6 @@
             android:theme="@style/Theme.TransportWidgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -43,6 +47,7 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name=".battery.LivePointWidgetBatteryActivity"
             android:exported="false"
@@ -52,7 +57,9 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
-        <receiver android:name=".widget.LivePointWidgetReceiver"
+
+        <receiver
+            android:name=".widget.LivePointWidgetReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -61,6 +68,12 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/live_point_widget_info" />
         </receiver>
+
+        <receiver
+            android:name=".widget.UpdateScheduler"
+            android:exported="false">
+        </receiver>
+
     </application>
 
 </manifest>

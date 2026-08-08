@@ -14,9 +14,9 @@ fun MockContent() {
 
     MyContent(
         mode = MyContentMode.ACTIVE,
-        context = null,
         displayName = LocalContext.current.getString(R.string.widget_mock_station_text),
-        latestArrivalsData = listOf(
+        agency = null,
+        lastValidData = listOf(
             ArrivalModel(
                 operatorName = LocalContext.current.getString(R.string.widget_mock_arrival_0_operator_text),
                 serviceName = LocalContext.current.getString(R.string.widget_mock_arrival_0_service_text),

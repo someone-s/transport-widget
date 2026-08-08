@@ -1,13 +1,14 @@
 package com.eden.livewidget.widget.ui
 
-import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.ButtonDefaults
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
@@ -22,6 +23,7 @@ import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.eden.livewidget.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.data.arrivals.ArrivalModel
 import com.eden.livewidget.main.MainActivity
@@ -36,14 +38,15 @@ enum class MyContentMode {
     PAUSED_ERROR_BATTERY,
     PAUSED_ERROR_AUTHENTICATE,
     PAUSED_ERROR_UNREACHABLE,
+    PAUSED_ERROR_UNRESOLVED,
 }
 
 @Composable
 fun MyContent(
     mode: MyContentMode,
-    context: Context?,
     displayName: String,
-    latestArrivalsData: List<ArrivalModel>,
+    agency: Agency?,
+    lastValidData: List<ArrivalModel>,
 ) {
 
     Scaffold(
@@ -79,26 +82,37 @@ fun MyContent(
                     maxLines = 1
                 )
 
-                if (mode == MyContentMode.ACTIVE)
+                if (mode != MyContentMode.PAUSED_OK_READY)
                     FilledButton(
-                        icon = ImageProvider(R.drawable.ic_widget_refresh),
-                        text =
-                            if (context != null)
-                                DateFormat.getTimeFormat(context)
-                                    .format(Calendar.getInstance().time)
+                        icon =
+                            if (mode == MyContentMode.ACTIVE)
+                                ImageProvider(R.drawable.ic_widget_refresh)
                             else
-                                "12:00",
+                                ImageProvider(R.drawable.ic_shared_outlined_warning),
+                        text =
+                                DateFormat.getTimeFormat(LocalContext.current)
+                                    .format(Calendar.getInstance().time),
+                        colors =
+                            if (mode == MyContentMode.ACTIVE)
+                                ButtonDefaults.buttonColors()
+                            else
+                                ButtonDefaults.buttonColors(
+                                    backgroundColor = GlanceTheme.colors.error,
+                                    contentColor = GlanceTheme.colors.onError
+                                ),
                         onClick = actionRunCallback<RefreshLivePointWidgetCallback>(),
+                        maxLines = 1
                     )
             }
         }
     ) {
         when (mode) {
-            MyContentMode.ACTIVE -> ActiveList(latestArrivalsData)
+            MyContentMode.ACTIVE -> ActiveBlock(lastValidData)
             MyContentMode.PAUSED_OK_READY -> ReadyBlock()
             MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
+            MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock()
             MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock()
-            MyContentMode.PAUSED_ERROR_AUTHENTICATE -> AuthenticateErrorBlock()
+            MyContentMode.PAUSED_ERROR_AUTHENTICATE -> AuthenticateErrorBlock(agency)
             MyContentMode.PAUSED_ERROR_UNKNOWN -> UnknownErrorBlock()
         }
     }
@@ -111,10 +125,10 @@ fun MyContent(
 fun MyContentPreview() {
     GlanceTheme {
         MyContent(
-            mode = MyContentMode.PAUSED_ERROR_AUTHENTICATE,
-            null,
-            "Display name",
-            listOf(
+            mode = MyContentMode.PAUSED_ERROR_BATTERY,
+            displayName = "Display name",
+            agency = null,
+            lastValidData = listOf(
                 ArrivalModel(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
