@@ -73,13 +73,6 @@ fun BatteryErrorBlock() {
 @Composable
 private fun UpdateKeyGroup() {
 
-
-//    val appIntent = Intent().apply {
-//        setClass(LocalContext.current, LivePointWidgetBatteryActivity::class.java)
-//        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-//    }
-
     val appSettingsIntent = getResolvedAppSettingsIntent(LocalContext.current.packageManager, LocalContext.current.packageName)
 
     val batterySaverSettingsIntent = getResolvedBatterySaverSettingsIntent(LocalContext.current.packageManager)
