@@ -17,7 +17,7 @@
     <string name="widget_arrival_minute_text">%1$d\"</string>
     <string name="widget_start_tracking_prompt_text">Start tracking</string>
     <string name="widget_create_worker_notification_title">Configuring Widget</string>
-    <string name="widget_update_worker_notification_title">Updating Widget</string>
+    <string name="widget_update_notification_title">Widget updating periodically</string>
     <string name="configure_point_screen_search_bar_placeholder">Search for a stop</string>
     <string name="configure_point_screen_location_icon_description">Location Icon</string>
     <string name="data_sync_worker_begin_progress_text">Starting data download</string>
@@ -117,4 +117,11 @@
     <string name="widget_retry_authenticate_update_key_text">Update key on device</string>
     <string name="widget_retry_authenticate_go_to_service_text">Create key on provider site</string>
     <string name="live_point_widget_battery_activity_label">Explain battery optimization justification</string>
+    <string name="widget_update_notification_description">Notify when updating widgets</string>
+    <string name="notification_permission_request_proceed_text">Confirm choice</string>
+    <string name="notification_permission_icon_description">Bell icon</string>
+    <string name="notification_permission_explain_title">Notifications</string>
+    <string name="notification_permission_explain_body">Enable notification to get notified when widgets are updating.</string>
+    <string name="notification_permission_dismiss_text">Decide later</string>
+    <string name="widget_update_notification_cancel_text">Cancel</string>
 </resources>

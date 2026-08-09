@@ -1,7 +1,6 @@
 package com.eden.livewidget.main.ui
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -110,7 +109,6 @@ fun MainContent(
             composable<About> { AboutScreen(activityContext) }
         }
 
-        Log.i("aaaaa", "${navController.currentBackStackEntry?.destination?.hasRoute(Providers::class)}")
         if (
             agency != null &&
             navController.currentBackStackEntry?.destination?.hasRoute(Providers::class) == false

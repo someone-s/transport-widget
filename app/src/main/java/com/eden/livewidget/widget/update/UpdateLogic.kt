@@ -10,7 +10,6 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.widget.LivePointWidget
-import kotlin.time.Duration.Companion.seconds
 
 suspend fun updateWidget(
     context: Context,
@@ -86,8 +85,6 @@ suspend fun updateWidget(
         }
 
         updater.update(context, glanceId)
-
-        UpdateScheduler.schedule(context, appWidgetId, remainingTimes - 1, 30.seconds)
     }
 
     return true

@@ -14,6 +14,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.lifecycleScope
 import com.eden.livewidget.Agency
 import com.eden.livewidget.main.ui.MainContent
+import com.eden.livewidget.main.ui.notification.PermissionLogic
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.util.getSerializableExtraCompat
 import com.eden.livewidget.widget.LivePointWidgetReceiver
@@ -46,6 +47,8 @@ class MainActivity : ComponentActivity() {
             TransportWidgetsTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MainContent(this.application, this, agency)
+
+                    PermissionLogic()
                 }
             }
         }

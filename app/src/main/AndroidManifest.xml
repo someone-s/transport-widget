@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:allowBackup="true"
@@ -62,7 +62,11 @@
         </receiver>
 
         <receiver
-            android:name=".widget.update.UpdateScheduler"
+            android:name=".widget.update.UpdateExecuteReceiver"
+            android:exported="false">
+        </receiver>
+        <receiver
+            android:name=".widget.update.UpdateCancelReceiver"
             android:exported="false">
         </receiver>
 
