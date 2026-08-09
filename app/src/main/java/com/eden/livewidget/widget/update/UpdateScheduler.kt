@@ -28,13 +28,17 @@ class UpdateScheduler {
         fun getIsActiveFlow(appWidgetId: Int): Flow<Boolean> {
             return activeAlarms.map { activeWidgetIds ->
 
-                if (activeWidgetIds.isEmpty())
+                if (activeWidgetIds.isEmpty()) {
+                    Log.i(this.javaClass.name, "Empty")
                     return@map false
+                }
 
-                if (activeWidgetIds.containsKey(appWidgetId))
-                    return@map true
+                if (!activeWidgetIds.containsKey(appWidgetId)) {
+                    Log.i(this.javaClass.name, "No key")
+                    return@map false
+                }
 
-                return@map false
+                return@map true
             }
         }
 

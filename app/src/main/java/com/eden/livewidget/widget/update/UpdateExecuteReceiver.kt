@@ -30,7 +30,7 @@ class UpdateExecuteReceiver: BroadcastReceiver() {
             if (remainingTimes <= 0 || !success)
                 UpdateScheduler.closeCurrentRequest(context, appWidgetId)
             else
-                UpdateScheduler.replaceCurrentRequest(context, appWidgetId, remainingTimes - 1, 15.seconds)
+                UpdateScheduler.replaceCurrentRequest(context, appWidgetId, remainingTimes - 1, 30.seconds)
         }
     }
 }
