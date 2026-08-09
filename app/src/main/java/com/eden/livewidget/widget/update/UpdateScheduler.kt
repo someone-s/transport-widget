@@ -95,6 +95,7 @@ class UpdateScheduler {
         private fun schedule(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?): AlarmState? {
 
             Log.i(this.javaClass.name, "Trying to schedule for widget $appWidgetId")
+            Log.i(this.javaClass.name, "Remaining times: $remainingTimes")
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             if (alarmManager == null) {
@@ -119,7 +120,12 @@ class UpdateScheduler {
 
             val pendingIntent = intent
                 .let { intent ->
-                    PendingIntent.getBroadcast(context.applicationContext, appWidgetId, intent, PendingIntent.FLAG_MUTABLE)
+                    PendingIntent.getBroadcast(
+                        context.applicationContext,
+                        appWidgetId, intent,
+                        PendingIntent.FLAG_MUTABLE or
+                                PendingIntent.FLAG_ONE_SHOT
+                    )
                 }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

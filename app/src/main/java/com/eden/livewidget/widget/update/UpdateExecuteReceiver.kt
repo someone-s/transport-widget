@@ -25,7 +25,13 @@ class UpdateExecuteReceiver: BroadcastReceiver() {
         @OptIn(DelicateCoroutinesApi::class)
         goAsync(MainScope(), Dispatchers.Default) {
 
-            val success = updateWidget(context, appWidgetId, remainingTimes)
+            val success = try {
+                updateWidget(context, appWidgetId, remainingTimes)
+            }
+            catch (e: Exception) {
+                Log.e(e.javaClass.name, e.message.toString())
+                false
+            }
 
             if (remainingTimes <= 0 || !success)
                 UpdateScheduler.closeCurrentRequest(context, appWidgetId)
