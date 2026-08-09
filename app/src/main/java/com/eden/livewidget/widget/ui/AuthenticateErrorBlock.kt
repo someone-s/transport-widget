@@ -4,11 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.provider.Settings
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -78,7 +77,17 @@ fun AuthenticateErrorBlock(
 @Composable
 private fun UpdateKeyGroup(agency: Agency?) {
 
-    val explicitKeySettingsIntent = if (agency != null) getExplicitKeySettingsIntent(LocalContext.current, agency) else Intent()
+    val getResolvedOpenUriIntent =
+        if (agency != null)
+            getResolvedOpenUriIntent(LocalContext.current.packageManager, agency.agencyHelp)
+        else
+            Intent()
+
+    val explicitKeySettingsIntent =
+        if (agency != null)
+            getExplicitKeySettingsIntent(LocalContext.current, agency)
+        else
+            Intent()
 
     Row(
         modifier = GlanceModifier
@@ -89,7 +98,7 @@ private fun UpdateKeyGroup(agency: Agency?) {
         FilledButton(
             icon = ImageProvider(R.drawable.ic_shared_filled_corporate_fare),
             text = LocalContext.current.getString(R.string.widget_retry_authenticate_go_to_service_text),
-            onClick = {},
+            onClick = actionStartActivity(getResolvedOpenUriIntent),
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .defaultWeight()
@@ -114,21 +123,20 @@ private fun UpdateKeyGroup(agency: Agency?) {
     }
 }
 
-private fun getResolvedProviderIntent(packageManager: PackageManager, packageName: String): Intent {
+private fun getResolvedOpenUriIntent(packageManager: PackageManager, uri: Uri): Intent {
 
-    val applicationSettingsIntent = Intent().apply {
-        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+    val openUrlIntent = Intent().apply {
+        action = Intent.ACTION_VIEW
+        data = uri
     }
 
     // Settings app should be visible by default
     @SuppressLint("QueryPermissionsNeeded")
-    val applicationSettingsComponentName =
-        applicationSettingsIntent.resolveActivity(packageManager)
+    val openUriComponentName =
+        openUrlIntent.resolveActivity(packageManager)
 
-    return Intent().apply {
-        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-        component = applicationSettingsComponentName
-        data = "package:$packageName".toUri()
+    return openUrlIntent.apply {
+        component = openUriComponentName
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
