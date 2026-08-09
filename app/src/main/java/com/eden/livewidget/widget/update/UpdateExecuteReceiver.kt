@@ -7,7 +7,7 @@ import android.util.Log
 import com.eden.livewidget.util.goAsync
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlin.time.Duration.Companion.seconds
 
 class UpdateExecuteReceiver: BroadcastReceiver() {
@@ -19,19 +19,18 @@ class UpdateExecuteReceiver: BroadcastReceiver() {
         }
 
         val appWidgetId = intent?.getIntExtra(UpdateScheduler.APP_WIDGET_ID, -1) ?: -1
-        val notificationId = UpdateScheduler.closeActiveAlarmAndGetNotificationId(appWidgetId)
 
         val remainingTimes = intent?.getIntExtra(UpdateScheduler.REMAINING_TIMES, -1) ?: -1
 
         @OptIn(DelicateCoroutinesApi::class)
-        goAsync(GlobalScope, Dispatchers.Default) {
+        goAsync(MainScope(), Dispatchers.Default) {
 
-            updateWidget(context, appWidgetId, remainingTimes)
+            val success = updateWidget(context, appWidgetId, remainingTimes)
 
-            if (notificationId != null)
-                cancelNotification(context, notificationId)
-
-            UpdateScheduler.schedule(context, appWidgetId, remainingTimes - 1, 30.seconds)
+            if (remainingTimes <= 0 || !success)
+                UpdateScheduler.closeCurrentRequest(context, appWidgetId)
+            else
+                UpdateScheduler.replaceCurrentRequest(context, appWidgetId, remainingTimes - 1, 15.seconds)
         }
     }
 }

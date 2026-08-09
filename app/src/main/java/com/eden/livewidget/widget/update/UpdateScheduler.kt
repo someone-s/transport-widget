@@ -38,16 +38,24 @@ class UpdateScheduler {
             }
         }
 
+        fun setCurrentRequest(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?) {
+            val alarmState = schedule(context, appWidgetId, remainingTimes, delay) ?: return
+
+            activeAlarms.getAndUpdate { previousMap ->
+                previousMap + (appWidgetId to alarmState)
+            }
+        }
+
         fun cancelCurrentRequest(context: Context, appWidgetId: Int) {
 
-            cancelCurrentRequestNoUpdate(context, appWidgetId)
+            cancel(context, appWidgetId)
 
             activeAlarms.getAndUpdate { previousMap ->
                 previousMap - appWidgetId
             }
         }
 
-        fun closeActiveAlarmAndGetNotificationId(appWidgetId: Int): Int? {
+        fun closeCurrentRequest(context: Context, appWidgetId: Int) {
 
             val alarmState = activeAlarms.value[appWidgetId]
             val notificationId = alarmState?.notificationId
@@ -56,42 +64,46 @@ class UpdateScheduler {
                 previousMap - appWidgetId
             }
 
-            return notificationId
+            if (notificationId != null)
+                cancelNotification(context, notificationId)
         }
 
-        private fun cancelCurrentRequestNoUpdate(context: Context, appWidgetId: Int) {
+        // seamless close and set new
+        fun replaceCurrentRequest(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?) {
 
-            Log.i(this.javaClass.name, "Trying to cancel for widget $appWidgetId")
+            val previousAlarmState = activeAlarms.value[appWidgetId]
+            val previousNotificationId = previousAlarmState?.notificationId
 
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-            if (alarmManager == null) {
-                Log.e(this.javaClass.name, "AlarmManager is null")
-                return
+            // new notification created here
+            val newAlarmState = schedule(context, appWidgetId, remainingTimes, delay)
+
+            activeAlarms.getAndUpdate { previousMap ->
+                if (newAlarmState != null)
+                    previousMap + (appWidgetId to newAlarmState)
+                else
+                    previousMap - appWidgetId
             }
 
-            val alarmState = activeAlarms.value[appWidgetId]
-            if (alarmState == null) {
-                Log.i(this.javaClass.name, "No pending alarm to cancel for widget with id $appWidgetId")
-                return
-            }
-
-            alarmManager.cancel(alarmState.pendingIntent)
-            cancelNotification(context, alarmState.notificationId)
-
-            Log.i(this.javaClass.name, "Cancelled alarm for widget $appWidgetId")
+            if (previousNotificationId != null)
+                cancelNotification(context, previousNotificationId)
         }
 
-        fun schedule(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?) {
+        private fun schedule(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?): AlarmState? {
 
             Log.i(this.javaClass.name, "Trying to schedule for widget $appWidgetId")
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             if (alarmManager == null) {
                 Log.e(this.javaClass.name, "AlarmManager is null")
-                return
+                return null
             }
 
-            cancelCurrentRequestNoUpdate(context, appWidgetId)
+            if (remainingTimes < 0) {
+                Log.e(this.javaClass.name, "Remaining times < 0 widget $appWidgetId")
+                return null
+            }
+
+            cancel(context, appWidgetId)
 
             val notificationId = createScheduledNotification(context, appWidgetId)
 
@@ -131,11 +143,30 @@ class UpdateScheduler {
 
             Log.i(this.javaClass.name, "Scheduled alarm for widget $appWidgetId")
 
-            activeAlarms.getAndUpdate { previousMap ->
-                previousMap + (appWidgetId to AlarmState(pendingIntent, notificationId))
-            }
+            return AlarmState(pendingIntent, notificationId)
         }
 
+        private fun cancel(context: Context, appWidgetId: Int) {
+
+            Log.i(this.javaClass.name, "Trying to cancel for widget $appWidgetId")
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+            if (alarmManager == null) {
+                Log.e(this.javaClass.name, "AlarmManager is null")
+                return
+            }
+
+            val alarmState = activeAlarms.value[appWidgetId]
+            if (alarmState == null) {
+                Log.i(this.javaClass.name, "No pending alarm to cancel for widget with id $appWidgetId")
+                return
+            }
+
+            alarmManager.cancel(alarmState.pendingIntent)
+            cancelNotification(context, alarmState.notificationId)
+
+            Log.i(this.javaClass.name, "Cancelled alarm for widget $appWidgetId")
+        }
     }
 
 }
