@@ -17,14 +17,14 @@ enum class Agency(
         agencyShortDescription = R.string.agency_tfl_about_short,
         agencyDescription = R.string.agency_tfl_about_full,
         apiProvider = Provider.TFL,
-        agencyHelp = "https://google.com".toUri()
+        agencyHelp = "https://someone-s.github.io/transport-widget/provider/tfl".toUri()
     ),
     RDG(
         agencyName = R.string.agency_rdg_title,
         agencyShortDescription = R.string.agency_rdg_about_short,
         agencyDescription = R.string.agency_rdg_about_full,
         apiProvider = Provider.RDG,
-        agencyHelp = "https://google.com".toUri()
+        agencyHelp = "https://someone-s.github.io/transport-widget/provider/rdg".toUri()
     )
 }
 
