@@ -124,4 +124,6 @@
     <string name="notification_permission_explain_body">Enable notification to get notified when widgets are updating.</string>
     <string name="notification_permission_dismiss_text">Decide later</string>
     <string name="widget_update_notification_cancel_text">Cancel</string>
+    <string name="foreground_service_reason">Used for long running background task initiated by user to pull all stop data for a given transportation provider</string>
+    <string name="exact_alarm_reason">Alert user to arriving public transport services, time-sensitive</string>
 </resources>
