@@ -1,4 +1,4 @@
-package com.eden.livewidget.widget
+package com.eden.livewidget.widget.update
 
 import android.content.Context
 import android.os.PowerManager
@@ -9,6 +9,7 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.eden.livewidget.data.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.providerFromString
+import com.eden.livewidget.widget.LivePointWidget
 import kotlin.time.Duration.Companion.seconds
 
 suspend fun updateWidget(

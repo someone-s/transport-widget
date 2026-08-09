@@ -21,6 +21,7 @@ import com.eden.livewidget.widget.ui.MockContent
 import com.eden.livewidget.widget.ui.MyContent
 import com.eden.livewidget.widget.ui.MyContentMode
 import com.eden.livewidget.widget.ui.PlaceholderContent
+import com.eden.livewidget.widget.update.UpdateScheduler
 import kotlin.time.Duration
 
 class LivePointWidget : GlanceAppWidget() {

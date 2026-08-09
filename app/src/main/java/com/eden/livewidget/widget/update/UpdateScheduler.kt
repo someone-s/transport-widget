@@ -1,4 +1,4 @@
-package com.eden.livewidget.widget
+package com.eden.livewidget.widget.update
 
 import android.app.AlarmManager
 import android.app.PendingIntent

@@ -19,7 +19,7 @@ import com.eden.livewidget.data.providerToString
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.configurator.ui.ConfiguratorContent
 import com.eden.livewidget.widget.LivePointWidget
-import com.eden.livewidget.widget.UpdateScheduler
+import com.eden.livewidget.widget.update.UpdateScheduler
 import kotlinx.coroutines.launch
 
 class LivePointWidgetConfigurationActivity: ComponentActivity() {

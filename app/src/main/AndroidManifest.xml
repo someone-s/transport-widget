@@ -70,7 +70,7 @@
         </receiver>
 
         <receiver
-            android:name=".widget.UpdateScheduler"
+            android:name=".widget.update.UpdateScheduler"
             android:exported="false">
         </receiver>
 
