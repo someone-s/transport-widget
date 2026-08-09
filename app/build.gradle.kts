@@ -51,6 +51,12 @@ extensions.configure<ApplicationExtension> {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            optimization {
+                enable = true // Enables code and resource optimizations.
+            }
+        }
+        debug {
+
         }
     }
     compileOptions {
