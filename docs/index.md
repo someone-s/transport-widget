@@ -7,5 +7,5 @@ View live arrival information at stops directly on your home screen. Simply sear
 Supports Android 7 to 16.
 
 ## Providers
-- [Transport for London](/provider/tfl)
-- [Rail Delivery Group](/provider/rdg)
+- [Transport for London](/transport-widget/provider/tfl)
+- [Rail Delivery Group](/transport-widget/provider/rdg)
