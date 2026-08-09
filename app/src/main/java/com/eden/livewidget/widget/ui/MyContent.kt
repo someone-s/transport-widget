@@ -1,19 +1,16 @@
 package com.eden.livewidget.widget.ui
 
-import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.GlanceId
+import androidx.glance.ButtonDefaults
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.components.Scaffold
@@ -26,28 +23,31 @@ import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.eden.livewidget.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.data.arrivals.ArrivalModel
 import com.eden.livewidget.main.MainActivity
-import com.eden.livewidget.widget.LivePointWidgetUpdateWorker
 import com.eden.livewidget.widget.RefreshLivePointWidgetCallback
-import kotlinx.coroutines.flow.flow
 import java.time.LocalDateTime
 import java.util.Calendar
 
+enum class MyContentMode {
+    ACTIVE,
+    PAUSED_OK_READY,
+    PAUSED_ERROR_UNKNOWN,
+    PAUSED_ERROR_BATTERY,
+    PAUSED_ERROR_AUTHENTICATE,
+    PAUSED_ERROR_UNREACHABLE,
+    PAUSED_ERROR_UNRESOLVED,
+}
+
 @Composable
 fun MyContent(
-    context: Context?,
-    glanceId: GlanceId?,
+    mode: MyContentMode,
     displayName: String,
-    inactiveText: String,
-    latestArrivals: List<ArrivalModel>,
+    agency: Agency?,
+    lastValidData: List<ArrivalModel>,
 ) {
-
-    val widgetId = if (context != null && glanceId != null) GlanceAppWidgetManager(context).getAppWidgetId(glanceId) else -1
-
-    val flow = if (context != null) LivePointWidgetUpdateWorker.getIsActiveFlow(context, widgetId) else flow { }
-    val isActive by flow.collectAsState(true)
 
     Scaffold(
         backgroundColor = GlanceTheme.colors.widgetBackground,
@@ -82,39 +82,53 @@ fun MyContent(
                     maxLines = 1
                 )
 
-                if (isActive)
+                if (mode != MyContentMode.PAUSED_OK_READY)
                     FilledButton(
-                        icon = ImageProvider(R.drawable.ic_widget_refresh),
-                        text =
-                            if (context != null)
-                                DateFormat.getTimeFormat(context)
-                                    .format(Calendar.getInstance().time)
+                        icon =
+                            if (mode == MyContentMode.ACTIVE)
+                                ImageProvider(R.drawable.ic_widget_refresh)
                             else
-                                "12:00",
+                                ImageProvider(R.drawable.ic_shared_outlined_warning),
+                        text =
+                                DateFormat.getTimeFormat(LocalContext.current)
+                                    .format(Calendar.getInstance().time),
+                        colors =
+                            if (mode == MyContentMode.ACTIVE)
+                                ButtonDefaults.buttonColors()
+                            else
+                                ButtonDefaults.buttonColors(
+                                    backgroundColor = GlanceTheme.colors.error,
+                                    contentColor = GlanceTheme.colors.onError
+                                ),
                         onClick = actionRunCallback<RefreshLivePointWidgetCallback>(),
+                        maxLines = 1
                     )
             }
         }
     ) {
-        if (isActive)
-            ActiveList(latestArrivals)
-        else
-            DisableBlock(inactiveText)
+        when (mode) {
+            MyContentMode.ACTIVE -> ActiveBlock(lastValidData)
+            MyContentMode.PAUSED_OK_READY -> ReadyBlock()
+            MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
+            MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock()
+            MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock()
+            MyContentMode.PAUSED_ERROR_AUTHENTICATE -> AuthenticateErrorBlock(agency)
+            MyContentMode.PAUSED_ERROR_UNKNOWN -> UnknownErrorBlock()
+        }
     }
 
 }
 
 @OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 430, heightDp = 300)
+@Preview(widthDp = 380, heightDp = 300)
 @Composable
 fun MyContentPreview() {
     GlanceTheme {
         MyContent(
-            null,
-            null,
-            "Display name",
-            "Inactive text",
-            listOf(
+            mode = MyContentMode.PAUSED_ERROR_BATTERY,
+            displayName = "Display name",
+            agency = null,
+            lastValidData = listOf(
                 ArrivalModel(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",

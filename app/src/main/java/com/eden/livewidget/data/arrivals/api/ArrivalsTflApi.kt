@@ -12,7 +12,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import java.io.IOException
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
@@ -24,13 +27,12 @@ private data class TflArrivalEntry(
     @SerializedName("destinationName")
     val destinationName: String?,
     @SerializedName("towards")
-    val towards: String,
+    val towards: String?,
     @SerializedName("timeToStation")
     val timeToStation: Int,
     @SerializedName("expectedArrival")
     val expectedArrivalString: String
 )
-
 private const val BASE_URL = "https://api.tfl.gov.uk"
 
 private val retrofit = Retrofit.Builder()
@@ -66,10 +68,13 @@ class ArrivalsTflApi(
                     Log.i(this.javaClass.name, "Fetching data for $naptanId")
                     val request = service.getStopPointArrivals(naptanId)
 
-                    val response = request.execute()
+                    val response = try { request.execute() } catch (e: IOException) {
+                        Log.w(this.javaClass.name, e.message ?: "mo error message")
+                        throw ArrivalsApi.UnresolvedException("Unable to reach server")
+                    }
                     if (response == null) {
-                        Log.i(this.javaClass.name, "no response")
-                        return@launch
+                        Log.w(this.javaClass.name, "no response")
+                        throw ArrivalsApi.UnreachableException("Response empty")
                     }
 
                     val body = response.body()
@@ -91,21 +96,26 @@ class ArrivalsTflApi(
         return entries
             .filter { it.destinationName != null }
             .map { entry ->
-                Log.i("ARRIVAL-INFO", entry.timeToStation.toString())
+                Log.i("ARRIVAL-INFO", entry.expectedArrivalString)
                 ArrivalModel(
                     operatorName = "TfL",
                     serviceName = processServiceName(entry.lineName),
                     destinationName = processDestinationName(entry.destinationName!!),
-                    viaText = entry.towards,
+                    viaText = if (entry.towards != null && entry.towards != "null") entry.towards else "",
                     platformName = processPlatformName(entry.platformName),
                     remainingS = max(0, entry.timeToStation - 60),
-                    expectedDateTime = LocalDateTime.from(responseTimeFormatter.parse(entry.expectedArrivalString))
+                    expectedDateTime =
+                        LocalDateTime
+                            .from(responseTimeFormatter.parse(entry.expectedArrivalString))
+                            .atOffset(ZoneOffset.UTC)
+                            .atZoneSameInstant(ZoneId.systemDefault())
+                            .toLocalDateTime()
                 )
             }
             .sortedBy { model -> model.remainingS }
     }
 
-    private val stripDestinationNameRegex = Regex("( Underground Station)|( Station)|( DLR)")
+    private val stripDestinationNameRegex = Regex("( Underground Station)|(, Bus Station)|( Station)|( DLR)")
     private fun processDestinationName(input: String): String {
         return stripDestinationNameRegex.replace(input, "")
     }
@@ -119,7 +129,7 @@ class ArrivalsTflApi(
     private fun processServiceName(input: String): String {
         if (input.length <= 5)
             return input
-        if (input.length <= 8)
+        if (input.length <= 15)
             return input.take(5)
         else
             return stripServiceNameRegex.replace(input, "").take(5)

@@ -12,16 +12,16 @@ import androidx.glance.layout.height
 import com.eden.livewidget.data.arrivals.ArrivalModel
 
 @Composable
-fun ActiveList(latestArrivals: List<ArrivalModel>) {
+fun ArrivalsList(arrivals: List<ArrivalModel>) {
 
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        itemsIndexed(latestArrivals) { index, arrival ->
+        itemsIndexed(arrivals) { index, arrival ->
             Column {
-                ActiveItem(arrival)
+                ArrivalsItem(arrival)
 
-                if (index < latestArrivals.size - 1)
+                if (index < arrivals.size - 1)
                     Spacer(modifier = GlanceModifier.height(4.dp))
             }
 

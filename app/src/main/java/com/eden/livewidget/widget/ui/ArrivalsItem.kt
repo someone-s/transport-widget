@@ -31,7 +31,7 @@ import com.eden.livewidget.R
 import com.eden.livewidget.data.arrivals.ArrivalModel
 
 @Composable
-fun ActiveItem(
+fun ArrivalsItem(
     arrival: ArrivalModel
 ) {
         Box {

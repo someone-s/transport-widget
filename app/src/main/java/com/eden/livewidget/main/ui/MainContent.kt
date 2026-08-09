@@ -21,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.eden.livewidget.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.main.ui.about.AboutScreen
 import com.eden.livewidget.main.ui.datasync.DataSyncScreen
@@ -41,7 +42,11 @@ object Providers
 object About
 
 @Composable
-fun MainContent(applicationContext: Context, activityContext: Context) {
+fun MainContent(
+    applicationContext: Context,
+    activityContext: Context,
+    agency: Agency? = null
+) {
     val topLevelRoutes = listOf(
         TopLevelRoute(
             stringResource(R.string.navigation_providers),
@@ -100,9 +105,15 @@ fun MainContent(applicationContext: Context, activityContext: Context) {
         }
     ) { innerPadding ->
         NavHost(navController, startDestination = Providers, Modifier.padding(innerPadding)) {
-            composable<Providers> { DataSyncScreen(applicationContext) }
+            composable<Providers> { DataSyncScreen(applicationContext, agency) }
             composable<About> { AboutScreen(activityContext) }
         }
+
+        if (
+            agency != null &&
+            navController.currentBackStackEntry?.destination?.hasRoute(Providers::class) == false
+        )
+            navController.navigate(route = Providers)
     }
 
 }

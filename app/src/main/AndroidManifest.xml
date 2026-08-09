@@ -3,9 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission
+        android:name="android.permission.USE_EXACT_ALARM"
+        android:minSdkVersion="33"
+        android:purposeString="@string/exact_alarm_reason" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32"
+        android:purposeString="@string/exact_alarm_reason" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        android:purposeString="@string/foreground_service_reason" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
     <application
@@ -17,6 +30,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TransportWidgets">
+
         <activity
             android:name=".main.MainActivity"
             android:exported="true"
@@ -24,7 +38,6 @@
             android:theme="@style/Theme.TransportWidgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -32,18 +45,21 @@
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
+            android:description="@string/foreground_service_reason"
             tools:node="merge" />
 
         <activity
             android:name=".configurator.LivePointWidgetConfigurationActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/live_point_widget_configuration_activity_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
-        <receiver android:name=".widget.LivePointWidgetReceiver"
-            android:exported="true">
+
+        <receiver
+            android:name=".widget.LivePointWidgetReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -51,6 +67,16 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/live_point_widget_info" />
         </receiver>
+
+        <receiver
+            android:name=".widget.update.UpdateExecuteReceiver"
+            android:exported="false">
+        </receiver>
+        <receiver
+            android:name=".widget.update.UpdateCancelReceiver"
+            android:exported="false">
+        </receiver>
+
     </application>
 
 </manifest>

@@ -44,7 +44,7 @@ fun SourceKeyConfigItems(
         ),
         leadingContent = {
             Icon(
-                painter = painterResource(R.drawable.ic_data_sync_key),
+                painter = painterResource(R.drawable.ic_shared_outlined_key),
                 contentDescription = stringResource(R.string.data_sync_screen_key_configure_expand_button_icon)
             )
         },

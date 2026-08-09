@@ -2,6 +2,7 @@
 agp = "9.1.1"
 kotlin = "2.4.10"
 coreKtx = "1.19.0"
+coreSplashScreen = "1.0.0"
 concurentFuturesKtx = "1.3.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -17,6 +18,7 @@ fragment = "1.8.9"
 activity = "1.13.0"
 glance = "1.2.0-rc01"
 workRuntimeKtx = "2.11.2"
+okhttp = "5.4.0"
 retrofit = "3.0.0"
 fuzzywuzzy = "1.4.0"
 room = "2.8.4"
@@ -28,9 +30,11 @@ material3 = "1.5.0-alpha25"
 license = "0.9.9"
 mockito = "5.23.0"
 desugar = "2.1.5"
+material = "1.14.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashScreen" }
 androidx-concurrent-futures-ktx = { group = "androidx.concurrent", name = "concurrent-futures-ktx", version.ref = "concurentFuturesKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -56,6 +60,8 @@ androidx-glance-preview = { group = "androidx.glance", name = "glance-preview", 
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance"}
 androidx-glance-appwidget-preview = { group = "androidx.glance", name = "glance-appwidget-preview", version.ref = "glance"}
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+squareup-okhttp3-okhttp = { group = "com.squareup.okhttp3", name="okhttp", version.ref = "okhttp" }
+squareup-okhttp3-okhttpdnsoverhttps = { group = "com.squareup.okhttp3", name="okhttp-dnsoverhttps", version.ref = "okhttp" }
 squareup-retrofit2-retrofit = { group = "com.squareup.retrofit2", name="retrofit", version.ref = "retrofit" }
 squareup-retrofit2-converter-gson = { group = "com.squareup.retrofit2", name="converter-gson", version.ref = "retrofit" }
 me-xdrop-fuzzywuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzywuzzy" }
@@ -66,6 +72,7 @@ androidx-room-testing = { group = "androidx.room", name="room-testing", version.
 requery-sqlite-android = { group = "com.github.requery", name = "sqlite-android", version.ref = "requery" }
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito"}
 desugarjdklibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

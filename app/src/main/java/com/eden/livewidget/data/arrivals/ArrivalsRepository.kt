@@ -6,17 +6,37 @@ import com.eden.livewidget.data.Provider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.getAndUpdate
 
 class ArrivalsRepository(
     private val arrivalsDataSource: ArrivalsDataSource,
 ) {
-    private val latestArrivalsMutable = MutableStateFlow(emptyList<ArrivalModel>())
-    val latestArrivals = latestArrivalsMutable.asStateFlow()
 
-    suspend fun fetchLatestArrival(context: Context) {
-        latestArrivalsMutable.update { arrivalsDataSource.fetchLatestArrivals(context) }
+    private val arrivalsDataMutable = MutableStateFlow(ArrivalsData())
+    val arrivalsData = arrivalsDataMutable.asStateFlow()
 
+    suspend fun fetchLatestArrival(context: Context): Boolean {
+        val output = arrivalsDataSource.fetchLatestArrivals(context)
+
+        arrivalsDataMutable.getAndUpdate { previousData ->
+            when (output.first) {
+                ArrivalsDataSource.FetchResult.SUCCESS ->
+                    ArrivalsData(ArrivalsData.Validity.VALID, output.second)
+                ArrivalsDataSource.FetchResult.ERROR_UNRESOLVED ->
+                    ArrivalsData(ArrivalsData.Validity.INVALID_UNRESOLVED, previousData.lastValidData)
+                ArrivalsDataSource.FetchResult.ERROR_UNREACHABLE ->
+                    ArrivalsData(ArrivalsData.Validity.INVALID_UNREACHABLE, previousData.lastValidData)
+                ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION ->
+                    ArrivalsData(ArrivalsData.Validity.INVALID_AUTHENTICATION, previousData.lastValidData)
+            }
+        }
+
+        return when (output.first) {
+            ArrivalsDataSource.FetchResult.SUCCESS -> true
+            ArrivalsDataSource.FetchResult.ERROR_UNRESOLVED,
+            ArrivalsDataSource.FetchResult.ERROR_UNREACHABLE,
+            ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION -> false
+        }
     }
 
     companion object {
