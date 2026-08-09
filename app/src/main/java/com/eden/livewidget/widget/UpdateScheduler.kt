@@ -40,6 +40,7 @@ class UpdateScheduler : BroadcastReceiver() {
         }
 
         fun cancelCurrentRequest(context: Context, appWidgetId: Int) {
+
             cancelCurrentRequestNoUpdate(context, appWidgetId)
 
             activeAlarms.getAndUpdate { previousMap ->
@@ -48,6 +49,8 @@ class UpdateScheduler : BroadcastReceiver() {
         }
 
         private fun cancelCurrentRequestNoUpdate(context: Context, appWidgetId: Int) {
+
+            Log.i(this.javaClass.name, "Trying to cancel for widget $appWidgetId")
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             if (alarmManager == null) {
@@ -62,16 +65,22 @@ class UpdateScheduler : BroadcastReceiver() {
             }
 
             alarmManager.cancel(pendingIntent)
+
+            Log.i(this.javaClass.name, "Cancelled alarm for widget $appWidgetId")
+
         }
 
         fun schedule(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?) {
 
+            Log.i(this.javaClass.name, "Trying to schedule for widget $appWidgetId")
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             if (alarmManager == null) {
-                Log.i(this.javaClass.name, "AlarmManager is null")
+                Log.e(this.javaClass.name, "AlarmManager is null")
                 return
             }
+
+            cancelCurrentRequestNoUpdate(context, appWidgetId)
 
             val intent = Intent(context.applicationContext, UpdateScheduler::class.java)
                 .apply {
@@ -107,11 +116,9 @@ class UpdateScheduler : BroadcastReceiver() {
                 )
             }
 
-            activeAlarms.getAndUpdate { previousMap ->
-                val previousIntent = previousMap[appWidgetId]
-                if (previousIntent != null)
-                    cancelCurrentRequestNoUpdate(context, appWidgetId)
+            Log.i(this.javaClass.name, "Scheduled alarm for widget $appWidgetId")
 
+            activeAlarms.getAndUpdate { previousMap ->
                 previousMap + (appWidgetId to pendingIntent)
             }
         }
