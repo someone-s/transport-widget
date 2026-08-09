@@ -1,12 +1,14 @@
 package com.eden.livewidget.widget.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
 import androidx.glance.layout.Box
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -18,6 +20,7 @@ fun UnreachableErrorBlock() {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
+            .padding(bottom = 16.dp)
     ) {
         RetrySurface {
             Text(
