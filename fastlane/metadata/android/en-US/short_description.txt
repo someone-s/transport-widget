@@ -1,1 +1,1 @@
-Live arrival times widget for London.
+Live arrival times widget.

@@ -1,0 +1,5 @@
+Major overhaul to styling, information displayed, and structure of project.
+Improved widget to display platform, via, arrival time.
+Improved widget update reliability.
+Added Rail Delivery Group (UK National Rail services) support.
+Added support to store obfuscated API keys.
