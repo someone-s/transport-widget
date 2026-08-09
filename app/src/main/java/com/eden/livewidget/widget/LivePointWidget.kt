@@ -3,13 +3,15 @@ package com.eden.livewidget.widget
 import android.content.Context
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceTheme
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
@@ -38,6 +40,8 @@ class LivePointWidget : GlanceAppWidget() {
         const val FETCH_RESULT_RAN_SKIPPED =  "ran-skipped"
         const val FETCH_RESULT_RAN_COMPLETED = "ran-received"
     }
+
+    override val previewSizeMode = SizeMode.Responsive(setOf(DpSize(160.dp, 80.dp), DpSize(1000.dp, 1000.dp)))
 
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
