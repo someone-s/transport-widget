@@ -33,7 +33,7 @@ private data class RdgService(
     @SerializedName("destination")
     val destinations: List<RdgDestination>?,
     @SerializedName("platform")
-    val platform: String,
+    val platform: String?,
     @SerializedName("atdSpecified")
     val hasActualTime: Boolean,
     @SerializedName("atd")
@@ -160,7 +160,7 @@ class ArrivalsRdgApi(
                     serviceName = service.trainId,
                     destinationName = firstDestination.locationName,
                     viaText = if (firstDestination.viaText != null) processViaText(firstDestination.viaText) else "",
-                    platformName = service.platform,
+                    platformName = service.platform ?: "",
                     remainingS = max(0, secondsToDeparture - 60),
                     expectedDateTime = expectDateTime
                 )

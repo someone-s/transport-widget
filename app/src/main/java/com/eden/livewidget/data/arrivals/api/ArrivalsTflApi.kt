@@ -27,7 +27,7 @@ private data class TflArrivalEntry(
     @SerializedName("destinationName")
     val destinationName: String?,
     @SerializedName("towards")
-    val towards: String,
+    val towards: String?,
     @SerializedName("timeToStation")
     val timeToStation: Int,
     @SerializedName("expectedArrival")
@@ -101,7 +101,7 @@ class ArrivalsTflApi(
                     operatorName = "TfL",
                     serviceName = processServiceName(entry.lineName),
                     destinationName = processDestinationName(entry.destinationName!!),
-                    viaText = entry.towards,
+                    viaText = if (entry.towards != null && entry.towards != "null") entry.towards else "",
                     platformName = processPlatformName(entry.platformName),
                     remainingS = max(0, entry.timeToStation - 60),
                     expectedDateTime =
