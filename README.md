@@ -43,7 +43,9 @@ gradlew :app:assembleRelease
 
 ## Data Source Acknowledgement
 ### Transport for London
-- Data from London are powered by TfL Open Data under OGL v2.0
+- Data from TfL are powered by TfL Open Data under OGL v2.0
 - Transport for London does not endorse this project in any way
 - May contain OS data © Crown copyright and database rights 2016
 - May contain Geomni UK Map data © and database rights 2019
+### Rail Delivery Group
+- Data from RDG are powered by Rail Delivery Group
