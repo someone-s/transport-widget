@@ -87,6 +87,7 @@ class LivePointWidgetConfigurationActivity: ComponentActivity() {
             preferences[LivePointWidget.AGENCY_KEY] = providerToString(apiProvider)
             preferences[LivePointWidget.API_VALUE_KEY] = apiValue
             preferences[LivePointWidget.DISPLAY_NAME_KEY] = displayName
+            preferences[LivePointWidget.FETCH_RESULT_KEY] = LivePointWidget.FETCH_RESULT_RAN_COMPLETED
         }
 
         LivePointWidget().update(context, glanceId)

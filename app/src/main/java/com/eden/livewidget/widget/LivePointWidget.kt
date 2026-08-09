@@ -75,7 +75,7 @@ class LivePointWidget : GlanceAppWidget() {
 
                 val fetchResultOptions = currentState(FETCH_RESULT_KEY)
 
-                val repository = remember { ArrivalsRepository.getInstance(agency.apiProvider, apiValue) }
+                val repository = ArrivalsRepository.getInstance(agency.apiProvider, apiValue)
                 val arrivalsData by repository.arrivalsData.collectAsState()
 
                 val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
