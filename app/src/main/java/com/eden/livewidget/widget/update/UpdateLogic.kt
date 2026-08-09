@@ -33,6 +33,8 @@ suspend fun updateWidget(
 
         // update one more cycle than end
         updater.update(context, glanceId)
+
+        return true
     } else {
 
         // PreferencesGlanceStateDefinition is the default state definition used
@@ -44,11 +46,10 @@ suspend fun updateWidget(
         val apiValue = preferences[LivePointWidget.API_VALUE_KEY]
             ?: return false
 
-        try {
+        val success = try {
             // Update data source
             val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
             repository.fetchLatestArrival(context)
-
         } catch (e: Exception) {
             Log.e(context.packageName, e.message ?: "Failed with no message", e)
 
@@ -85,7 +86,7 @@ suspend fun updateWidget(
         }
 
         updater.update(context, glanceId)
-    }
 
-    return true
+        return success
+    }
 }

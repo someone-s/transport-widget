@@ -15,10 +15,10 @@ class ArrivalsRepository(
     private val arrivalsDataMutable = MutableStateFlow(ArrivalsData())
     val arrivalsData = arrivalsDataMutable.asStateFlow()
 
-    suspend fun fetchLatestArrival(context: Context) {
-        arrivalsDataMutable.getAndUpdate { previousData ->
-            val output = arrivalsDataSource.fetchLatestArrivals(context)
+    suspend fun fetchLatestArrival(context: Context): Boolean {
+        val output = arrivalsDataSource.fetchLatestArrivals(context)
 
+        arrivalsDataMutable.getAndUpdate { previousData ->
             when (output.first) {
                 ArrivalsDataSource.FetchResult.SUCCESS ->
                     ArrivalsData(ArrivalsData.Validity.VALID, output.second)
@@ -29,6 +29,13 @@ class ArrivalsRepository(
                 ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION ->
                     ArrivalsData(ArrivalsData.Validity.INVALID_AUTHENTICATION, previousData.lastValidData)
             }
+        }
+
+        return when (output.first) {
+            ArrivalsDataSource.FetchResult.SUCCESS -> true
+            ArrivalsDataSource.FetchResult.ERROR_UNRESOLVED,
+            ArrivalsDataSource.FetchResult.ERROR_UNREACHABLE,
+            ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION -> false
         }
     }
 
