@@ -1,8 +1,3 @@
-layout: page
-title: "Rail Delivery Group"
-permalink: /provider/rdg
-
-
 # Rail Delivery Group
 
 Represent britain\'s train operators, provides live tracking data for all national rail services in Britain.

@@ -1,8 +1,3 @@
-layout: page
-title: "Transport for London"
-permalink: /provider/tfl
-
-
 # Transport for London
 London\'s transport authority, provides live tracking data for buses, underground and riverboat services
 
