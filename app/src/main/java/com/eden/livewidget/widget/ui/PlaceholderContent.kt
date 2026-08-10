@@ -35,11 +35,13 @@ fun PlaceholderContent(context: Context?, id: GlanceId?) {
     val widgetId = if (context != null && id != null) GlanceAppWidgetManager(context).getAppWidgetId(id) else -1
 
     val configureIntent = if (context != null)
-        Intent(
-            context,
-            LivePointWidgetConfigurationActivity::class.java
-        )
-            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+        Intent(context.applicationContext, LivePointWidgetConfigurationActivity::class.java)
+            .apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+            }
     else
         null
 
