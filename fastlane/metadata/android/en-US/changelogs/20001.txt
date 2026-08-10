@@ -1,0 +1,3 @@
+Fix update indefinitely
+Updated android gradle plugin
+Enable build optimization

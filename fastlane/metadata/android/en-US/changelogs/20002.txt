@@ -1,0 +1,4 @@
+Widget configurator now returns to home screen after config
+Add paused button on widget to reduce to allow functionality without notification
+Add widget states to display when fetching data and when no departures found
+Fix notification icon too small
