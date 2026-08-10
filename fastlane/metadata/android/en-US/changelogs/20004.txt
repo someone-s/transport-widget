@@ -1,0 +1,2 @@
+Remove foojay resolver to allow fdroid build
+Change to jdk 21
