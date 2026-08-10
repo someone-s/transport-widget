@@ -37,12 +37,12 @@ fun EmptySurface() {
                 modifier = GlanceModifier.size(48.dp),
                 provider = ImageProvider(R.drawable.ic_shared_outlined_no_transfer),
                 contentDescription = LocalContext.current.getString(R.string.widget_active_empty_icon),
-                colorFilter = ColorFilter.tint(GlanceTheme.colors.onPrimaryContainer)
+                colorFilter = ColorFilter.tint(GlanceTheme.colors.onBackground)
             )
             Text(
                 text = LocalContext.current.getString(R.string.widget_active_empty_text),
                 style = TextStyle(
-                    color = GlanceTheme.colors.onPrimaryContainer,
+                    color = GlanceTheme.colors.onBackground,
                     fontWeight = FontWeight.Normal,
                     fontSize = 20.sp,
                     textAlign = TextAlign.Center
