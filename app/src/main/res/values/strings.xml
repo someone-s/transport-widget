@@ -35,7 +35,7 @@
     <string name="widget_start_tracking_battery_text">Failed to fetch data, possibly due to battery saving, consider giving the app unrestricted battery usage. Press to retry</string>
     <string name="data_sync_download_warning_dialog_body">If performed, the app will fetch all stop point information from the selected service provider. This may take up to 10 minutes, and can corrupt the stored stop information from the provider.\n\nIf the data is corrupted, please use the refresh button to restore to the dataset distributed as part of the app.</string>
     <string name="data_sync_download_warning_dialog_title">Download all stops</string>
-    <string name="data_sync_download_warning_dialog_icon_description">Download Icon</string>
+    <string name="data_sync_download_warning_dialog_icon_description">Download icon</string>
     <string name="data_sync_download_warning_dialog_cancel">Cancel</string>
     <string name="data_sync_download_warning_dialog_confirm">Continue</string>
     <string name="data_sync_reset_warning_dialog_confirm">Confirm</string>
@@ -70,10 +70,10 @@
     <string name="shared_arrow_drop_up_icon">Drop up icon</string>
     <string name="shared_arrow_drop_down_icon">Drop down icon</string>
     <string name="data_sync_screen_key_configure_expand_button_support_text">Enter API keys</string>
-    <string name="data_sync_screen_key_configure_purpose_point_text">Stops API key</string>
-    <string name="data_sync_screen_key_configure_purpose_arrivals_text">Arrivals API key</string>
-    <string name="data_sync_screen_key_configure_purpose_point_and_arrivals_text">Stops and arrivals API key</string>
-    <string name="data_sync_screen_key_configure_purpose_unknown_text">Unknown API key</string>
+    <string name="data_sync_screen_key_configure_purpose_point_text">Update stops API key</string>
+    <string name="data_sync_screen_key_configure_purpose_arrivals_text">Update arrivals API key</string>
+    <string name="data_sync_screen_key_configure_purpose_point_and_arrivals_text">Update stops and arrivals API key</string>
+    <string name="data_sync_screen_key_configure_purpose_unknown_text">Update unknown API key</string>
     <string name="data_sync_screen_download_data_button_support_text">Pull latest stop information</string>
     <string name="data_sync_screen_data_expand_button_icon">Update icon</string>
     <string name="data_sync_screen_reset_data_button_icon">Reset icon</string>
@@ -131,4 +131,6 @@
     <string name="widget_active_loading_text">Fetching data</string>
     <string name="widget_active_empty_icon">None icon</string>
     <string name="widget_active_empty_text">No departures</string>
+    <string name="data_sync_screen_key_configure_help_text">Obtain API keys</string>
+    <string name="data_sync_screen_key_configure_help_support">Open guide in browser</string>
 </resources>

@@ -8,8 +8,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -20,13 +18,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.eden.livewidget.Agency
 import com.eden.livewidget.R
-import com.eden.livewidget.data.keys.KeyPurpose
 
 @Composable
 fun SourceKeyConfigItems(
@@ -80,6 +75,20 @@ fun SourceKeyConfigItems(
         }
     )
 
+    AnimatedVisibility(
+        visible = isConfigureExpanded,
+        enter =
+            slideInVertically() +
+                    expandVertically() +
+                    fadeIn(),
+        exit =
+            slideOutVertically() +
+                    shrinkVertically() +
+                    fadeOut()
+    ) {
+        SourceKeyHelpItem(agency)
+    }
+
         agency.apiProvider.keyProviders.forEach { (purpose, constructor) ->
             AnimatedVisibility(
                 visible = isConfigureExpanded,
@@ -92,40 +101,16 @@ fun SourceKeyConfigItems(
                             shrinkVertically() +
                             fadeOut()
             ) {
-                ListItem(
-                    shapes = ListItemDefaults.shapes(
-                        shape = MaterialTheme.shapes.medium
-                    ),
-                    leadingContent = {
-                        Box(Modifier.size(24.dp)) {}
-                    },
-                    content = {
-                        Text(
-                            text =
-                                if (purpose.contains(KeyPurpose.POINTS) and purpose.contains((KeyPurpose.ARRIVALS)))
-                                    stringResource(R.string.data_sync_screen_key_configure_purpose_point_and_arrivals_text)
-                                else if (purpose.contains(KeyPurpose.POINTS))
-                                    stringResource(R.string.data_sync_screen_key_configure_purpose_point_text)
-                                else if (purpose.contains(KeyPurpose.ARRIVALS))
-                                    stringResource(R.string.data_sync_screen_key_configure_purpose_arrivals_text)
-                                else
-                                    stringResource(R.string.data_sync_screen_key_configure_purpose_unknown_text)
-
-
-                        )
-                    },
-                    supportingContent = {
-                        Text(
-                            text =
-                                if (context != null)
-                                    constructor().getKey(context)
-                                        .ifBlank { stringResource(R.string.data_sync_screen_key_configure_value_empty_text) }
-                                else
-                                    stringResource(R.string.data_sync_screen_key_configure_value_empty_text)
-                        )
-                    },
+                SourceKeyOpenItem(
+                    purpose,
+                    keyText =
+                        if (context != null)
+                            constructor().getKey(context)
+                                .ifBlank { stringResource(R.string.data_sync_screen_key_configure_value_empty_text) }
+                        else
+                            stringResource(R.string.data_sync_screen_key_configure_value_empty_text),
                     onClick = {
-                        if (context == null) return@ListItem
+                        if (context == null) return@SourceKeyOpenItem
                         setCurrentInputKeyAction({ newKey ->
                             constructor().setKey(
                                 context,

@@ -1,10 +1,9 @@
 package com.eden.livewidget.main.ui.datasync
 
 import android.content.Context
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -14,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.Agency
@@ -39,7 +39,10 @@ fun SourceDownloadItems(
             shape = MaterialTheme.shapes.medium
         ),
         leadingContent = {
-            Box(Modifier.size(24.dp)) {}
+            Icon(
+                painter = painterResource(R.drawable.ic_data_sync_download),
+                contentDescription = stringResource(R.string.data_sync_download_warning_dialog_icon_description)
+            )
         },
         content = {
             Text(
