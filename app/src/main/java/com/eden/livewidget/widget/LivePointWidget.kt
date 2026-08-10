@@ -102,7 +102,7 @@ class LivePointWidget : GlanceAppWidget() {
                 }
 
 
-                MyContent(mode, displayName, agency, arrivalsData.lastValidData)
+                MyContent(mode, widgetId, displayName, agency, arrivalsData.lastValidData)
             }
         }
     }

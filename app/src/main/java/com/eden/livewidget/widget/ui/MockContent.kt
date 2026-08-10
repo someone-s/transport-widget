@@ -14,6 +14,7 @@ fun MockContent() {
 
     MyContent(
         mode = MyContentMode.ACTIVE,
+        widgetId = -1,
         displayName = LocalContext.current.getString(R.string.widget_mock_station_text),
         agency = null,
         lastValidData = listOf(
