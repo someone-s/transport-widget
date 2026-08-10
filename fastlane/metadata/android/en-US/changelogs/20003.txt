@@ -1,0 +1,3 @@
+Increase previously added limit to display up to 40 departures at once
+Add link in app provider screen to open help page for obtaining API keys
+Fix color of text on widget when fetching or empty screen
