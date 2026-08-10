@@ -20,7 +20,7 @@ fun ArrivalsList(arrivals: List<ArrivalModel>) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        itemsIndexed(arrivals.take(20)) { index, arrival ->
+        itemsIndexed(arrivals.take(40)) { index, arrival ->
             Column {
                 ArrivalsItem(arrival, timeFormatter)
 
