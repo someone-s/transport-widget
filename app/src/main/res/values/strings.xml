@@ -104,7 +104,7 @@
     <string name="widget_mock_arrival_0_platform_text">A</string>
     <string name="widget_mock_arrival_1_platform_text">T</string>
     <string name="widget_mock_arrival_2_platform_text">H</string>
-    <string name="widget_start_tracking_paused_icon">Paused icon</string>
+    <string name="widget_start_tracking_play_icon">Play icon</string>
     <string name="widget_retry_tracking_refresh_icon">Retry icon</string>
     <string name="widget_retry_tracking_text">Retry tracking</string>
     <string name="widget_retry_option_icon">Or icon</string>

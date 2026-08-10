@@ -49,8 +49,8 @@ fun ReadyBlock() {
             ) {
                 Image(
                     modifier = GlanceModifier.size(48.dp),
-                    provider = ImageProvider(R.drawable.ic_shared_outlined_pause),
-                    contentDescription = LocalContext.current.getString(R.string.widget_start_tracking_paused_icon),
+                    provider = ImageProvider(R.drawable.ic_shared_outlined_play_arrow),
+                    contentDescription = LocalContext.current.getString(R.string.widget_start_tracking_play_icon),
                     colorFilter = ColorFilter.tint(GlanceTheme.colors.onPrimaryContainer)
                 )
                 Text(
