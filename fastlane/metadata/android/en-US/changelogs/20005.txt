@@ -1,0 +1,1 @@
+Disable .so file stripping for reproducable builds

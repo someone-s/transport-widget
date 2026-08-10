@@ -38,8 +38,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.eden.livewidget"
         minSdk = 24
         targetSdk = 37
-        versionCode = 20004
-        versionName = "2.0.4"
+        versionCode = 20005
+        versionName = "2.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -70,6 +70,10 @@ extensions.configure<ApplicationExtension> {
 
     dependenciesInfo {
         includeInApk = false
+    }
+
+    packaging {
+        jniLibs.keepDebugSymbols.add("**/*.so")
     }
 }
 
