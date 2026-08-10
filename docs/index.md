@@ -9,3 +9,6 @@ Supports Android 7 to 16.
 ## Providers
 - [Transport for London](/transport-widget/provider/tfl)
 - [Rail Delivery Group](/transport-widget/provider/rdg)
+
+## Privacy
+- [Privacy declaration](/transport-widget/privacy)
