@@ -127,4 +127,8 @@
     <string name="foreground_service_reason">Used for long running background task initiated by user to pull all stop data for a given transportation provider</string>
     <string name="exact_alarm_reason">Alert user to arriving public transport services, time-sensitive</string>
     <string name="widget_pause_button_icon">Pause icon</string>
+    <string name="widget_active_loading_icon">Loading icon</string>
+    <string name="widget_active_loading_text">Fetching data</string>
+    <string name="widget_active_empty_icon">None icon</string>
+    <string name="widget_active_empty_text">No departures</string>
 </resources>

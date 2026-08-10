@@ -29,12 +29,12 @@ class UpdateScheduler {
             return activeAlarms.map { activeWidgetIds ->
 
                 if (activeWidgetIds.isEmpty()) {
-                    Log.i(this.javaClass.name, "Empty")
+                    Log.i(this.javaClass.name, "No active flow for any widgets")
                     return@map false
                 }
 
                 if (!activeWidgetIds.containsKey(appWidgetId)) {
-                    Log.i(this.javaClass.name, "No key")
+                    Log.i(this.javaClass.name, "No active flow for widget $appWidgetId")
                     return@map false
                 }
 

@@ -36,17 +36,19 @@ fun ControlGroup(
 ) {
 
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    
+    val isActive = mode == MyContentMode.ACTIVE_VALID || mode == MyContentMode.ACTIVE_UNINITIALIZED
 
     FilledButton(
         icon =
-            if (mode == MyContentMode.ACTIVE)
+            if (isActive)
                 ImageProvider(R.drawable.ic_widget_refresh)
             else
                 ImageProvider(R.drawable.ic_shared_outlined_warning),
         text =
             LocalTime.now().format(timeFormatter),
         colors =
-            if (mode == MyContentMode.ACTIVE)
+            if (isActive)
                 ButtonDefaults.buttonColors()
             else
                 ButtonDefaults.buttonColors(
@@ -57,7 +59,7 @@ fun ControlGroup(
         maxLines = 1
     )
 
-    if (mode == MyContentMode.ACTIVE) {
+    if (isActive) {
 
         Spacer(
             modifier = GlanceModifier.width(2.dp)

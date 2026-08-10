@@ -23,7 +23,8 @@ import com.eden.livewidget.main.MainActivity
 import java.time.LocalDateTime
 
 enum class MyContentMode {
-    ACTIVE,
+    ACTIVE_VALID,
+    ACTIVE_UNINITIALIZED,
     PAUSED_OK_READY,
     PAUSED_ERROR_UNKNOWN,
     PAUSED_ERROR_BATTERY,
@@ -80,7 +81,8 @@ fun MyContent(
         }
     ) {
         when (mode) {
-            MyContentMode.ACTIVE -> ActiveBlock(lastValidData)
+            MyContentMode.ACTIVE_VALID -> ActiveValidBlock(lastValidData)
+            MyContentMode.ACTIVE_UNINITIALIZED -> ActiveUnInitializedBlock()
             MyContentMode.PAUSED_OK_READY -> ReadyBlock()
             MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
             MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock()
@@ -98,7 +100,7 @@ fun MyContent(
 fun MyContentPreview() {
     GlanceTheme {
         MyContent(
-            mode = MyContentMode.ACTIVE,
+            mode = MyContentMode.ACTIVE_VALID,
             widgetId = -1,
             displayName = "Display name",
             agency = null,

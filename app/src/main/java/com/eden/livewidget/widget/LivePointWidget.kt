@@ -1,6 +1,7 @@
 package com.eden.livewidget.widget
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.DpSize
@@ -86,11 +87,13 @@ class LivePointWidget : GlanceAppWidget() {
                 val flow = UpdateScheduler.getIsActiveFlow(widgetId)
                 val isActive by flow.collectAsState(false)
 
+                Log.i(this.javaClass.name, "Status: ${arrivalsData.validity} $fetchResultOptions $isActive")
+
                 val mode = when(fetchResultOptions) {
                     FETCH_RESULT_RAN_SKIPPED, FETCH_RESULT_RAN_COMPLETED -> {
                         when(arrivalsData.validity) {
-                            ArrivalsData.Validity.VALID,
-                            ArrivalsData.Validity.INVALID_UNINITIALIZED -> if (isActive) MyContentMode.ACTIVE else MyContentMode.PAUSED_OK_READY
+                            ArrivalsData.Validity.VALID -> if (isActive) MyContentMode.ACTIVE_VALID else MyContentMode.PAUSED_OK_READY
+                            ArrivalsData.Validity.INVALID_UNINITIALIZED -> if (isActive) MyContentMode.ACTIVE_UNINITIALIZED else MyContentMode.PAUSED_OK_READY
                             ArrivalsData.Validity.INVALID_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
                             ArrivalsData.Validity.INVALID_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
                             ArrivalsData.Validity.INVALID_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
@@ -128,5 +131,9 @@ class RefreshLivePointWidgetCallback : ActionCallback {
 
         val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
         UpdateScheduler.setCurrentRequest(context, widgetId, 3, Duration.ZERO)
+
+        // Update glance widget immediately
+        val updater = LivePointWidget()
+        updater.update(context, glanceId)
     }
 }
