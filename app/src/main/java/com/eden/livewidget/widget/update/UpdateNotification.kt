@@ -72,7 +72,7 @@ fun createNotification(
 
     val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
         .apply {
-            setSmallIcon(R.drawable.ic_launcher_foreground)
+            setSmallIcon(R.drawable.ic_logo_full)
             setContentTitle(title)
             if (text != null)
                 setContentText(text)
