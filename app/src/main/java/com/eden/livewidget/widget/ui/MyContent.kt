@@ -32,6 +32,7 @@ enum class MyContentMode {
     PAUSED_ERROR_AUTHENTICATE,
     PAUSED_ERROR_UNREACHABLE,
     PAUSED_ERROR_UNRESOLVED,
+    PAUSED_ERROR_METERED,
 }
 
 @Composable
@@ -86,6 +87,7 @@ fun MyContent(
             MyContentMode.ACTIVE_UNINITIALIZED -> ActiveUnInitializedBlock()
             MyContentMode.ACTIVE_RETRY -> ActiveRetryBlock()
             MyContentMode.PAUSED_OK_READY -> ReadyBlock()
+            MyContentMode.PAUSED_ERROR_METERED -> MeteredErrorBlock()
             MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
             MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock()
             MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock()

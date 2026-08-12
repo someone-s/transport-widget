@@ -3,6 +3,7 @@ package com.eden.livewidget.widget.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
@@ -31,7 +32,7 @@ import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
 
 @Composable
-fun BatteryErrorBlock() {
+fun MeteredErrorBlock() {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -44,7 +45,7 @@ fun BatteryErrorBlock() {
         ) {
             RetrySurface {
                 Text(
-                    text = LocalContext.current.getString(R.string.widget_retry_battery_reason_text),
+                    text = LocalContext.current.getString(R.string.widget_retry_metered_reason_text),
                     style = TextStyle(
                         color = GlanceTheme.colors.onPrimaryContainer,
                         fontWeight = FontWeight.Medium,
@@ -73,9 +74,9 @@ fun BatteryErrorBlock() {
 @Composable
 private fun UpdateKeyGroup() {
 
-    val appSettingsIntent = getResolvedNetworkSettingsIntent(LocalContext.current.packageManager, LocalContext.current.packageName)
+    val networkSettingsIntent = getResolvedNetworkSettingsIntent(LocalContext.current.packageManager)
 
-    val batterySaverSettingsIntent = getResolvedMeteredSettingsIntent(LocalContext.current.packageManager)
+    val meteredSettingsIntent = getResolvedMeteredSettingsIntent(LocalContext.current.packageManager, LocalContext.current.packageName)
 
     Row(
         modifier = GlanceModifier
@@ -84,14 +85,14 @@ private fun UpdateKeyGroup() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         FilledButton(
-            icon = ImageProvider(R.drawable.ic_shared_outlined_settings_applications),
-            text = LocalContext.current.getString(R.string.widget_retry_battery_disable_optimization_text),
+            icon = ImageProvider(R.drawable.ic_shared_outlined_data_usage),
+            text = LocalContext.current.getString(R.string.widget_retry_metered_data_saver_text),
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .defaultWeight()
                 .fillMaxHeight(),
             maxLines = 2,
-            onClick = actionStartActivity(appSettingsIntent)
+            onClick = actionStartActivity(networkSettingsIntent)
         )
         Image(
             provider = ImageProvider(R.drawable.ic_shared_outlined_arrow_outward),
@@ -99,51 +100,56 @@ private fun UpdateKeyGroup() {
             colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface)
         )
         FilledButton(
-            icon = ImageProvider(R.drawable.ic_shared_outlined_energy_savings_leaf),
-            text = LocalContext.current.getString(R.string.widget_retry_battery_disable_saver_text),
+            icon = ImageProvider(R.drawable.ic_shared_outlined_data_usage),
+            text = LocalContext.current.getString(R.string.widget_retry_metered_add_whitelist_text),
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .defaultWeight()
                 .fillMaxHeight(),
             maxLines = 2,
-            onClick = actionStartActivity(batterySaverSettingsIntent),
+            onClick = actionStartActivity(meteredSettingsIntent),
         )
     }
 }
 
-private fun getResolvedNetworkSettingsIntent(packageManager: PackageManager, packageName: String): Intent {
+private fun getResolvedNetworkSettingsIntent(packageManager: PackageManager): Intent {
 
-    val applicationSettingsIntent = Intent().apply {
-        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+    val networkSettingsIntent = Intent().apply {
+
+            action =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                    Settings.ACTION_DATA_USAGE_SETTINGS
+                else
+                    Settings.ACTION_SETTINGS
+
     }
 
     // Settings app should be visible by default
     @SuppressLint("QueryPermissionsNeeded")
-    val applicationSettingsComponentName =
-        applicationSettingsIntent.resolveActivity(packageManager)
+    val networkSettingsComponentName =
+        networkSettingsIntent.resolveActivity(packageManager)
 
-    return Intent().apply {
-        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-        component = applicationSettingsComponentName
-        data = "package:$packageName".toUri()
+    return networkSettingsIntent.apply {
+        component = networkSettingsComponentName
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
     }
 }
 
-private fun getResolvedMeteredSettingsIntent(packageManager: PackageManager): Intent {
-    val batterySaverSettingsIntent = Intent().apply {
-        action = Settings.ACTION_BATTERY_SAVER_SETTINGS
+private fun getResolvedMeteredSettingsIntent(packageManager: PackageManager, packageName: String): Intent {
+    val meteredSettingsIntent = Intent().apply {
+        action = Settings.ACTION_IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS
+        data = "package:$packageName".toUri()
     }
 
     // Settings app should be visible by default
     @SuppressLint("QueryPermissionsNeeded")
-    val batterySaverComponentName =
-        batterySaverSettingsIntent.resolveActivity(packageManager)
+    val meteredSettingsComponentName =
+        meteredSettingsIntent.resolveActivity(packageManager)
 
-    return batterySaverSettingsIntent.apply {
-        component = batterySaverComponentName
+    return meteredSettingsIntent.apply {
+        component = meteredSettingsComponentName
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
