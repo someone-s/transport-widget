@@ -36,8 +36,12 @@ class LivePointWidget : GlanceAppWidget() {
         val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
         val FETCH_RESULT_KEY = stringPreferencesKey("inactiveText")
 
-        const val FETCH_RESULT_ERROR_UNKNOWN = "error-auth"
+        const val FETCH_RESULT_ERROR_UNKNOWN = "error-unknown"
+        const val FETCH_RESULT_ERROR_AUTHENTICATION = "error-authentication"
+        const val FETCH_RESULT_ERROR_UNREACHABLE = "error-unreachable"
+        const val FETCH_RESULT_ERROR_UNRESOLVED = "error-unresolvable"
         const val FETCH_RESULT_ERROR_BATTERY = "error-battery"
+        const val FETCH_RESULT_ERROR_METERED = "error-metered"
         const val FETCH_RESULT_RAN_SKIPPED =  "ran-skipped"
         const val FETCH_RESULT_RAN_COMPLETED = "ran-received"
     }
@@ -93,31 +97,25 @@ class LivePointWidget : GlanceAppWidget() {
                     if (isActive)
                         when(fetchResultOptions) {
                             FETCH_RESULT_RAN_SKIPPED,
-                            FETCH_RESULT_RAN_COMPLETED -> {
+                            FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
                                     ArrivalsData.Validity.VALID -> MyContentMode.ACTIVE_VALID
-                                    ArrivalsData.Validity.INVALID_UNINITIALIZED -> MyContentMode.ACTIVE_UNINITIALIZED
-                                    ArrivalsData.Validity.INVALID_UNRESOLVED,
-                                    ArrivalsData.Validity.INVALID_UNREACHABLE,
-                                    ArrivalsData.Validity.INVALID_AUTHENTICATION -> MyContentMode.ACTIVE_RETRY
+                                    ArrivalsData.Validity.INVALID -> MyContentMode.ACTIVE_UNINITIALIZED
                                 }
-                            }
-                            FETCH_RESULT_ERROR_BATTERY,
-                            FETCH_RESULT_ERROR_UNKNOWN -> MyContentMode.ACTIVE_RETRY
                             else -> MyContentMode.ACTIVE_RETRY
                         }
                     else
                         when(fetchResultOptions) {
                             FETCH_RESULT_RAN_SKIPPED,
-                            FETCH_RESULT_RAN_COMPLETED -> {
+                            FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
                                     ArrivalsData.Validity.VALID -> MyContentMode.PAUSED_OK_READY
-                                    ArrivalsData.Validity.INVALID_UNINITIALIZED -> MyContentMode.PAUSED_OK_READY
-                                    ArrivalsData.Validity.INVALID_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
-                                    ArrivalsData.Validity.INVALID_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
-                                    ArrivalsData.Validity.INVALID_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
+                                    ArrivalsData.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
                                 }
-                            }
+                            FETCH_RESULT_ERROR_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
+                            FETCH_RESULT_ERROR_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
+                            FETCH_RESULT_ERROR_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
+                            FETCH_RESULT_ERROR_METERED -> MyContentMode.PAUSED_ERROR_METERED
                             FETCH_RESULT_ERROR_BATTERY -> MyContentMode.PAUSED_ERROR_BATTERY
                             FETCH_RESULT_ERROR_UNKNOWN -> MyContentMode.PAUSED_ERROR_UNKNOWN
                             else -> MyContentMode.PAUSED_ERROR_UNKNOWN

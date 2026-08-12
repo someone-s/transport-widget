@@ -15,7 +15,7 @@ class ArrivalsRepository(
     private val arrivalsDataMutable = MutableStateFlow(ArrivalsData())
     val arrivalsData = arrivalsDataMutable.asStateFlow()
 
-    suspend fun fetchLatestArrival(context: Context): Boolean {
+    suspend fun fetchLatestArrival(context: Context): FetchResult {
         val output = arrivalsDataSource.fetchLatestArrivals(context)
 
         arrivalsDataMutable.getAndUpdate { previousData ->
@@ -23,20 +23,27 @@ class ArrivalsRepository(
                 ArrivalsDataSource.FetchResult.SUCCESS ->
                     ArrivalsData(ArrivalsData.Validity.VALID, output.second)
                 ArrivalsDataSource.FetchResult.ERROR_UNRESOLVED ->
-                    ArrivalsData(ArrivalsData.Validity.INVALID_UNRESOLVED, previousData.lastValidData)
+                    ArrivalsData(ArrivalsData.Validity.INVALID, previousData.lastValidData)
                 ArrivalsDataSource.FetchResult.ERROR_UNREACHABLE ->
-                    ArrivalsData(ArrivalsData.Validity.INVALID_UNREACHABLE, previousData.lastValidData)
+                    ArrivalsData(ArrivalsData.Validity.INVALID, previousData.lastValidData)
                 ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION ->
-                    ArrivalsData(ArrivalsData.Validity.INVALID_AUTHENTICATION, previousData.lastValidData)
+                    ArrivalsData(ArrivalsData.Validity.INVALID, previousData.lastValidData)
             }
         }
 
         return when (output.first) {
-            ArrivalsDataSource.FetchResult.SUCCESS -> true
-            ArrivalsDataSource.FetchResult.ERROR_UNRESOLVED,
-            ArrivalsDataSource.FetchResult.ERROR_UNREACHABLE,
-            ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION -> false
+            ArrivalsDataSource.FetchResult.SUCCESS -> FetchResult.SUCCESS
+            ArrivalsDataSource.FetchResult.ERROR_UNRESOLVED -> FetchResult.ERROR_UNRESOLVED
+            ArrivalsDataSource.FetchResult.ERROR_UNREACHABLE -> FetchResult.ERROR_UNREACHABLE
+            ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION -> FetchResult.ERROR_AUTHENTICATION
         }
+    }
+
+    enum class FetchResult {
+        SUCCESS,
+        ERROR_UNRESOLVED,
+        ERROR_UNREACHABLE,
+        ERROR_AUTHENTICATION,
     }
 
     companion object {

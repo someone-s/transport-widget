@@ -134,4 +134,7 @@
     <string name="data_sync_screen_key_configure_help_text">Obtain API keys</string>
     <string name="data_sync_screen_key_configure_help_support">Open guide in browser</string>
     <string name="widget_active_retrying_text">Retrying fetch</string>
+    <string name="widget_retry_metered_reason_text">Data saver on</string>
+    <string name="widget_retry_metered_data_saver_text">Disable data saver</string>
+    <string name="widget_retry_metered_add_whitelist_text">Allow unrestricted</string>
 </resources>
