@@ -37,7 +37,13 @@ fun ControlGroup(
 
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     
-    val isActive = mode == MyContentMode.ACTIVE_VALID || mode == MyContentMode.ACTIVE_UNINITIALIZED
+    val isActive =
+        when(mode) {
+            MyContentMode.ACTIVE_VALID,
+            MyContentMode.ACTIVE_UNINITIALIZED,
+            MyContentMode.ACTIVE_RETRY -> true
+            else -> false
+        }
 
     FilledButton(
         icon =

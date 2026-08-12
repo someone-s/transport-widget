@@ -8,13 +8,13 @@ import androidx.glance.layout.fillMaxSize
 import com.eden.livewidget.R
 
 @Composable
-fun ActiveUnInitializedBlock() {
+fun ActiveRetryBlock() {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
     ) {
         FetchingSurface(
-            fetchMessage = LocalContext.current.getString(R.string.widget_active_loading_text)
+            fetchMessage = LocalContext.current.getString(R.string.widget_active_retrying_text)
         )
     }
 }

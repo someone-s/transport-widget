@@ -26,6 +26,7 @@ enum class MyContentMode {
     ACTIVE_VALID,
     ACTIVE_UNINITIALIZED,
     PAUSED_OK_READY,
+    ACTIVE_RETRY,
     PAUSED_ERROR_UNKNOWN,
     PAUSED_ERROR_BATTERY,
     PAUSED_ERROR_AUTHENTICATE,
@@ -83,6 +84,7 @@ fun MyContent(
         when (mode) {
             MyContentMode.ACTIVE_VALID -> ActiveValidBlock(lastValidData)
             MyContentMode.ACTIVE_UNINITIALIZED -> ActiveUnInitializedBlock()
+            MyContentMode.ACTIVE_RETRY -> ActiveRetryBlock()
             MyContentMode.PAUSED_OK_READY -> ReadyBlock()
             MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
             MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock()

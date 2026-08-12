@@ -22,7 +22,9 @@ import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
 
 @Composable
-fun FetchingSurface() {
+fun FetchingSurface(
+    fetchMessage: String
+) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -40,7 +42,7 @@ fun FetchingSurface() {
                 colorFilter = ColorFilter.tint(GlanceTheme.colors.onBackground)
             )
             Text(
-                text = LocalContext.current.getString(R.string.widget_active_loading_text),
+                text = fetchMessage,
                 style = TextStyle(
                     color = GlanceTheme.colors.onBackground,
                     fontWeight = FontWeight.Normal,

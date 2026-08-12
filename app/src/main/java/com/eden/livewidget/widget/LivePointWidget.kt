@@ -89,20 +89,39 @@ class LivePointWidget : GlanceAppWidget() {
 
                 Log.i(this.javaClass.name, "Status: ${arrivalsData.validity} $fetchResultOptions $isActive")
 
-                val mode = when(fetchResultOptions) {
-                    FETCH_RESULT_RAN_SKIPPED, FETCH_RESULT_RAN_COMPLETED -> {
-                        when(arrivalsData.validity) {
-                            ArrivalsData.Validity.VALID -> if (isActive) MyContentMode.ACTIVE_VALID else MyContentMode.PAUSED_OK_READY
-                            ArrivalsData.Validity.INVALID_UNINITIALIZED -> if (isActive) MyContentMode.ACTIVE_UNINITIALIZED else MyContentMode.PAUSED_OK_READY
-                            ArrivalsData.Validity.INVALID_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
-                            ArrivalsData.Validity.INVALID_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
-                            ArrivalsData.Validity.INVALID_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
+                val mode =
+                    if (isActive)
+                        when(fetchResultOptions) {
+                            FETCH_RESULT_RAN_SKIPPED,
+                            FETCH_RESULT_RAN_COMPLETED -> {
+                                when(arrivalsData.validity) {
+                                    ArrivalsData.Validity.VALID -> MyContentMode.ACTIVE_VALID
+                                    ArrivalsData.Validity.INVALID_UNINITIALIZED -> MyContentMode.ACTIVE_UNINITIALIZED
+                                    ArrivalsData.Validity.INVALID_UNRESOLVED,
+                                    ArrivalsData.Validity.INVALID_UNREACHABLE,
+                                    ArrivalsData.Validity.INVALID_AUTHENTICATION -> MyContentMode.ACTIVE_RETRY
+                                }
+                            }
+                            FETCH_RESULT_ERROR_BATTERY,
+                            FETCH_RESULT_ERROR_UNKNOWN -> MyContentMode.ACTIVE_RETRY
+                            else -> MyContentMode.ACTIVE_RETRY
                         }
-                    }
-                    FETCH_RESULT_ERROR_BATTERY -> MyContentMode.PAUSED_ERROR_BATTERY
-                    FETCH_RESULT_ERROR_UNKNOWN -> MyContentMode.PAUSED_ERROR_UNKNOWN
-                    else -> MyContentMode.PAUSED_ERROR_UNKNOWN
-                }
+                    else
+                        when(fetchResultOptions) {
+                            FETCH_RESULT_RAN_SKIPPED,
+                            FETCH_RESULT_RAN_COMPLETED -> {
+                                when(arrivalsData.validity) {
+                                    ArrivalsData.Validity.VALID -> MyContentMode.PAUSED_OK_READY
+                                    ArrivalsData.Validity.INVALID_UNINITIALIZED -> MyContentMode.PAUSED_OK_READY
+                                    ArrivalsData.Validity.INVALID_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
+                                    ArrivalsData.Validity.INVALID_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
+                                    ArrivalsData.Validity.INVALID_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
+                                }
+                            }
+                            FETCH_RESULT_ERROR_BATTERY -> MyContentMode.PAUSED_ERROR_BATTERY
+                            FETCH_RESULT_ERROR_UNKNOWN -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                            else -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                        }
 
 
                 MyContent(mode, widgetId, displayName, agency, arrivalsData.lastValidData)
