@@ -9,11 +9,9 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceTheme
-import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
 import com.eden.livewidget.Agency
@@ -25,7 +23,6 @@ import com.eden.livewidget.widget.ui.MyContent
 import com.eden.livewidget.widget.ui.MyContentMode
 import com.eden.livewidget.widget.ui.PlaceholderContent
 import com.eden.livewidget.widget.update.UpdateScheduler
-import kotlin.time.Duration
 
 class LivePointWidget : GlanceAppWidget() {
 
@@ -34,16 +31,17 @@ class LivePointWidget : GlanceAppWidget() {
         val AGENCY_KEY = stringPreferencesKey("agency")
         val API_VALUE_KEY = stringPreferencesKey("apiValue")
         val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
-        val FETCH_RESULT_KEY = stringPreferencesKey("inactiveText")
+        val FETCH_STATE_KEY = stringPreferencesKey("inactiveText")
 
-        const val FETCH_RESULT_ERROR_UNKNOWN = "error-unknown"
-        const val FETCH_RESULT_ERROR_AUTHENTICATION = "error-authentication"
-        const val FETCH_RESULT_ERROR_UNREACHABLE = "error-unreachable"
-        const val FETCH_RESULT_ERROR_UNRESOLVED = "error-unresolvable"
-        const val FETCH_RESULT_ERROR_BATTERY = "error-battery"
-        const val FETCH_RESULT_ERROR_METERED = "error-metered"
-        const val FETCH_RESULT_RAN_SKIPPED =  "ran-skipped"
-        const val FETCH_RESULT_RAN_COMPLETED = "ran-received"
+        const val FETCH_PENDING = "pending"
+        const val FETCH_RESULT_ERROR_UNKNOWN = "result-error-unknown"
+        const val FETCH_RESULT_ERROR_AUTHENTICATION = "result-error-authentication"
+        const val FETCH_RESULT_ERROR_UNREACHABLE = "result-error-unreachable"
+        const val FETCH_RESULT_ERROR_UNRESOLVED = "result-error-unresolvable"
+        const val FETCH_RESULT_ERROR_BATTERY = "result-error-battery"
+        const val FETCH_RESULT_ERROR_METERED = "result-error-metered"
+        const val FETCH_RESULT_RAN_SKIPPED =  "result-ran-skipped"
+        const val FETCH_RESULT_RAN_COMPLETED = "result-ran-received"
     }
 
     override val previewSizeMode = SizeMode.Responsive(setOf(DpSize(160.dp, 80.dp), DpSize(1000.dp, 1000.dp)))
@@ -82,7 +80,7 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
-                val fetchResultOptions = currentState(FETCH_RESULT_KEY)
+                val fetchResultOptions = currentState(FETCH_STATE_KEY)
 
                 val repository = ArrivalsRepository.getInstance(agency.apiProvider, apiValue)
                 val arrivalsData by repository.arrivalsData.collectAsState()
@@ -96,6 +94,7 @@ class LivePointWidget : GlanceAppWidget() {
                 val mode =
                     if (isActive)
                         when(fetchResultOptions) {
+                            FETCH_PENDING -> MyContentMode.ACTIVE_UNINITIALIZED
                             FETCH_RESULT_RAN_SKIPPED,
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
@@ -121,8 +120,9 @@ class LivePointWidget : GlanceAppWidget() {
                             else -> MyContentMode.PAUSED_ERROR_UNKNOWN
                         }
 
+                val updateTime = if (fetchResultOptions != FETCH_PENDING) arrivalsData.lastUpdate else null
 
-                MyContent(mode, widgetId, displayName, agency, arrivalsData.lastUpdate, arrivalsData.lastValidData)
+                MyContent(mode, widgetId, displayName, agency, updateTime, arrivalsData.lastValidData)
             }
         }
     }
@@ -137,20 +137,3 @@ class LivePointWidget : GlanceAppWidget() {
     }
 }
 
-class RefreshLivePointWidgetCallback : ActionCallback {
-
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters,
-    ) {
-
-
-        val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
-        UpdateScheduler.setCurrentRequest(context, widgetId, 3, Duration.ZERO)
-
-        // Update glance widget immediately
-        val updater = LivePointWidget()
-        updater.update(context, glanceId)
-    }
-}

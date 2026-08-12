@@ -24,7 +24,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.widget.RefreshLivePointWidgetCallback
+import com.eden.livewidget.widget.update.UpdateBeginCallback
 
 @Composable
 fun RetrySurface(
@@ -37,7 +37,7 @@ fun RetrySurface(
             .cornerRadius(12.dp)
             .padding(all = 8.dp)
             .clickable(
-                onClick = actionRunCallback<RefreshLivePointWidgetCallback>()
+                onClick = actionRunCallback<UpdateBeginCallback>()
             ),
         contentAlignment = Alignment.Center
     ) {

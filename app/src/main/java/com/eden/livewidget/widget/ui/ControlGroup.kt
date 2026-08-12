@@ -23,7 +23,7 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.size
 import androidx.glance.layout.width
 import com.eden.livewidget.R
-import com.eden.livewidget.widget.RefreshLivePointWidgetCallback
+import com.eden.livewidget.widget.update.UpdateBeginCallback
 import com.eden.livewidget.widget.update.UpdateCancelReceiver
 import com.eden.livewidget.widget.update.UpdateScheduler
 import java.time.LocalDateTime
@@ -63,7 +63,7 @@ fun ControlGroup(
                     backgroundColor = GlanceTheme.colors.error,
                     contentColor = GlanceTheme.colors.onError
                 ),
-        onClick = actionRunCallback<RefreshLivePointWidgetCallback>(),
+        onClick = actionRunCallback<UpdateBeginCallback>(),
         maxLines = 1
     )
 

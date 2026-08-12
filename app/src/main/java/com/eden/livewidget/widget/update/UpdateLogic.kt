@@ -43,7 +43,7 @@ suspend fun updateWidget(
             updateData(context, glanceId)
 
     updateAppWidgetState(context, glanceId) { preferences ->
-        preferences[LivePointWidget.FETCH_RESULT_KEY] = result.widgetValue
+        preferences[LivePointWidget.FETCH_STATE_KEY] = result.widgetValue
     }
 
     updater.update(context, glanceId)
