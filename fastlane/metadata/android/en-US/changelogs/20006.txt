@@ -1,0 +1,4 @@
+Add retry indication on widget
+Add information when fail to update due to data saver
+Fix widget time to be time of data
+Fix widget displaying outdated data initially
