@@ -133,4 +133,5 @@
     <string name="widget_active_empty_text">No departures</string>
     <string name="data_sync_screen_key_configure_help_text">Obtain API keys</string>
     <string name="data_sync_screen_key_configure_help_support">Open guide in browser</string>
+    <string name="widget_active_retrying_text">Retrying fetch</string>
 </resources>
