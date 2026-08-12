@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
+import java.time.LocalDateTime
 
 class ArrivalsRepository(
     private val arrivalsDataSource: ArrivalsDataSource,
@@ -18,16 +19,17 @@ class ArrivalsRepository(
     suspend fun fetchLatestArrival(context: Context): FetchResult {
         val output = arrivalsDataSource.fetchLatestArrivals(context)
 
+
         arrivalsDataMutable.getAndUpdate { previousData ->
             when (output.first) {
                 ArrivalsDataSource.FetchResult.SUCCESS ->
-                    ArrivalsData(ArrivalsData.Validity.VALID, output.second)
+                    ArrivalsData(LocalDateTime.now(), ArrivalsData.Validity.VALID, output.second)
                 ArrivalsDataSource.FetchResult.ERROR_UNRESOLVED ->
-                    ArrivalsData(ArrivalsData.Validity.INVALID, previousData.lastValidData)
+                    ArrivalsData(LocalDateTime.now(), ArrivalsData.Validity.INVALID, previousData.lastValidData)
                 ArrivalsDataSource.FetchResult.ERROR_UNREACHABLE ->
-                    ArrivalsData(ArrivalsData.Validity.INVALID, previousData.lastValidData)
+                    ArrivalsData(LocalDateTime.now(), ArrivalsData.Validity.INVALID, previousData.lastValidData)
                 ArrivalsDataSource.FetchResult.ERROR_AUTHENTICATION ->
-                    ArrivalsData(ArrivalsData.Validity.INVALID, previousData.lastValidData)
+                    ArrivalsData(LocalDateTime.now(), ArrivalsData.Validity.INVALID, previousData.lastValidData)
             }
         }
 

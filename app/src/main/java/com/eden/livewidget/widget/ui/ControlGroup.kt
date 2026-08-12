@@ -26,16 +26,18 @@ import com.eden.livewidget.R
 import com.eden.livewidget.widget.RefreshLivePointWidgetCallback
 import com.eden.livewidget.widget.update.UpdateCancelReceiver
 import com.eden.livewidget.widget.update.UpdateScheduler
-import java.time.LocalTime
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun ControlGroup(
     mode: MyContentMode,
-    widgetId: Int
+    widgetId: Int,
+    lastUpdate: LocalDateTime?,
 ) {
 
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    val timeInvalid = "‒‒:‒‒"
     
     val isActive =
         when(mode) {
@@ -52,7 +54,7 @@ fun ControlGroup(
             else
                 ImageProvider(R.drawable.ic_shared_outlined_warning),
         text =
-            LocalTime.now().format(timeFormatter),
+            lastUpdate?.format(timeFormatter) ?: timeInvalid,
         colors =
             if (isActive)
                 ButtonDefaults.buttonColors()

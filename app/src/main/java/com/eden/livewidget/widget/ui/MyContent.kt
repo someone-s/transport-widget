@@ -41,6 +41,7 @@ fun MyContent(
     widgetId: Int,
     displayName: String,
     agency: Agency?,
+    lastUpdate: LocalDateTime?,
     lastValidData: List<ArrivalModel>,
 ) {
 
@@ -78,7 +79,7 @@ fun MyContent(
                 )
 
                 if (mode != MyContentMode.PAUSED_OK_READY)
-                    ControlGroup(mode, widgetId)
+                    ControlGroup(mode, widgetId, lastUpdate)
             }
         }
     ) {
@@ -108,6 +109,7 @@ fun MyContentPreview() {
             widgetId = -1,
             displayName = "Display name",
             agency = null,
+            lastUpdate = null,
             lastValidData = listOf(
                 ArrivalModel(
                     operatorName = "Operator 1",

@@ -17,6 +17,7 @@ fun MockContent() {
         widgetId = -1,
         displayName = LocalContext.current.getString(R.string.widget_mock_station_text),
         agency = null,
+        lastUpdate = LocalDateTime.of(2026, 8, 2, 3, 30),
         lastValidData = listOf(
             ArrivalModel(
                 operatorName = LocalContext.current.getString(R.string.widget_mock_arrival_0_operator_text),
