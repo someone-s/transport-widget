@@ -22,7 +22,7 @@ class UpdateBeginCallback : ActionCallback {
             preferences[LivePointWidget.FETCH_STATE_KEY] = LivePointWidget.FETCH_PENDING
         }
 
-        UpdateScheduler.setCurrentRequest(context, widgetId, 3, Duration.ZERO)
+        UpdateScheduler.replaceCurrentRequest(context, widgetId, 3, Duration.ZERO)
 
         // Update glance widget immediately
         val updater = LivePointWidget()
