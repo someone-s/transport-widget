@@ -42,14 +42,6 @@ class UpdateScheduler {
             }
         }
 
-        fun setCurrentRequest(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?) {
-            val alarmState = schedule(context, appWidgetId, remainingTimes, delay) ?: return
-
-            activeAlarms.getAndUpdate { previousMap ->
-                previousMap + (appWidgetId to alarmState)
-            }
-        }
-
         fun cancelCurrentRequest(context: Context, appWidgetId: Int) {
 
             cancel(context, appWidgetId)
@@ -79,29 +71,42 @@ class UpdateScheduler {
             val previousNotificationId = previousAlarmState?.notificationId
 
             // new notification created here
-            val newAlarmState = schedule(context, appWidgetId, remainingTimes, delay)
+            val newAlarmState = construct(context, appWidgetId, remainingTimes).apply {
 
-            activeAlarms.getAndUpdate { previousMap ->
-                if (newAlarmState != null)
-                    previousMap + (appWidgetId to newAlarmState)
-                else
-                    previousMap - appWidgetId
+                activeAlarms.getAndUpdate { previousMap ->
+                    if (this != null)
+                        previousMap + (appWidgetId to this)
+                    else
+                        previousMap - appWidgetId
+                }
+
+                if (previousNotificationId != null)
+                    cancelNotification(context, previousNotificationId)
             }
 
-            if (previousNotificationId != null)
-                cancelNotification(context, previousNotificationId)
+            if (newAlarmState != null)
+                push(context, newAlarmState, delay).apply {
+
+                    if (!this) {
+                        activeAlarms.getAndUpdate { previousMap ->
+                            previousMap - appWidgetId
+                        }
+
+                        cancelNotification(context, newAlarmState.notificationId)
+                    }
+                }
+
         }
 
-        private fun schedule(context: Context, appWidgetId: Int, remainingTimes: Int, delay: Duration?): AlarmState? {
+        private fun construct(
+            context: Context,
+            appWidgetId: Int,
+            remainingTimes: Int,
+        ): AlarmState? {
 
-            Log.i(this.javaClass.name, "Trying to schedule for widget $appWidgetId")
+
+            Log.i(this.javaClass.name, "Trying to construct for widget $appWidgetId")
             Log.i(this.javaClass.name, "Remaining times: $remainingTimes")
-
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-            if (alarmManager == null) {
-                Log.e(this.javaClass.name, "AlarmManager is null")
-                return null
-            }
 
             if (remainingTimes < 0) {
                 Log.e(this.javaClass.name, "Remaining times < 0 widget $appWidgetId")
@@ -128,32 +133,65 @@ class UpdateScheduler {
                     )
                 }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (alarmManager.canScheduleExactAlarms()) {
-                    alarmManager.setExact(
-                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        SystemClock.elapsedRealtime() + (delay?.inWholeMilliseconds ?: 0L),
-                        pendingIntent
-                    )
-                }
-                else {
-                    alarmManager.set(
-                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        SystemClock.elapsedRealtime() + (delay?.inWholeMilliseconds ?: 0L),
-                        pendingIntent
-                    )
-                }
-            } else {
-                alarmManager.set(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + (delay?.inWholeMilliseconds ?: 0L),
-                    pendingIntent
-                )
+            return AlarmState(pendingIntent, notificationId)
+        }
+
+        private fun push(
+            context: Context,
+            alarmState: AlarmState,
+            delay: Duration?,
+        ): Boolean {
+
+            Log.i(this.javaClass.name, "Trying to schedule update for widget")
+
+            fun pushDirect(): Boolean {
+                alarmState.pendingIntent.send()
+                return true
             }
 
-            Log.i(this.javaClass.name, "Scheduled alarm for widget $appWidgetId")
+            fun pushSchedule(delayNotNull: Duration): Boolean {
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+                if (alarmManager == null) {
+                    Log.e(this.javaClass.name, "AlarmManager is null")
+                    return false
+                }
 
-            return AlarmState(pendingIntent, notificationId)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (alarmManager.canScheduleExactAlarms()) {
+                        alarmManager.setExact(
+                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            SystemClock.elapsedRealtime() + delayNotNull.inWholeMilliseconds,
+                            alarmState.pendingIntent
+                        )
+                    }
+                    else {
+                        alarmManager.set(
+                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            SystemClock.elapsedRealtime() + delayNotNull.inWholeMilliseconds,
+                            alarmState.pendingIntent
+                        )
+                    }
+                } else {
+                    alarmManager.set(
+                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() + delayNotNull.inWholeMilliseconds,
+                        alarmState.pendingIntent
+                    )
+                }
+
+                Log.i(this.javaClass.name, "Scheduled alarm for widget")
+
+                return true
+            }
+
+            if (delay == null || delay == Duration.ZERO) {
+                Log.i(this.javaClass.name, "Scheduled for immediate, directly send intent instead")
+                return pushDirect()
+            }
+            else {
+                Log.i(this.javaClass.name, "Scheduled for immediate, directly send intent instead")
+                return pushSchedule(delay)
+            }
         }
 
         private fun cancel(context: Context, appWidgetId: Int) {
