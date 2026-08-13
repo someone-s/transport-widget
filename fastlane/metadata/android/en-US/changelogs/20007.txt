@@ -1,0 +1,2 @@
+Improve reliability of initial widget update
+Change wording of metered error screen
