@@ -1,11 +1,14 @@
 package com.eden.livewidget.widget.ui
 
+import android.appwidget.AppWidgetManager
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.action.actionStartActivity
+import androidx.glance.LocalContext
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.components.Scaffold
 import androidx.glance.layout.Alignment
@@ -18,8 +21,8 @@ import androidx.glance.preview.Preview
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.Agency
+import com.eden.livewidget.config.ConfigActivity
 import com.eden.livewidget.data.arrivals.ArrivalModel
-import com.eden.livewidget.main.MainActivity
 import java.time.LocalDateTime
 
 enum class MyContentMode {
@@ -45,12 +48,14 @@ fun MyContent(
     lastValidData: List<ArrivalModel>,
 ) {
 
+    val configIntent = getExplicitConfigIntent(widgetId)
+
     Scaffold(
         backgroundColor = GlanceTheme.colors.widgetBackground,
         modifier = GlanceModifier
             .fillMaxSize()
             .clickable(
-                onClick = actionStartActivity<MainActivity>()
+                onClick = actionStartActivity(configIntent)
             ),
         horizontalPadding = 16.dp,
         titleBar = {
@@ -97,6 +102,23 @@ fun MyContent(
         }
     }
 
+}
+
+@Composable
+private fun getExplicitConfigIntent(widgetId: Int): Intent {
+    val configIntent = Intent(
+        LocalContext.current.applicationContext,
+        ConfigActivity::class.java
+    ).apply {
+        putExtra(
+            AppWidgetManager.EXTRA_APPWIDGET_ID,
+            widgetId,
+        )
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+    }
+    return configIntent
 }
 
 @OptIn(ExperimentalGlancePreviewApi::class)
