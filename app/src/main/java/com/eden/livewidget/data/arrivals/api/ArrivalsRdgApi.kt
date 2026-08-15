@@ -18,6 +18,8 @@ import retrofit2.http.Query
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import kotlin.math.max
 
@@ -135,7 +137,10 @@ class ArrivalsRdgApi(
             return emptyList()
         }
 
-        val responseTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss")
+        val responseTimeFormatter = DateTimeFormatterBuilder()
+            .appendPattern("uuuu-MM-dd'T'HH:mm:ss")
+            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 9, true)
+            .toFormatter()
 
         return services
             .filter { !it.destinations.isNullOrEmpty() || it.hasActualTime || it.hasEstimatedTime || it.hasScheduledTime }
