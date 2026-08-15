@@ -95,22 +95,27 @@ class ArrivalsTflApi(
 
         return entries
             .filter { it.destinationName != null }
-            .map { entry ->
-                Log.i("ARRIVAL-INFO", entry.expectedArrivalString)
-                ArrivalModel(
-                    operatorName = "TfL",
-                    serviceName = processServiceName(entry.lineName),
-                    destinationName = processDestinationName(entry.destinationName!!),
-                    viaText = if (entry.towards != null && entry.towards != "null") entry.towards else "",
-                    platformName = processPlatformName(entry.platformName),
-                    remainingS = max(0, entry.timeToStation - 60),
-                    expectedDateTime =
-                        LocalDateTime
-                            .from(responseTimeFormatter.parse(entry.expectedArrivalString))
-                            .atOffset(ZoneOffset.UTC)
-                            .atZoneSameInstant(ZoneId.systemDefault())
-                            .toLocalDateTime()
-                )
+            .mapNotNull{ entry ->
+                try {
+                    Log.i("ARRIVAL-INFO", entry.expectedArrivalString)
+                    ArrivalModel(
+                        operatorName = "TfL",
+                        serviceName = processServiceName(entry.lineName),
+                        destinationName = processDestinationName(entry.destinationName!!),
+                        viaText = if (entry.towards != null && entry.towards != "null") entry.towards else "",
+                        platformName = processPlatformName(entry.platformName),
+                        remainingS = max(0, entry.timeToStation - 60),
+                        expectedDateTime =
+                            LocalDateTime
+                                .from(responseTimeFormatter.parse(entry.expectedArrivalString))
+                                .atOffset(ZoneOffset.UTC)
+                                .atZoneSameInstant(ZoneId.systemDefault())
+                                .toLocalDateTime()
+                    )
+                } catch (e: Exception) {
+                    Log.e("ARRIVAL-INFO", e.message.toString())
+                    null
+                }
             }
             .sortedBy { model -> model.remainingS }
     }

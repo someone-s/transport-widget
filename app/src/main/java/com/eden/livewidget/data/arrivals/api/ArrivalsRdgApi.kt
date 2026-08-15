@@ -139,31 +139,39 @@ class ArrivalsRdgApi(
 
         return services
             .filter { !it.destinations.isNullOrEmpty() || it.hasActualTime || it.hasEstimatedTime || it.hasScheduledTime }
-            .map { service ->
+            .mapNotNull { service ->
+                try {
+                    val expectTimeText =
+                        if (service.hasActualTime)
+                            service.actualTimeText
+                        else if (service.hasEstimatedTime)
+                            service.estimatedTimeText
+                        else // (service.hasScheduledTime)
+                            service.scheduledTimeText
+                    val expectDateTime =
+                        LocalDateTime.from(responseTimeFormatter.parse(expectTimeText))
 
-                val expectTimeText =
-                    if (service.hasActualTime)
-                        service.actualTimeText
-                    else if (service.hasEstimatedTime)
-                        service.estimatedTimeText
-                    else // (service.hasScheduledTime)
-                        service.scheduledTimeText
-                val expectDateTime = LocalDateTime.from(responseTimeFormatter.parse(expectTimeText))
+                    val secondsToDeparture =
+                        Math.toIntExact(ChronoUnit.SECONDS.between(currentTime, expectDateTime))
 
-                val secondsToDeparture = Math.toIntExact(ChronoUnit.SECONDS.between(currentTime, expectDateTime))
+                    val firstDestination = service.destinations!!.first()
 
-                val firstDestination = service.destinations!!.first()
-
-                Log.i("ARRIVAL-INFO", secondsToDeparture.toString())
-                ArrivalModel(
-                    operatorName = processOperatorName(service.operator),
-                    serviceName = service.trainId,
-                    destinationName = firstDestination.locationName,
-                    viaText = if (firstDestination.viaText != null) processViaText(firstDestination.viaText) else "",
-                    platformName = service.platform ?: "",
-                    remainingS = max(0, secondsToDeparture - 60),
-                    expectedDateTime = expectDateTime
-                )
+                    Log.i("ARRIVAL-INFO", secondsToDeparture.toString())
+                    ArrivalModel(
+                        operatorName = processOperatorName(service.operator),
+                        serviceName = service.trainId,
+                        destinationName = firstDestination.locationName,
+                        viaText = if (firstDestination.viaText != null) processViaText(
+                            firstDestination.viaText
+                        ) else "",
+                        platformName = service.platform ?: "",
+                        remainingS = max(0, secondsToDeparture - 60),
+                        expectedDateTime = expectDateTime
+                    )
+                } catch (e: Exception) {
+                    Log.e("ARRIVAL-INFO", e.message.toString())
+                    null
+                }
             }
             .sortedBy { model -> model.remainingS }
     }
