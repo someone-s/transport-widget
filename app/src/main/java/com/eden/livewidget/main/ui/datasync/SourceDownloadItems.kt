@@ -7,6 +7,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +27,8 @@ fun SourceDownloadItems(
     context: Context?,
     agency: Agency,
     setCurrentDownloadAction: ((() -> Unit)?) -> Unit,
-    setDownloadWarningState: (Boolean) -> Unit
+    setDownloadWarningState: (Boolean) -> Unit,
+    shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
     val flow = if (context != null) DataSyncWorker.getIsActiveFlow(
         context,
@@ -35,9 +37,7 @@ fun SourceDownloadItems(
     val fetching by flow.collectAsState(true)
 
     ListItem(
-        shapes = ListItemDefaults.shapes(
-            shape = MaterialTheme.shapes.medium
-        ),
+        shapes = shapes,
         leadingContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_data_sync_download),
