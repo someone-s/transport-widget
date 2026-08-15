@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
@@ -31,7 +32,7 @@ class LivePointWidget : GlanceAppWidget() {
         val AGENCY_KEY = stringPreferencesKey("agency")
         val API_VALUE_KEY = stringPreferencesKey("apiValue")
         val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
-        val FETCH_STATE_KEY = stringPreferencesKey("inactiveText")
+        val FETCH_STATE_KEY = stringPreferencesKey("fetchState")
 
         const val FETCH_PENDING = "pending"
         const val FETCH_RESULT_ERROR_UNKNOWN = "result-error-unknown"

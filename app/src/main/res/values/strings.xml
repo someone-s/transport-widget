@@ -137,4 +137,17 @@
     <string name="widget_retry_metered_reason_text">Network restricted</string>
     <string name="widget_retry_metered_data_saver_text">Check data saver</string>
     <string name="widget_retry_metered_add_whitelist_text">Allow unrestricted</string>
+    <string name="config_ui_configscreen_label_agency">Agency</string>
+    <string name="config_ui_agencyitem_action">Swap</string>
+    <string name="config_ui_configscreen_label_point">Point</string>
+    <string name="config_ui_pointitem_action">Swap</string>
+    <string name="config_ui_configscreen_title">Configure</string>
+    <string name="config_ui_configscreen_action">Exit</string>
+    <string name="config_ui_agencyitem_input_placeholder">Search for provider</string>
+    <string name="config_ui_agencyitem_name_placeholder">Set agency</string>
+    <string name="config_ui_agencyitem_description_placeholder">Not set</string>
+    <string name="config_ui_pointitem_name_placeholder">Set point</string>
+    <string name="config_ui_pointitem_description_placeholder">Not set</string>
+    <string name="config_ui_pointitem_input_placeholder">Search for point</string>
+    <string name="config_ui_applybutton_action">Apply changes</string>
 </resources>

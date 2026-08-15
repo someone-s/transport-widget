@@ -30,6 +30,8 @@ material3 = "1.5.0-alpha25"
 license = "0.9.9"
 mockito = "5.23.0"
 desugar = "2.1.5"
+foundation = "1.12.0"
+uiText = "1.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -71,6 +73,8 @@ androidx-room-testing = { group = "androidx.room", name="room-testing", version.
 requery-sqlite-android = { group = "com.github.requery", name = "sqlite-android", version.ref = "requery" }
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito"}
 desugarjdklibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

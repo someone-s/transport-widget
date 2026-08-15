@@ -79,6 +79,8 @@ extensions.configure<ApplicationExtension> {
 
 
 dependencies {
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.concurrent.futures.ktx)
