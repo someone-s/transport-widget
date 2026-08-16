@@ -18,8 +18,8 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
-import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.points.datasource.PointsDataSource
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.data.providerToString
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +40,7 @@ class DataSyncWorker(
 
         fun getWorkInfoFlow(context: Context, provider: Provider): Flow<List<WorkInfo>> {
 
-            return WorkManager.Companion.getInstance(context)
+            return WorkManager.getInstance(context)
                 .getWorkInfosForUniqueWorkFlow(getUniqueWorkName(provider))
         }
 
@@ -58,7 +58,7 @@ class DataSyncWorker(
         }
 
         fun cancelCurrentRequest(context: Context, provider: Provider) {
-            WorkManager.Companion.getInstance(context).cancelUniqueWork(
+            WorkManager.getInstance(context).cancelUniqueWork(
                 getUniqueWorkName(provider)
             )
         }
@@ -74,7 +74,7 @@ class DataSyncWorker(
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             val workerRequest = builder.build()
 
-            WorkManager.Companion.getInstance(context).enqueueUniqueWork(
+            WorkManager.getInstance(context).enqueueUniqueWork(
                 getUniqueWorkName(provider),
                 ExistingWorkPolicy.REPLACE,
                 workerRequest
@@ -103,10 +103,11 @@ class DataSyncWorker(
         // Downloads a file and updates bytes read
         // Calls setForeground() periodically when it needs to update
         // the ongoing Notification
-        val repository = PointsRepository.Companion.getInstance(context, provider)
-        repository.refresh(context) { status ->
-            setForegroundAsync(createForegroundInfo(status))
-        }
+        PointsDataSource
+            .getInstance(context, provider)
+            .refresh(context) { status ->
+                setForegroundAsync(createForegroundInfo(status))
+            }
 
     }
 
@@ -117,7 +118,7 @@ class DataSyncWorker(
         val title = applicationContext.getString(R.string.data_sync_notification_title)
         val cancel = applicationContext.getString(R.string.data_sync_notification_cancel)
         // This PendingIntent can be used to cancel the worker
-        val intent = WorkManager.Companion.getInstance(applicationContext)
+        val intent = WorkManager.getInstance(applicationContext)
             .createCancelPendingIntent(getId())
 
         // Create a Notification channel if necessary

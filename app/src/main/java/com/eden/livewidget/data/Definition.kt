@@ -7,8 +7,8 @@ import com.eden.livewidget.data.arrivals.api.ArrivalsTflApi
 import com.eden.livewidget.data.keys.KeyProviderConstructors
 import com.eden.livewidget.data.keys.KeyPurpose
 import com.eden.livewidget.data.keys.ObscuredKeyProvider
-import com.eden.livewidget.data.points.PointsDataSource
-import com.eden.livewidget.data.points.PointsRemoteDataSource
+import com.eden.livewidget.data.points.datasource.PointsDataSource
+import com.eden.livewidget.data.points.datasource.PointsRemoteDataSource
 import com.eden.livewidget.data.points.cache.DuplicatesDatabaseProvider
 import com.eden.livewidget.data.points.cache.SimpleDatabaseProvider
 import com.eden.livewidget.data.points.remoteapi.PointsRemoteRdgApi

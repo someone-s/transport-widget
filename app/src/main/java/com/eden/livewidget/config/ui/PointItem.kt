@@ -41,7 +41,7 @@ fun PointItem(
 
     val repository = remember(key1 = currentProvider) {
         if (currentProvider != null)
-            PointsRepository.getInstance(context, currentProvider)
+            PointsRepository.create(context, currentProvider)
         else
             null
     }

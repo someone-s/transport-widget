@@ -2,6 +2,7 @@ package com.eden.livewidget.data.points
 
 import android.content.Context
 import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.points.datasource.PointsDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -11,6 +12,7 @@ import kotlinx.coroutines.sync.withLock
 class PointsRepository(
     private val pointsDataSource: PointsDataSource,
 ) {
+
     private val matchingPointsMutable = MutableStateFlow(emptyList<PointModel>())
     val matchingPoints = matchingPointsMutable.asStateFlow()
 
@@ -40,32 +42,9 @@ class PointsRepository(
             fetchMatching(context, queuedCopy)
     }
 
-    suspend fun refresh(context: Context, statusUpdate: (status: String) -> Unit) {
-        pointsDataSource.refresh(context, statusUpdate)
-    }
-
-
-    suspend fun reset(context: Context) {
-        pointsDataSource.reset(context)
-    }
-
     companion object {
-        private var instances: MutableMap<Provider, PointsRepository> = mutableMapOf()
-
-        fun getInstance(context: Context, apiProvider: Provider): PointsRepository {
-            if (!instances.contains(apiProvider))
-                instances[apiProvider] = PointsRepository(
-                    apiProvider.pointsDataSourceConstructor(context)
-                )
-
-
-            return instances[apiProvider] as PointsRepository
-        }
+        fun create(context: Context, apiProvider: Provider) =
+            PointsRepository(PointsDataSource.getInstance(context, apiProvider))
     }
 }
 
-interface PointsDataSource {
-    suspend fun fetchMatching(context: Context, input: String): List<PointModel>
-    suspend fun refresh(context: Context, statusUpdate: (String) -> Unit)
-    suspend fun reset(context: Context)
-}

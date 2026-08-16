@@ -1,7 +1,8 @@
-package com.eden.livewidget.data.points
+package com.eden.livewidget.data.points.datasource
 
 import android.content.Context
 import android.util.Log
+import com.eden.livewidget.data.points.PointModel
 import com.eden.livewidget.data.points.cache.PointsCacheProvider
 import com.eden.livewidget.data.points.remoteapi.PointsRemoteApi
 import kotlinx.coroutines.CoroutineDispatcher
