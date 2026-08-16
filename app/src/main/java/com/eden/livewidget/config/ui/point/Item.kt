@@ -1,4 +1,4 @@
-package com.eden.livewidget.config.ui
+package com.eden.livewidget.config.ui.point
 
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -20,17 +20,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.eden.livewidget.R
-import com.eden.livewidget.config.PointInfo
+import com.eden.livewidget.config.ui.common.SearchGroup
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.points.PointsRepository
+import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Repository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun PointItem(
+fun Item(
     currentProvider: Provider?,
-    currentPoint: PointInfo?,
-    onPointSelected: (PointInfo?) -> Unit,
+    currentPoint: Model?,
+    onPointSelected: (Model?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -40,7 +41,7 @@ fun PointItem(
 
     val repository = remember(key1 = currentProvider) {
         if (currentProvider != null)
-            PointsRepository.create(context, currentProvider)
+            Repository.create(context, currentProvider)
         else
             null
     }
@@ -62,7 +63,7 @@ fun PointItem(
         onResultClick = { index, _ ->
             onPointSelected(
                 if (index >= 0 && index < matchingPoints.size)
-                    PointInfo(
+                    Model(
                         name = matchingPoints[index].name,
                         apiValue = matchingPoints[index].apiValue,
                     )

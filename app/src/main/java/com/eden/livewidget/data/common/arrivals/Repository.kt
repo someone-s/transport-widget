@@ -3,6 +3,7 @@ package com.eden.livewidget.data.common.arrivals
 
 import android.content.Context
 import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.common.filter.State as FilterState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,15 +54,20 @@ class Repository(
         data class ArrivalsKey(
             val apiProvider: Provider,
             val apiValue: String,
+            val filterState: FilterState,
         )
         private var instances: MutableMap<ArrivalsKey, Repository> = mutableMapOf()
 
-        fun getInstance(apiProvider: Provider, apiValue: String): Repository {
-            val key = ArrivalsKey(apiProvider, apiValue)
+        fun getInstance(
+            apiProvider: Provider,
+            apiValue: String,
+            filterState: FilterState,
+        ): Repository {
+            val key = ArrivalsKey(apiProvider, apiValue, filterState)
             if (!instances.contains(key)) {
                 instances[key] = Repository(
                     DataSource(
-                        apiProvider.arrivalsApiConstructor(apiValue),
+                        apiProvider.arrivalsApiConstructor(apiValue, filterState),
                         Dispatchers.IO
                     ),
                 )

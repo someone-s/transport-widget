@@ -1,4 +1,4 @@
-package com.eden.livewidget.config.ui
+package com.eden.livewidget.config.ui.common
 
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.LazyColumn

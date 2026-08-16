@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
+import com.eden.livewidget.data.tfl.filter.destination.LineWithDirection
+import com.eden.livewidget.data.common.filter.State as FilterState
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -20,19 +22,33 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
 private data class TflEntry(
+    @SerializedName("lineId")
+    val lineId: String?,
     @SerializedName("lineName")
-    val lineName: String,
+    val lineName: String?,
     @SerializedName("platformName")
-    val platformName: String,
+    val platformName: String?,
     @SerializedName("destinationName")
     val destinationName: String?,
+    @SerializedName("direction")
+    val direction: String?,
     @SerializedName("towards")
     val towards: String?,
     @SerializedName("timeToStation")
-    val timeToStation: Int,
+    val timeToStation: Int?,
     @SerializedName("expectedArrival")
-    val expectedArrivalString: String,
-)
+    val expectedArrivalString: String?,
+) {
+    fun isValid() =
+        lineId != null &&
+        lineName != null &&
+        platformName != null &&
+        destinationName != null &&
+        direction != null &&
+        towards != null &&
+        timeToStation != null &&
+        expectedArrivalString != null
+}
 private const val BASE_URL = "https://api.tfl.gov.uk"
 
 private val retrofit = Retrofit.Builder()
@@ -48,11 +64,23 @@ private interface TflApiService {
     ): Call<List<TflEntry>>
 }
 
+
 class TflApi(
     commaSeparatedNaptanIds: String,
+    filterState: FilterState,
 ) : Api {
 
     private val naptanIds: List<String> = commaSeparatedNaptanIds.split(",")
+
+    private val filterLines: Map<String, List<String>> =
+        filterState.destinationFilters
+            .mapNotNull { filter -> filter.filterValue }
+            .flatMap { filterString -> LineWithDirection.deserializeList(filterString) }
+            .groupBy(
+                keySelector = { lineWithDirection -> lineWithDirection.lineId },
+                valueTransform = { lineWithDirection -> lineWithDirection.direction }
+            )
+
 
     private val service: TflApiService by lazy {
         retrofit.create(TflApiService::class.java)
@@ -94,17 +122,27 @@ class TflApi(
         val responseTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss'Z'")
 
         return entries
-            .filter { it.destinationName != null }
+            .filter {
+                it.isValid()
+            }
+            .filter {
+                if (filterLines.isEmpty())
+                    return@filter true
+
+                val validDirections = filterLines[it.lineId] ?: return@filter false
+
+                return@filter validDirections.contains(it.direction)
+            }
             .mapNotNull{ entry ->
                 try {
-                    Log.i("ARRIVAL-INFO", entry.expectedArrivalString)
+                    Log.i("ARRIVAL-INFO", entry.expectedArrivalString!!)
                     Model(
                         operatorName = "TfL",
-                        serviceName = processServiceName(entry.lineName),
+                        serviceName = processServiceName(entry.lineName!!),
                         destinationName = processDestinationName(entry.destinationName!!),
-                        viaText = if (entry.towards != null && entry.towards != "null") entry.towards else "",
-                        platformName = processPlatformName(entry.platformName),
-                        remainingS = max(0, entry.timeToStation - 60),
+                        viaText = if (entry.towards!! != "null") entry.towards else "",
+                        platformName = processPlatformName(entry.platformName!!),
+                        remainingS = max(0, entry.timeToStation!! - 60),
                         expectedDateTime =
                             LocalDateTime
                                 .from(responseTimeFormatter.parse(entry.expectedArrivalString))

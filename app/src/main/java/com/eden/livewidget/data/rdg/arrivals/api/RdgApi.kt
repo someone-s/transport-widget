@@ -98,7 +98,7 @@ class RdgApi(
         Log.i(this.javaClass.name, "Data fetching")
 
         val headers = mapOf(
-            "x-apikey" to apiProvider
+            "x-apikey" to Provider.RDG
                 .keyProviders.getKeyProviderConstructor(KeyPurpose.ARRIVALS)!!()
                 .getKey(context)
         )

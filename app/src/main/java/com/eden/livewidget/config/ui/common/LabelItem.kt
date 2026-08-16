@@ -1,4 +1,4 @@
-package com.eden.livewidget.config.ui
+package com.eden.livewidget.config.ui.common
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme

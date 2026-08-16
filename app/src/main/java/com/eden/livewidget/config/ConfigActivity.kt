@@ -9,28 +9,35 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import androidx.lifecycle.lifecycleScope
 import com.eden.livewidget.Agency
 import com.eden.livewidget.agencyFromString
 import com.eden.livewidget.agencyToString
 import com.eden.livewidget.config.ui.ConfigScreen
-import com.eden.livewidget.configurator.ui.ConfiguratorContent
-import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.providerToString
+import com.eden.livewidget.data.common.filter.destination.DestinationCompiler
+import com.eden.livewidget.data.common.filter.State
+import com.eden.livewidget.data.common.filter.destination.Filter
+import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.widget.LivePointWidget
 import com.eden.livewidget.widget.update.UpdateScheduler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.uuid.Uuid
 
 class ConfigActivity: ComponentActivity() {
 
@@ -59,43 +66,12 @@ class ConfigActivity: ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize()) {
 
                     val (currentAgency, setCurrentAgency) = remember { mutableStateOf<Agency?>(null) }
-                    val (currentPoint, setCurrentPoint) = remember { mutableStateOf<PointInfo?>(null) }
+                    val (currentPoint, setCurrentPoint) = remember { mutableStateOf<Model?>(null) }
+                    val destinationFilters = remember { mutableStateMapOf<Uuid, Filter>() }
+                    val destinationFilterCompiler = remember(currentAgency) { currentAgency?.apiProvider?.filterConstructors?.destinationCompilerConstructor() }
                     val (anyChanges, setAnyChanges) = remember { mutableStateOf(false) }
 
                     val coroutineScope = rememberCoroutineScope()
-
-                    ConfigScreen(
-                        currentAgency = currentAgency,
-                        setCurrentAgency = { newAgency ->
-                            if (newAgency != currentAgency)
-                                setCurrentPoint(null)
-                            setCurrentAgency(newAgency)
-                            setAnyChanges(true)
-                        },
-                        currentPoint = currentPoint,
-                        setCurrentPoint = { newPoint ->
-                            setCurrentPoint(newPoint)
-                            setAnyChanges(true)
-                        },
-                        anyChanges = anyChanges,
-                        onSaveChanges = {
-                            if (currentAgency != null && currentPoint != null)
-                                coroutineScope.launch {
-                                    createWidget(
-                                        context = this@ConfigActivity,
-                                        appWidgetId = appWidgetId,
-                                        glanceId = glanceId,
-                                        agency = currentAgency,
-                                        point = currentPoint,
-                                    )
-                                }
-                            else
-                                finish()
-                        },
-                        onDiscardChanges = {
-                            finish()
-                        },
-                    )
 
                     LaunchedEffect(Unit) {
                         // PreferencesGlanceStateDefinition is the default state definition used
@@ -110,17 +86,113 @@ class ConfigActivity: ComponentActivity() {
                         if (currentPoint == null)
                             setCurrentPoint(
                                 if (fetchedDisplayName != null && fetchedApiValue != null)
-                                    PointInfo(
+                                    Model(
                                         name = fetchedDisplayName,
                                         apiValue = fetchedApiValue
                                     )
                                 else
                                     null
                             )
+
+                        val filterStateString = preferences[LivePointWidget.FILTER_STATE_KEY]
+                        if (filterStateString != null) {
+                            val filterState = State.deserialize(filterStateString)
+                            destinationFilters.putAll(
+                                filterState.destinationFilters.map { Pair(Uuid.random(), it) }
+                            )
+                        }
                     }
+
+                    ConfigScreen(
+                        currentAgency = currentAgency,
+                        setCurrentAgency = { newAgency ->
+                            if (newAgency != currentAgency) {
+                                setCurrentPoint(null)
+                                destinationFilters.clear()
+                            }
+                            setCurrentAgency(newAgency)
+                            setAnyChanges(true)
+                        },
+                        currentPoint = currentPoint,
+                        setCurrentPoint = { newPoint ->
+                            if (newPoint != currentPoint) {
+                                destinationFilters.clear()
+                            }
+                            setCurrentPoint(newPoint)
+                            setAnyChanges(true)
+                        },
+                        destinationFilters = destinationFilters,
+                        addDestinationFilter = { newFilter ->
+                            val id = Uuid.random()
+                            destinationFilters[id] = newFilter
+                            coroutineScope.launch {
+                                if (destinationFilterCompiler == null) return@launch
+
+                                val compiledFilter = withContext(Dispatchers.IO) {
+                                    destinationFilterCompiler.compileFilter(newFilter)
+                                }
+                                destinationFilters.replace(id, compiledFilter)
+                            }
+                            setAnyChanges(true)
+                        },
+                        updateDestinationFilter = function(
+                            destinationFilters,
+                            coroutineScope,
+                            destinationFilterCompiler,
+                            setAnyChanges
+                        ),
+                        removeDestinationFilter = { id ->
+                            destinationFilters.remove(id)
+                            setAnyChanges(true)
+                        },
+                        anyChanges = anyChanges,
+                        onSaveChanges = {
+                            if (currentAgency != null && currentPoint != null)
+                                coroutineScope.launch {
+                                    createWidget(
+                                        context = this@ConfigActivity,
+                                        appWidgetId = appWidgetId,
+                                        glanceId = glanceId,
+                                        agency = currentAgency,
+                                        point = currentPoint,
+                                        filterState = State(
+                                            destinationFilters = destinationFilters.values.toList(),
+                                        )
+                                    )
+                                }
+                            else
+                                finish()
+                        },
+                        onDiscardChanges = {
+                            finish()
+                        },
+                    )
+
+
                 }
 
             }
+        }
+    }
+
+    @Composable
+    private fun function(
+        destinationFilters: SnapshotStateMap<Uuid, Filter>,
+        coroutineScope: CoroutineScope,
+        destinationFilterCompiler: DestinationCompiler?,
+        setAnyChanges: (Boolean) -> Unit
+    ): (Uuid, Filter) -> Unit {
+        return { id, newFilter ->
+            destinationFilters[id] = newFilter
+            coroutineScope.launch {
+                if (destinationFilterCompiler == null) return@launch
+
+                val compiledFilter = withContext(Dispatchers.IO) {
+                    destinationFilterCompiler.compileFilter(newFilter)
+                }
+                destinationFilters.replace(id, compiledFilter)
+            }
+            setAnyChanges(true)
         }
     }
 
@@ -130,7 +202,8 @@ class ConfigActivity: ComponentActivity() {
         appWidgetId: Int,
         glanceId: GlanceId,
         agency: Agency,
-        point: PointInfo,
+        point: Model,
+        filterState: State,
     ) {
 
 
@@ -145,6 +218,7 @@ class ConfigActivity: ComponentActivity() {
             preferences[LivePointWidget.DISPLAY_NAME_KEY] = point.name
             preferences[LivePointWidget.API_VALUE_KEY] = point.apiValue
             preferences[LivePointWidget.FETCH_STATE_KEY] = LivePointWidget.FETCH_RESULT_RAN_SKIPPED
+            preferences[LivePointWidget.FILTER_STATE_KEY] = State.serialize(filterState)
         }
 
         LivePointWidget().update(context, glanceId)

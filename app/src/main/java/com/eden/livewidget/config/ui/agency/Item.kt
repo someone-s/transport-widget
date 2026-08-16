@@ -1,4 +1,4 @@
-package com.eden.livewidget.config.ui
+package com.eden.livewidget.config.ui.agency
 
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -18,11 +18,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.eden.livewidget.Agency
 import com.eden.livewidget.R
+import com.eden.livewidget.config.ui.common.SearchGroup
 import kotlinx.coroutines.launch
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
 @Composable
-fun AgencyItem(
+fun Item(
     currentAgency: Agency?,
     onAgencySelected: (Agency?) -> Unit,
 ) {

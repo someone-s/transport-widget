@@ -141,6 +141,8 @@
     <string name="config_ui_agencyitem_action">Swap</string>
     <string name="config_ui_configscreen_label_point">Point</string>
     <string name="config_ui_pointitem_action">Swap</string>
+    <string name="config_ui_configscreen_label_filters">Filters</string>
+    <string name="config_ui_destination_itemcontent_action">Edit</string>
     <string name="config_ui_configscreen_title">Configure</string>
     <string name="config_ui_configscreen_action">Exit</string>
     <string name="config_ui_agencyitem_input_placeholder">Search for provider</string>
@@ -150,4 +152,9 @@
     <string name="config_ui_pointitem_description_placeholder">Not set</string>
     <string name="config_ui_pointitem_input_placeholder">Search for point</string>
     <string name="config_ui_applybutton_action">Apply changes</string>
+    <string name="config_ui_configscreen_label_destination">Destination</string>
+    <string name="config_ui_destination_addbutton_action">Add destination filter</string>
+    <string name="config_ui_destination_itemdeletebackground_action">Delete</string>
+    <string name="config_ui_destination_item_input_placeholder">Search for destination</string>
+    <string name="config_ui_destination_addbutton_input_placeholder">Search for destination</string>
 </resources>

@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
@@ -19,6 +18,8 @@ import com.eden.livewidget.Agency
 import com.eden.livewidget.agencyFromString
 import com.eden.livewidget.data.common.arrivals.Data
 import com.eden.livewidget.data.common.arrivals.Repository
+import com.eden.livewidget.data.common.filter.emptyState as emptyFilterState
+import com.eden.livewidget.data.common.filter.State as FilterState
 import com.eden.livewidget.widget.ui.MockContent
 import com.eden.livewidget.widget.ui.MyContent
 import com.eden.livewidget.widget.ui.MyContentMode
@@ -33,6 +34,7 @@ class LivePointWidget : GlanceAppWidget() {
         val API_VALUE_KEY = stringPreferencesKey("apiValue")
         val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
         val FETCH_STATE_KEY = stringPreferencesKey("fetchState")
+        val FILTER_STATE_KEY = stringPreferencesKey("filterState")
 
         const val FETCH_PENDING = "pending"
         const val FETCH_RESULT_ERROR_UNKNOWN = "result-error-unknown"
@@ -61,7 +63,6 @@ class LivePointWidget : GlanceAppWidget() {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
-
                 val agency = try {
                     agencyFromString(agencyString) as Agency
                 } catch (_: Exception) {
@@ -81,9 +82,20 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
+
+                val filterStateString = currentState(FILTER_STATE_KEY)
+                val filterState = try {
+                    if (filterStateString == null)
+                        emptyFilterState()
+                    else
+                        FilterState.deserialize(filterStateString)
+                } catch (_: Exception) {
+                    emptyFilterState()
+                }
+
                 val fetchResultOptions = currentState(FETCH_STATE_KEY)
 
-                val repository = Repository.getInstance(agency.apiProvider, apiValue)
+                val repository = Repository.getInstance(agency.apiProvider, apiValue, filterState)
                 val arrivalsData by repository.arrivalsData.collectAsState()
 
                 val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
