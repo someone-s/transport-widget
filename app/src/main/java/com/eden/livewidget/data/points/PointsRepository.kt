@@ -17,7 +17,7 @@ class PointsRepository(
     private val mutex = Mutex()
     private var queued: String? = null
     private var fetching = false
-    suspend fun fetchMatching(input: String) {
+    suspend fun fetchMatching(context: Context, input: String) {
         mutex.withLock {
             if (fetching) {
                 queued = input
@@ -25,7 +25,8 @@ class PointsRepository(
             }
             fetching = true
         }
-        matchingPointsMutable.update { pointsDataSource.fetchMatching(input) }
+
+        matchingPointsMutable.update { pointsDataSource.fetchMatching(context, input) }
 
         var queuedCopy: String?
         mutex.withLock {
@@ -36,7 +37,7 @@ class PointsRepository(
 
         // Probably race condition, but not significant
         if (queuedCopy != null)
-            fetchMatching(queuedCopy)
+            fetchMatching(context, queuedCopy)
     }
 
     suspend fun refresh(context: Context, statusUpdate: (status: String) -> Unit) {
@@ -44,7 +45,7 @@ class PointsRepository(
     }
 
 
-    fun reset(context: Context) {
+    suspend fun reset(context: Context) {
         pointsDataSource.reset(context)
     }
 
@@ -64,7 +65,7 @@ class PointsRepository(
 }
 
 interface PointsDataSource {
-    suspend fun fetchMatching(input: String): List<PointModel>
+    suspend fun fetchMatching(context: Context, input: String): List<PointModel>
     suspend fun refresh(context: Context, statusUpdate: (String) -> Unit)
-    fun reset(context: Context)
+    suspend fun reset(context: Context)
 }

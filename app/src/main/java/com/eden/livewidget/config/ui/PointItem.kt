@@ -54,7 +54,7 @@ fun PointItem(
         snapshotFlow { Pair(repository, textFieldState.text) }
             .collect { (repository, query) ->
                 Log.i(context.packageName, (currentProvider != null).toString())
-                repository?.fetchMatching(query.toString())
+                repository?.fetchMatching(context, query.toString())
             }
     }
 

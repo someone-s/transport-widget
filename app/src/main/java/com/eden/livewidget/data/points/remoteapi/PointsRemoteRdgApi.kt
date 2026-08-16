@@ -6,13 +6,10 @@ import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.keys.KeyPurpose
 import com.eden.livewidget.data.keys.getKeyProviderConstructor
-import com.eden.livewidget.data.points.PointEntity
-import com.eden.livewidget.data.points.PointsRemoteApi
+import com.eden.livewidget.data.points.PointModel
 import com.google.gson.annotations.SerializedName
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -55,7 +52,6 @@ private interface PointsRdgApiService {
 }
 
 class PointsRemoteRdgApi(
-    val ioDispatcher: CoroutineDispatcher,
     val apiProvider: Provider
 ): PointsRemoteApi {
 
@@ -65,26 +61,21 @@ class PointsRemoteRdgApi(
 
     override suspend fun fetchPoints(
         context: Context,
-        outputPoint: (PointEntity) -> Unit,
         statusUpdate: (String) -> Unit
-    ) {
-        coroutineScope {
-            launch {
-                withContext(ioDispatcher) {
-                    fetchData(context, outputPoint)
-                }
-            }
+    ): Flow<PointModel> = flow {
 
-            statusUpdate(
-                context.getString(R.string.provider_rdg_api_fetch_status_update_text)
-            )
-        }
+        val points = fetchData(context)
+        for (point in points)
+            emit(point)
+
+        statusUpdate(
+            context.getString(R.string.provider_rdg_api_fetch_status_update_text)
+        )
     }
 
     private fun fetchData(
         context: Context,
-        add: (PointEntity) -> Unit
-    ) {
+    ): List<PointModel> {
         Log.i(this.javaClass.name, "request data")
 
         val headers = mapOf(
@@ -98,30 +89,30 @@ class PointsRemoteRdgApi(
         val response = pageRequest.execute()
         if (response == null) {
             Log.i(this.javaClass.name, "failed to fetch data")
-            return
+            return emptyList()
         }
         if (response.body() !is RdgStationListResponse) {
             Log.i(this.javaClass.name, "failed to find data body")
-            return
+            return emptyList()
         }
         val body = response.body()
         if (body == null) {
             Log.i(this.javaClass.name, "failed to read data body")
-            return
+            return emptyList()
         }
         val stationList = body.stationList
         if (stationList.isNullOrEmpty()) {
             Log.i(this.javaClass.name, "failed to find station list")
-            return
+            return emptyList()
         }
 
-        for (station in stationList) {
-            add(PointEntity(
-                name = station.commonName,
-                apiValue = station.crsCode
-            ))
-        }
+        Log.i(this.javaClass.name, "found ${stationList.size} entries")
 
-        Log.i(this.javaClass.name, "added ${stationList.size} entries")
+        return stationList.map {
+            PointModel(
+                name = it.commonName,
+                apiValue = it.crsCode
+            )
+        }
     }
 }

@@ -8,12 +8,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.data.points.PointsRepository
 import com.eden.livewidget.main.DataSyncWorker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun SourceResetItem(
@@ -23,6 +26,9 @@ fun SourceResetItem(
     setResetWarningState: (Boolean) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
+    
+    val coroutineScope = rememberCoroutineScope()
+
     SegmentedListItem(
         shapes = shapes,
         leadingContent = {
@@ -46,7 +52,11 @@ fun SourceResetItem(
             if (context == null) return@SegmentedListItem
             setCurrentResetAction {
                 DataSyncWorker.cancelCurrentRequest(context, agency.apiProvider)
-                PointsRepository.getInstance(context, agency.apiProvider).reset(context)
+
+                val repository = PointsRepository.getInstance(context, agency.apiProvider)
+                coroutineScope.launch(Dispatchers.IO) {
+                    repository.reset(context)
+                }
             }
             setResetWarningState(true)
         }

@@ -9,6 +9,8 @@ import com.eden.livewidget.data.keys.KeyPurpose
 import com.eden.livewidget.data.keys.ObscuredKeyProvider
 import com.eden.livewidget.data.points.PointsDataSource
 import com.eden.livewidget.data.points.PointsRemoteDataSource
+import com.eden.livewidget.data.points.cache.DuplicatesDatabaseProvider
+import com.eden.livewidget.data.points.cache.SimpleDatabaseProvider
 import com.eden.livewidget.data.points.remoteapi.PointsRemoteRdgApi
 import com.eden.livewidget.data.points.remoteapi.PointsRemoteTflApi
 import kotlinx.coroutines.Dispatchers
@@ -20,14 +22,13 @@ enum class Provider(
     val keyProviders: KeyProviderConstructors = emptyMap()
 ) {
     TFL(
-        pointsDataSourceConstructor = { context ->
+        pointsDataSourceConstructor = { _ ->
             PointsRemoteDataSource(
-                context,
-                PointsRemoteTflApi(
-                    Dispatchers.IO
+                pointsApi = PointsRemoteTflApi(),
+                pointsCacheProvider = DuplicatesDatabaseProvider(
+                    apiProvider = TFL,
                 ),
-                TFL,
-                Dispatchers.IO
+                ioDispatcher = Dispatchers.IO
             )
         },
         arrivalsApiConstructor = { commaSeparatedNaptanIds ->
@@ -35,15 +36,15 @@ enum class Provider(
         },
     ),
     RDG(
-        pointsDataSourceConstructor = { context ->
+        pointsDataSourceConstructor = { _ ->
             PointsRemoteDataSource(
-                context,
-                PointsRemoteRdgApi(
-                    Dispatchers.IO,
-                    RDG
+                pointsApi = PointsRemoteRdgApi(
+                    apiProvider = RDG
                 ),
-                RDG,
-                Dispatchers.IO
+                pointsCacheProvider = SimpleDatabaseProvider(
+                    apiProvider = RDG,
+                ),
+                ioDispatcher = Dispatchers.IO
             )
         },
         arrivalsApiConstructor = { crsCode ->
