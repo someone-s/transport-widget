@@ -19,7 +19,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.points.datasource.PointsDataSource
+import com.eden.livewidget.data.common.points.datasource.DataSource
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.data.providerToString
 import kotlinx.coroutines.flow.Flow
@@ -103,7 +103,7 @@ class DataSyncWorker(
         // Downloads a file and updates bytes read
         // Calls setForeground() periodically when it needs to update
         // the ongoing Notification
-        PointsDataSource
+        DataSource
             .getInstance(context, provider)
             .refresh(context) { status ->
                 setForegroundAsync(createForegroundInfo(status))

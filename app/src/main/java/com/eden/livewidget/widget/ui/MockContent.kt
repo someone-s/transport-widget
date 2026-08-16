@@ -6,7 +6,7 @@ import androidx.glance.LocalContext
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
 import com.eden.livewidget.R
-import com.eden.livewidget.data.arrivals.ArrivalModel
+import com.eden.livewidget.data.common.arrivals.ArrivalModel
 import java.time.LocalDateTime
 
 @Composable

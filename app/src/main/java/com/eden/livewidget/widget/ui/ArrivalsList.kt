@@ -9,7 +9,7 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.height
-import com.eden.livewidget.data.arrivals.ArrivalModel
+import com.eden.livewidget.data.common.arrivals.ArrivalModel
 import java.time.format.DateTimeFormatter
 
 @Composable

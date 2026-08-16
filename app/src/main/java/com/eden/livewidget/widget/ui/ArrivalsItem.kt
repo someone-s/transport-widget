@@ -28,7 +28,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.data.arrivals.ArrivalModel
+import com.eden.livewidget.data.common.arrivals.ArrivalModel
 import java.time.format.DateTimeFormatter
 
 @Composable

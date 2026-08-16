@@ -1,53 +1,53 @@
 package com.eden.livewidget.data
 
 import android.content.Context
-import com.eden.livewidget.data.arrivals.ArrivalsApi
-import com.eden.livewidget.data.arrivals.api.ArrivalsRdgApi
-import com.eden.livewidget.data.arrivals.api.ArrivalsTflApi
-import com.eden.livewidget.data.keys.KeyProviderConstructors
-import com.eden.livewidget.data.keys.KeyPurpose
-import com.eden.livewidget.data.keys.ObscuredKeyProvider
-import com.eden.livewidget.data.points.datasource.PointsDataSource
-import com.eden.livewidget.data.points.datasource.PointsRemoteDataSource
-import com.eden.livewidget.data.points.cache.DuplicatesDatabaseProvider
-import com.eden.livewidget.data.points.cache.SimpleDatabaseProvider
-import com.eden.livewidget.data.points.remoteapi.PointsRemoteRdgApi
-import com.eden.livewidget.data.points.remoteapi.PointsRemoteTflApi
+import com.eden.livewidget.data.common.arrivals.api.Api
+import com.eden.livewidget.data.rdg.arrivals.api.RdgApi as ArrivalsRdgApi
+import com.eden.livewidget.data.tfl.arrivals.api.TflApi as ArrivalsTflApi
+import com.eden.livewidget.data.common.keys.KeyProviderConstructors
+import com.eden.livewidget.data.common.keys.KeyPurpose
+import com.eden.livewidget.data.common.keys.ObscuredKeyProvider
+import com.eden.livewidget.data.common.points.datasource.DataSource
+import com.eden.livewidget.data.common.points.datasource.RemoteDataSource
+import com.eden.livewidget.data.common.points.cache.DuplicatesDatabaseProvider
+import com.eden.livewidget.data.common.points.cache.SimpleDatabaseProvider
+import com.eden.livewidget.data.rdg.points.api.RdgApi as PointsRdgApi
+import com.eden.livewidget.data.tfl.points.api.TflApi as PointsTflApi
 import kotlinx.coroutines.Dispatchers
 import java.util.EnumSet
 
 enum class Provider(
-    val pointsDataSourceConstructor: (context: Context) -> PointsDataSource,
-    val arrivalsApiConstructor: (apiValue: String) -> ArrivalsApi,
+    val dataSourceConstructor: (context: Context) -> DataSource,
+    val apiConstructor: (apiValue: String) -> Api,
     val keyProviders: KeyProviderConstructors = emptyMap()
 ) {
     TFL(
-        pointsDataSourceConstructor = { _ ->
-            PointsRemoteDataSource(
-                pointsApi = PointsRemoteTflApi(),
-                pointsCacheProvider = DuplicatesDatabaseProvider(
+        dataSourceConstructor = { _ ->
+            RemoteDataSource(
+                pointsApi = PointsTflApi(),
+                cacheProvider = DuplicatesDatabaseProvider(
                     apiProvider = TFL,
                 ),
                 ioDispatcher = Dispatchers.IO
             )
         },
-        arrivalsApiConstructor = { commaSeparatedNaptanIds ->
+        apiConstructor = { commaSeparatedNaptanIds ->
             ArrivalsTflApi(commaSeparatedNaptanIds)
         },
     ),
     RDG(
-        pointsDataSourceConstructor = { _ ->
-            PointsRemoteDataSource(
-                pointsApi = PointsRemoteRdgApi(
+        dataSourceConstructor = { _ ->
+            RemoteDataSource(
+                pointsApi = PointsRdgApi(
                     apiProvider = RDG
                 ),
-                pointsCacheProvider = SimpleDatabaseProvider(
+                cacheProvider = SimpleDatabaseProvider(
                     apiProvider = RDG,
                 ),
                 ioDispatcher = Dispatchers.IO
             )
         },
-        arrivalsApiConstructor = { crsCode ->
+        apiConstructor = { crsCode ->
             ArrivalsRdgApi(
                 crsCode,
                 RDG

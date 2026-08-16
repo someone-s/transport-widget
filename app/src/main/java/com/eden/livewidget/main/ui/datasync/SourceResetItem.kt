@@ -13,7 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.Agency
 import com.eden.livewidget.R
-import com.eden.livewidget.data.points.datasource.PointsDataSource
+import com.eden.livewidget.data.common.points.datasource.DataSource
 import com.eden.livewidget.main.DataSyncWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,7 +54,7 @@ fun SourceResetItem(
                 DataSyncWorker.cancelCurrentRequest(context, agency.apiProvider)
 
                 coroutineScope.launch(Dispatchers.IO) {
-                    PointsDataSource
+                    DataSource
                         .getInstance(context, agency.apiProvider)
                         .reset(context)
                 }

@@ -1,6 +1,5 @@
 package com.eden.livewidget.config.ui
 
-import android.util.Log
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
@@ -23,7 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.eden.livewidget.R
 import com.eden.livewidget.config.PointInfo
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.points.PointsRepository
+import com.eden.livewidget.data.common.points.PointsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -48,12 +47,9 @@ fun PointItem(
     val matchingPointsFlow = repository?.matchingPoints ?: MutableStateFlow(emptyList())
     val matchingPoints by matchingPointsFlow.collectAsState()
 
-    Log.i(context.packageName, "Recompose ${currentProvider != null} ${repository != null}")
-
     LaunchedEffect(repository, textFieldState) {
         snapshotFlow { Pair(repository, textFieldState.text) }
             .collect { (repository, query) ->
-                Log.i(context.packageName, (currentProvider != null).toString())
                 repository?.fetchMatching(context, query.toString())
             }
     }

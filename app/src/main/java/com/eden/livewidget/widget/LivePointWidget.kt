@@ -17,8 +17,8 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
 import com.eden.livewidget.Agency
 import com.eden.livewidget.agencyFromString
-import com.eden.livewidget.data.arrivals.ArrivalsData
-import com.eden.livewidget.data.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.common.arrivals.ArrivalsData
+import com.eden.livewidget.data.common.arrivals.ArrivalsRepository
 import com.eden.livewidget.widget.ui.MockContent
 import com.eden.livewidget.widget.ui.MyContent
 import com.eden.livewidget.widget.ui.MyContentMode

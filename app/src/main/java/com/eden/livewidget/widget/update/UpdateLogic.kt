@@ -9,7 +9,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.eden.livewidget.data.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.common.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.widget.LivePointWidget
 

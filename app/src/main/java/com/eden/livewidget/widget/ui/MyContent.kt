@@ -22,7 +22,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.Agency
 import com.eden.livewidget.config.ConfigActivity
-import com.eden.livewidget.data.arrivals.ArrivalModel
+import com.eden.livewidget.data.common.arrivals.ArrivalModel
 import java.time.LocalDateTime
 
 enum class MyContentMode {
