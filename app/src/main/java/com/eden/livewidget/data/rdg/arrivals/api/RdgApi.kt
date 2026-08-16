@@ -3,7 +3,7 @@ package com.eden.livewidget.data.rdg.arrivals.api
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.arrivals.ArrivalModel
+import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.getKeyProviderConstructor
@@ -89,7 +89,7 @@ class RdgApi(
         retrofit.create(RdgApiService::class.java)
     }
 
-    override suspend fun fetchLatestArrivals(context: Context): List<ArrivalModel> {
+    override suspend fun fetchLatestArrivals(context: Context): List<Model> {
 
         val currentTime = LocalDateTime.now()
         val requestTimeFormatter = DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss")
@@ -162,7 +162,7 @@ class RdgApi(
                     val firstDestination = service.destinations!!.first()
 
                     Log.i("ARRIVAL-INFO", secondsToDeparture.toString())
-                    ArrivalModel(
+                    Model(
                         operatorName = processOperatorName(service.operator),
                         serviceName = service.trainId,
                         destinationName = firstDestination.locationName,

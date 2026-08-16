@@ -7,12 +7,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 
-class ArrivalsDataSource(
+class DataSource(
     private val api: Api,
     private val ioDispatcher: CoroutineDispatcher
 ) {
 
-    suspend fun fetchLatestArrivals(context: Context): Pair<FetchResult, List<ArrivalModel>> =
+    suspend fun fetchLatestArrivals(context: Context): Pair<FetchResult, List<Model>> =
         // Move the execution to an IO-optimized thread since the ApiService
         // doesn't support coroutines and makes synchronous requests.
         withContext(ioDispatcher) {

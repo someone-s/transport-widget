@@ -3,7 +3,7 @@ package com.eden.livewidget.data.common.arrivals
 import java.time.LocalDateTime
 
 
-data class ArrivalModel(
+data class Model(
     val operatorName: String,
     val serviceName: String,
     val destinationName: String,

@@ -2,7 +2,7 @@ package com.eden.livewidget.data.tfl.arrivals.api
 
 import android.content.Context
 import android.util.Log
-import com.eden.livewidget.data.common.arrivals.ArrivalModel
+import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
@@ -58,7 +58,7 @@ class TflApi(
         retrofit.create(TflApiService::class.java)
     }
 
-    override suspend fun fetchLatestArrivals(context: Context): List<ArrivalModel> {
+    override suspend fun fetchLatestArrivals(context: Context): List<Model> {
 
         val entries = mutableListOf<TflEntry>()
 
@@ -98,7 +98,7 @@ class TflApi(
             .mapNotNull{ entry ->
                 try {
                     Log.i("ARRIVAL-INFO", entry.expectedArrivalString)
-                    ArrivalModel(
+                    Model(
                         operatorName = "TfL",
                         serviceName = processServiceName(entry.lineName),
                         destinationName = processDestinationName(entry.destinationName!!),

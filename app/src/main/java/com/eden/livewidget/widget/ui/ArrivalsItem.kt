@@ -28,12 +28,12 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.data.common.arrivals.ArrivalModel
+import com.eden.livewidget.data.common.arrivals.Model
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun ArrivalsItem(
-    arrival: ArrivalModel,
+    arrival: Model,
     timeFormatter: DateTimeFormatter,
 ) {
         Box {
@@ -93,7 +93,7 @@ fun ArrivalsItem(
 
 @Composable
 private fun TimeColumn(
-    arrival: ArrivalModel,
+    arrival: Model,
     timeFormatter: DateTimeFormatter
 ) {
     Column {
@@ -160,7 +160,7 @@ private fun TimeColumn(
 }
 
 @Composable
-private fun DirectionBlock(arrival: ArrivalModel) {
+private fun DirectionBlock(arrival: Model) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -220,7 +220,7 @@ private fun DirectionBlock(arrival: ArrivalModel) {
 }
 
 @Composable
-private fun IdentifierColumn(arrival: ArrivalModel) {
+private fun IdentifierColumn(arrival: Model) {
     Column(
         modifier = GlanceModifier
             .fillMaxSize()

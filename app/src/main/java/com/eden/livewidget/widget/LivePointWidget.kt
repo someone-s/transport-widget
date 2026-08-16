@@ -17,8 +17,8 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
 import com.eden.livewidget.Agency
 import com.eden.livewidget.agencyFromString
-import com.eden.livewidget.data.common.arrivals.ArrivalsData
-import com.eden.livewidget.data.common.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.common.arrivals.Data
+import com.eden.livewidget.data.common.arrivals.Repository
 import com.eden.livewidget.widget.ui.MockContent
 import com.eden.livewidget.widget.ui.MyContent
 import com.eden.livewidget.widget.ui.MyContentMode
@@ -83,7 +83,7 @@ class LivePointWidget : GlanceAppWidget() {
 
                 val fetchResultOptions = currentState(FETCH_STATE_KEY)
 
-                val repository = ArrivalsRepository.getInstance(agency.apiProvider, apiValue)
+                val repository = Repository.getInstance(agency.apiProvider, apiValue)
                 val arrivalsData by repository.arrivalsData.collectAsState()
 
                 val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
@@ -99,8 +99,8 @@ class LivePointWidget : GlanceAppWidget() {
                             FETCH_RESULT_RAN_SKIPPED,
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
-                                    ArrivalsData.Validity.VALID -> MyContentMode.ACTIVE_VALID
-                                    ArrivalsData.Validity.INVALID -> MyContentMode.ACTIVE_UNINITIALIZED
+                                    Data.Validity.VALID -> MyContentMode.ACTIVE_VALID
+                                    Data.Validity.INVALID -> MyContentMode.ACTIVE_UNINITIALIZED
                                 }
                             else -> MyContentMode.ACTIVE_RETRY
                         }
@@ -109,8 +109,8 @@ class LivePointWidget : GlanceAppWidget() {
                             FETCH_RESULT_RAN_SKIPPED,
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
-                                    ArrivalsData.Validity.VALID -> MyContentMode.PAUSED_OK_READY
-                                    ArrivalsData.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                                    Data.Validity.VALID -> MyContentMode.PAUSED_OK_READY
+                                    Data.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
                                 }
                             FETCH_RESULT_ERROR_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
                             FETCH_RESULT_ERROR_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE

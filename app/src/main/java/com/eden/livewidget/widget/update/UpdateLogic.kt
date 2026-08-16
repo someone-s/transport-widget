@@ -9,7 +9,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.eden.livewidget.data.common.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.common.arrivals.Repository
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.widget.LivePointWidget
 
@@ -71,14 +71,14 @@ private suspend fun updateData(
 
     try {
         // Update data source
-        val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
+        val repository = Repository.getInstance(apiProvider, apiValue)
         val result = repository.fetchLatestArrival(context)
 
         return when (result) {
-            ArrivalsRepository.FetchResult.SUCCESS -> UpdateResult.RAN_COMPLETED
-            ArrivalsRepository.FetchResult.ERROR_AUTHENTICATION -> UpdateResult.ERROR_AUTHENTICATION
-            ArrivalsRepository.FetchResult.ERROR_UNREACHABLE -> UpdateResult.ERROR_UNREACHABLE
-            ArrivalsRepository.FetchResult.ERROR_UNRESOLVED -> identifyMeteredNetworkIssue(context)
+            Repository.FetchResult.SUCCESS -> UpdateResult.RAN_COMPLETED
+            Repository.FetchResult.ERROR_AUTHENTICATION -> UpdateResult.ERROR_AUTHENTICATION
+            Repository.FetchResult.ERROR_UNREACHABLE -> UpdateResult.ERROR_UNREACHABLE
+            Repository.FetchResult.ERROR_UNRESOLVED -> identifyMeteredNetworkIssue(context)
         }
 
     } catch (e: Exception) {

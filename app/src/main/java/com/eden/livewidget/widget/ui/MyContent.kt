@@ -22,7 +22,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.Agency
 import com.eden.livewidget.config.ConfigActivity
-import com.eden.livewidget.data.common.arrivals.ArrivalModel
+import com.eden.livewidget.data.common.arrivals.Model
 import java.time.LocalDateTime
 
 enum class MyContentMode {
@@ -45,7 +45,7 @@ fun MyContent(
     displayName: String,
     agency: Agency?,
     lastUpdate: LocalDateTime?,
-    lastValidData: List<ArrivalModel>,
+    lastValidData: List<Model>,
 ) {
 
     val configIntent = getExplicitConfigIntent(widgetId)
@@ -133,7 +133,7 @@ fun MyContentPreview() {
             agency = null,
             lastUpdate = null,
             lastValidData = listOf(
-                ArrivalModel(
+                Model(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really long destination name to display name to display",
@@ -142,7 +142,7 @@ fun MyContentPreview() {
                     remainingS = 30,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
                 ),
-                ArrivalModel(
+                Model(
                     operatorName = "Operator 1",
                     serviceName = "SRV2A",
                     destinationName = "Really short",
@@ -151,7 +151,7 @@ fun MyContentPreview() {
                     remainingS = 240,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 23, 42)
                 ),
-                ArrivalModel(
+                Model(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really long destination name to display name to display",

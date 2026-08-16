@@ -2,10 +2,10 @@ package com.eden.livewidget.data.common.arrivals
 
 import java.time.LocalDateTime
 
-data class ArrivalsData(
+data class Data(
     val lastUpdate: LocalDateTime? = null,
     val validity: Validity = Validity.INVALID,
-    val lastValidData: List<ArrivalModel> = emptyList()
+    val lastValidData: List<Model> = emptyList()
 ) {
     enum class Validity { VALID, INVALID }
 
