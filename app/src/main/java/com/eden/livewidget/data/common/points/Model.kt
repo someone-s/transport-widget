@@ -1,6 +1,6 @@
 package com.eden.livewidget.data.common.points
 
-data class PointModel(
+data class Model(
     val name: String,
     val apiValue: String, // api specific format id
 )

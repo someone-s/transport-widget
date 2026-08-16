@@ -6,7 +6,7 @@ import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.getKeyProviderConstructor
-import com.eden.livewidget.data.common.points.PointModel
+import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.api.Api
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
@@ -63,7 +63,7 @@ class RdgApi(
     override suspend fun fetchPoints(
         context: Context,
         statusUpdate: (String) -> Unit
-    ): Flow<PointModel> = flow {
+    ): Flow<Model> = flow {
 
         val points = fetchData(context)
         for (point in points)
@@ -76,7 +76,7 @@ class RdgApi(
 
     private fun fetchData(
         context: Context,
-    ): List<PointModel> {
+    ): List<Model> {
         Log.i(this.javaClass.name, "request data")
 
         val headers = mapOf(
@@ -110,7 +110,7 @@ class RdgApi(
         Log.i(this.javaClass.name, "found ${stationList.size} entries")
 
         return stationList.map {
-            PointModel(
+            Model(
                 name = it.commonName,
                 apiValue = it.crsCode
             )

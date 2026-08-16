@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.SkipQueryVerification
-import com.eden.livewidget.data.common.points.PointModel
+import com.eden.livewidget.data.common.points.Model
 
 @Entity()
 data class DuplicatesEntity(
@@ -55,12 +55,12 @@ interface DuplicatesDao {
 abstract class DuplicatesDatabase : RoomDatabase(), Cache {
     abstract fun pointDao(): DuplicatesDao
 
-    override fun getAllFuzzyMatches(search: String): List<PointModel> =
+    override fun getAllFuzzyMatches(search: String): List<Model> =
         pointDao()
             .getAllFuzzyMatches(search)
-            .map { native -> PointModel(name = native.name, apiValue = native.apiValue) }
+            .map { native -> Model(name = native.name, apiValue = native.apiValue) }
 
-    override fun insert(point: PointModel) =
+    override fun insert(point: Model) =
         pointDao()
             .insert(DuplicatesEntity(name = point.name, apiValue = point.apiValue))
 

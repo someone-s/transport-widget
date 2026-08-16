@@ -3,7 +3,7 @@ package com.eden.livewidget.data.tfl.points.api
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.R
-import com.eden.livewidget.data.common.points.PointModel
+import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.api.Api
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
@@ -77,7 +77,7 @@ class TflApi: Api {
     override suspend fun fetchPoints(
         context: Context,
         statusUpdate: (String) -> Unit,
-    ): Flow<PointModel> = channelFlow {
+    ): Flow<Model> = channelFlow {
 
         val pageBatch = 3
         val maxAttempt = 3
@@ -126,7 +126,7 @@ class TflApi: Api {
 
     private fun fetchPage(
         pageZeroIndexed: Int,
-    ): List<PointModel>? {
+    ): List<Model>? {
 
         val page = pageZeroIndexed + 1
 
@@ -156,7 +156,7 @@ class TflApi: Api {
             .filter { !it.modes.isNullOrEmpty() }
             .filter { it.modes!!.any { mode -> validModes.contains(mode) } }
             .map { stopPoint ->
-                PointModel(
+                Model(
                     name = stopPoint.commonName,
                     apiValue = stopPoint.naptanId
                 )

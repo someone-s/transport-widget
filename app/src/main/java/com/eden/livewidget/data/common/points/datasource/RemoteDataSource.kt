@@ -2,7 +2,7 @@ package com.eden.livewidget.data.common.points.datasource
 
 import android.content.Context
 import android.util.Log
-import com.eden.livewidget.data.common.points.PointModel
+import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.cache.CacheProvider
 import com.eden.livewidget.data.common.points.api.Api
 import kotlinx.coroutines.CoroutineDispatcher
@@ -40,12 +40,12 @@ class RemoteDataSource(
     override suspend fun fetchMatching(
         context: Context,
         input: String
-    ): List<PointModel> =
+    ): List<Model> =
         withContext(ioDispatcher) {
             cacheProvider
                 .getCache(context)
                 .getAllFuzzyMatches(input).map { entity ->
-                    PointModel(
+                    Model(
                         name = entity.name,
                         apiValue = entity.apiValue,
                     )

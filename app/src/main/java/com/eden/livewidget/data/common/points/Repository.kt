@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class PointsRepository(
+class Repository(
     private val dataSource: DataSource,
 ) {
 
-    private val matchingPointsMutable = MutableStateFlow(emptyList<PointModel>())
+    private val matchingPointsMutable = MutableStateFlow(emptyList<Model>())
     val matchingPoints = matchingPointsMutable.asStateFlow()
 
     private val mutex = Mutex()
@@ -44,7 +44,7 @@ class PointsRepository(
 
     companion object {
         fun create(context: Context, apiProvider: Provider) =
-            PointsRepository(DataSource.getInstance(context, apiProvider))
+            Repository(DataSource.getInstance(context, apiProvider))
     }
 }
 
