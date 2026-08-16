@@ -39,7 +39,8 @@ fun ItemContent(
         },
         content = {
             Text(
-                text = filter.toPoint.name
+                text = filter.toPoint.name,
+                maxLines = 1,
             )
         },
         supportingContent = {
@@ -53,7 +54,8 @@ fun ItemContent(
                 )
             } else {
                 Text(
-                    text = filter.toPoint.apiValue
+                    text = filter.toPoint.apiValue,
+                    maxLines = 1,
                 )
             }
         },
