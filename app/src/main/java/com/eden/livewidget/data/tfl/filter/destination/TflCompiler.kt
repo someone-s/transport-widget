@@ -15,13 +15,17 @@ import retrofit2.http.Query
 import java.net.SocketTimeoutException
 
 private data class TflStopPoint(
-    @SerializedName("lines")
-    val lines: List<TflStopPointLine>?,
+    @SerializedName("naptanId")
+    val actualId: String?,
+    @SerializedName("lineGroup")
+    val lineGroups: List<TflStopPointLineGroup>?,
 )
 
-private data class TflStopPointLine(
-    @SerializedName("id")
-    val id: String,
+private data class TflStopPointLineGroup(
+    @SerializedName("naptanIdReference")
+    val id: String?,
+    @SerializedName("lineIdentifier")
+    val lineIds: List<String>?,
 )
 private const val BASE_URL = "https://api.tfl.gov.uk"
 
@@ -87,14 +91,19 @@ class TflCompiler: Compiler {
                         return@mapNotNull null
                     }
 
-                    infoBody.lines?.map { line ->
-                        LineAndStop(
-                            lineId = line.id,
-                            stopPointId = stopPointId,
-                        )
-                    }
+                    infoBody.lineGroups
+                        ?.filter { it.id != null && it.lineIds != null }
+                        ?.flatMap { group ->
+                            group.lineIds!!.map { lineId ->
+                                LineAndStop(
+                                    lineId = lineId,
+                                    stopPointId = group.id!!,
+                                )
+                            }
+                        }
                 }
                 .flatten()
+                .toSet()
                 .groupBy { it.lineId }
 
         val fromLines = extractLines(fromStopPoints)
@@ -137,6 +146,8 @@ class TflCompiler: Compiler {
                         }
 
                         val direction = gson.fromJson(infoBody, String::class.java)
+
+                        Log.i(this.javaClass.name, "$fromStopPointId-$toStopPointId is valid direction")
 
                         LineWithDirection(
                             lineId = fromLine.key,
