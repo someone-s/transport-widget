@@ -30,6 +30,7 @@ import com.eden.livewidget.data.common.filter.destination.DestinationCompiler
 import com.eden.livewidget.data.common.filter.State
 import com.eden.livewidget.data.common.filter.destination.Filter
 import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.pointsFormat
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.widget.LivePointWidget
 import com.eden.livewidget.widget.update.UpdateScheduler
@@ -81,14 +82,14 @@ class ConfigActivity: ComponentActivity() {
                         if (currentAgency == null)
                             setCurrentAgency(fetchedAgency)
 
-                        val fetchedDisplayName = preferences[LivePointWidget.DISPLAY_NAME_KEY]
-                        val fetchedApiValue = preferences[LivePointWidget.API_VALUE_KEY]
+                        val fetchedName = preferences[LivePointWidget.NAME_KEY]
+                        val fetchedValue = preferences[LivePointWidget.VALUE_KEY]
                         if (currentPoint == null)
                             setCurrentPoint(
-                                if (fetchedDisplayName != null && fetchedApiValue != null)
+                                if (fetchedName != null && fetchedValue != null)
                                     Model(
-                                        name = fetchedDisplayName,
-                                        apiValue = fetchedApiValue
+                                        name = fetchedName,
+                                        values = pointsFormat.decodeFromString(fetchedValue)
                                     )
                                 else
                                     null
@@ -215,8 +216,8 @@ class ConfigActivity: ComponentActivity() {
 
         updateAppWidgetState(context, glanceId) { preferences ->
             preferences[LivePointWidget.AGENCY_KEY] = agencyToString(agency)
-            preferences[LivePointWidget.DISPLAY_NAME_KEY] = point.name
-            preferences[LivePointWidget.API_VALUE_KEY] = point.apiValue
+            preferences[LivePointWidget.NAME_KEY] = point.name
+            preferences[LivePointWidget.VALUE_KEY] = pointsFormat.encodeToString(point.values)
             preferences[LivePointWidget.FETCH_STATE_KEY] = LivePointWidget.FETCH_RESULT_RAN_SKIPPED
             preferences[LivePointWidget.FILTER_STATE_KEY] = State.serialize(filterState)
         }

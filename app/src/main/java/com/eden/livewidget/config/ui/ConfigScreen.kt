@@ -39,6 +39,7 @@ import com.eden.livewidget.config.ui.point.Item
 import com.eden.livewidget.data.common.filter.destination.Filter
 import com.eden.livewidget.data.common.filter.Status
 import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Value
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlin.uuid.Uuid
 
@@ -184,6 +185,10 @@ fun ConfigScreen(
 @Composable
 fun PreviewConfigScreen() {
 
+    class MockValue: Value {
+        override val displayString: String = ""
+    }
+
     TransportWidgetsTheme {
 
         ConfigScreen(
@@ -193,14 +198,14 @@ fun PreviewConfigScreen() {
             setCurrentPoint = { _ -> },
             destinationFilters = mapOf(
                 Uuid.random() to Filter(
-                    Model("", ""),
-                    Model("dest", "123"),
+                    Model("", MockValue()),
+                    Model("dest", MockValue()),
                     null,
                     Status.PENDING
                 ),
                 Uuid.random() to Filter(
-                    Model("", ""),
-                    Model("dest", "123"),
+                    Model("", MockValue()),
+                    Model("dest", MockValue()),
                     null,
                     Status.APPLIED
                 ),

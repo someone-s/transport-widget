@@ -9,15 +9,35 @@ import com.eden.livewidget.data.tfl.arrivals.api.TflApi as ArrivalsTflApi
 import com.eden.livewidget.data.common.keys.KeyProviderConstructors
 import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.ObscuredKeyProvider
+import com.eden.livewidget.data.common.points.Value
 import com.eden.livewidget.data.common.points.datasource.DataSource
 import com.eden.livewidget.data.common.points.datasource.RemoteDataSource
-import com.eden.livewidget.data.common.points.cache.DuplicatesDatabaseProvider
-import com.eden.livewidget.data.common.points.cache.SimpleDatabaseProvider
+import com.eden.livewidget.data.common.points.cache.DatabaseProvider
+import com.eden.livewidget.data.rdg.points.RdgValue
+import com.eden.livewidget.data.rdg.points.cache.RdgDatabase
+import com.eden.livewidget.data.rdg.points.cache.RdgDatabaseInfo
+import com.eden.livewidget.data.tfl.points.TflValue
+import com.eden.livewidget.data.tfl.points.cache.TflDatabase
+import com.eden.livewidget.data.tfl.points.cache.TflDatabaseInfo
 import com.eden.livewidget.data.rdg.points.api.RdgApi as PointsRdgApi
 import com.eden.livewidget.data.tfl.points.api.TflApi as PointsTflApi
 import com.eden.livewidget.data.tfl.filter.destination.TflCompiler as DestinationTflCompiler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import java.util.EnumSet
+
+val module = SerializersModule {
+    polymorphic(Value::class) {
+        subclass(TflValue::class)
+        subclass(RdgValue::class)
+    }
+}
+val pointsFormat = Json {
+    serializersModule = module
+}
 
 enum class Provider(
     val dataSourceConstructor: (context: Context) -> DataSource,
@@ -29,8 +49,9 @@ enum class Provider(
         dataSourceConstructor = { _ ->
             RemoteDataSource(
                 pointsApi = PointsTflApi(),
-                cacheProvider = DuplicatesDatabaseProvider(
-                    apiProvider = TFL,
+                cacheProvider = DatabaseProvider(
+                    info = TflDatabaseInfo(),
+                    klass = TflDatabase::class.java,
                 ),
                 ioDispatcher = Dispatchers.IO
             )
@@ -51,8 +72,9 @@ enum class Provider(
                 pointsApi = PointsRdgApi(
                     apiProvider = RDG
                 ),
-                cacheProvider = SimpleDatabaseProvider(
-                    apiProvider = RDG,
+                cacheProvider = DatabaseProvider(
+                    info = RdgDatabaseInfo(),
+                    klass = RdgDatabase::class.java,
                 ),
                 ioDispatcher = Dispatchers.IO
             )

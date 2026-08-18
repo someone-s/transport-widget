@@ -68,7 +68,7 @@ private suspend fun updateData(
     val agency = agencyFromString(preferences[LivePointWidget.AGENCY_KEY])
         ?: return UpdateResult.ERROR_UNKNOWN
 
-    val apiValue = preferences[LivePointWidget.API_VALUE_KEY]
+    val apiValue = preferences[LivePointWidget.VALUE_KEY]
         ?: return UpdateResult.ERROR_UNKNOWN
 
     val filterStateString = preferences[LivePointWidget.FILTER_STATE_KEY]

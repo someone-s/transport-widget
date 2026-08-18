@@ -122,4 +122,5 @@ dependencies {
     annotationProcessor(libs.androidx.room.compiler)
     testImplementation(libs.mockito.core)
     coreLibraryDesugaring(libs.desugarjdklibs)
+    implementation(libs.kotlinx.serialization.json)
 }

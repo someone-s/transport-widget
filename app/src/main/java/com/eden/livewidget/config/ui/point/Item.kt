@@ -65,7 +65,7 @@ fun Item(
                 if (index >= 0 && index < matchingPoints.size)
                     Model(
                         name = matchingPoints[index].name,
-                        apiValue = matchingPoints[index].apiValue,
+                        values = matchingPoints[index].values,
                     )
                 else
                     null
@@ -96,7 +96,8 @@ fun Item(
         },
         supportingContent = {
             Text(
-                text = currentPoint?.apiValue ?: stringResource(R.string.config_ui_pointitem_description_placeholder),
+                text = currentPoint?.values?.joinToString(",") { it.displayString }
+                    ?: stringResource(R.string.config_ui_pointitem_description_placeholder),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

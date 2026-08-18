@@ -8,6 +8,7 @@ import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.getKeyProviderConstructor
 import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.api.Api
+import com.eden.livewidget.data.rdg.points.RdgValue
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -112,7 +113,7 @@ class RdgApi(
         return stationList.map {
             Model(
                 name = it.commonName,
-                apiValue = it.crsCode
+                value = RdgValue(it.crsCode),
             )
         }
     }

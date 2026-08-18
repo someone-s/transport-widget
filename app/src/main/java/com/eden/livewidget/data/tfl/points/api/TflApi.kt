@@ -5,6 +5,7 @@ import android.util.Log
 import com.eden.livewidget.R
 import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.api.Api
+import com.eden.livewidget.data.tfl.points.TflValue
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -22,16 +23,28 @@ import java.util.concurrent.TimeUnit
 
 private data class TflStopPoint(
     @SerializedName("naptanId")
-    val naptanId: String,
+    val naptanId: String?,
     @SerializedName("modes")
     val modes: List<String>?,
-    @SerializedName("stopType")
-    val stopType: String,
     @SerializedName("commonName")
-    val commonName: String,
-    @SerializedName("children")
-    val children: List<TflStopPoint>,
-)
+    val commonName: String?,
+    @SerializedName("lines")
+    val lines: List<TflLine>?,
+) {
+    fun isValid() =
+        naptanId != null &&
+        modes != null &&
+        commonName != null &&
+        lines != null && lines.all { it.isValid() }
+}
+
+private data class TflLine(
+    @SerializedName("id")
+    val id: String?,
+) {
+    fun isValid() =
+        id != null
+}
 
 private const val BASE_URL = "https://api.tfl.gov.uk"
 
@@ -89,16 +102,22 @@ class TflApi: Api {
             coroutineScope {
                 fun startFetch(page: Int, tryCount: Int) {
                     if (tryCount >= maxAttempt) {
-                        Log.e(this.javaClass.name, "failed to fetch page $page despite retry")
+                        Log.e(this.javaClass.name, "failed to fetch page $page despite retry $tryCount")
                     }
 
                     launch {
-                        val points = fetchPage(page)
+                        val result = fetchPage(page)
 
-                        if (points != null) {
-                            if (points.isEmpty()) hasEmpty = true
-                            for (point in points)
-                                send(point)
+                        if (result.success) {
+                            checkNotNull(result.values)
+
+                            Log.i(this.javaClass.name, "submitting ${result.values.size} entries from page $page")
+
+                            if (result.unfilteredIsEmpty)
+                                hasEmpty = true
+
+                            for (value in result.values)
+                                send(value)
                         } else {
                             startFetch(page, tryCount + 1)
                         }
@@ -124,9 +143,14 @@ class TflApi: Api {
         }
     }
 
+    private data class PageResult(
+        val success: Boolean,
+        val unfilteredIsEmpty: Boolean = false,
+        val values: List<Model>? = null,
+    )
     private fun fetchPage(
         pageZeroIndexed: Int,
-    ): List<Model>? {
+    ): PageResult {
 
         val page = pageZeroIndexed + 1
 
@@ -141,26 +165,33 @@ class TflApi: Api {
         }
         catch (_: SocketTimeoutException) {
             Log.w(this.javaClass.name, "timeout for page $page")
-            return null
+            return PageResult(success = false)
         }
 
         if (pageResponse.body() !is List<TflStopPoint>) {
             Log.i(this.javaClass.name, "failed to find page body $page")
-            return null
+            return PageResult(success = false)
         }
         val stopPoints = pageResponse.body() as List<TflStopPoint>
 
         Log.i(this.javaClass.name, "found ${stopPoints.size} entries from page $page")
 
-        return stopPoints
-            .filter { !it.modes.isNullOrEmpty() }
-            .filter { it.modes!!.any { mode -> validModes.contains(mode) } }
-            .map { stopPoint ->
-                Model(
-                    name = stopPoint.commonName,
-                    apiValue = stopPoint.naptanId
-                )
-            }
+        return PageResult(
+            success = true,
+            unfilteredIsEmpty = stopPoints.isEmpty(),
+            values = stopPoints
+                .filter { it.isValid() }
+                .filter { it.modes!!.any { mode -> validModes.contains(mode) } }
+                .map { stopPoint ->
+                    Model(
+                        name = stopPoint.commonName!!,
+                        value = TflValue(
+                            naptanId = stopPoint.naptanId!!,
+                            lineIds = stopPoint.lines!!.map { it.id!! },
+                        ),
+                    )
+                }
+        )
 
     }
 }

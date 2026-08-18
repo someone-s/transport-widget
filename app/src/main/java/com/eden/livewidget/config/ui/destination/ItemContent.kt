@@ -54,7 +54,7 @@ fun ItemContent(
                 )
             } else {
                 Text(
-                    text = filter.toPoint.apiValue,
+                    text = filter.toPoint.values.joinToString(",") { it.displayString },
                     maxLines = 1,
                 )
             }

@@ -31,8 +31,8 @@ class LivePointWidget : GlanceAppWidget() {
     companion object {
 
         val AGENCY_KEY = stringPreferencesKey("agency")
-        val API_VALUE_KEY = stringPreferencesKey("apiValue")
-        val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
+        val VALUE_KEY = stringPreferencesKey("value")
+        val NAME_KEY = stringPreferencesKey("name")
         val FETCH_STATE_KEY = stringPreferencesKey("fetchState")
         val FILTER_STATE_KEY = stringPreferencesKey("filterState")
 
@@ -70,13 +70,13 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
-                val apiValue = currentState(API_VALUE_KEY)
+                val apiValue = currentState(VALUE_KEY)
                 if (apiValue == null) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
 
-                val displayName = currentState(DISPLAY_NAME_KEY)
+                val displayName = currentState(NAME_KEY)
                 if (displayName == null) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme

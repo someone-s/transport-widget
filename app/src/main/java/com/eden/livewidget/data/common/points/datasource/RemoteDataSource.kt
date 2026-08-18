@@ -44,12 +44,7 @@ class RemoteDataSource(
         withContext(ioDispatcher) {
             cacheProvider
                 .getCache(context)
-                .getAllFuzzyMatches(input).map { entity ->
-                    Model(
-                        name = entity.name,
-                        apiValue = entity.apiValue,
-                    )
-                }
+                .getAllFuzzyMatches(input)
         }
 }
 

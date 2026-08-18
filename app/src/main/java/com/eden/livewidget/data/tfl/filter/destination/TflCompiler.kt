@@ -4,6 +4,7 @@ import android.util.Log
 import com.eden.livewidget.data.common.filter.destination.Compiler
 import com.eden.livewidget.data.common.filter.destination.Filter
 import com.eden.livewidget.data.common.filter.destination.Filter.Companion.cloneApplied
+import com.eden.livewidget.data.tfl.points.TflValue
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import retrofit2.Call
@@ -38,7 +39,7 @@ private interface TflApiService {
     @GET("StopPoint/{id}")
     fun getStopPoint(
         @Path("id")
-        stopPointId: String,
+        naptanId: String,
     ): Call<TflStopPoint>
 
     @GET("StopPoint/{fromId}/DirectionTo/{toId}")
@@ -63,31 +64,31 @@ class TflCompiler: Compiler {
     override suspend fun compileFilter(filter: Filter): Filter {
 
         Log.i(this.javaClass.name, "Compiling filter")
-        val fromStopPoints = filter.fromPoint.apiValue.split(',')
-        val toStopPoints = filter.toPoint.apiValue.split(',')
+        val fromNaptanIds = filter.fromPoint.values.map { value -> (value as TflValue).naptanId }
+        val toNaptanIds = filter.toPoint.values.map { value -> (value as TflValue).naptanId }
 
         data class LineAndStop(
             val lineId: String,
             val stopPointId: String,
         )
 
-        fun extractLines(stopPoints: List<String>) =
-            stopPoints
-                .mapNotNull { stopPointId ->
+        fun extractLines(naptanIds: List<String>) =
+            naptanIds
+                .mapNotNull { naptanId ->
 
-                    val infoRequest = service.getStopPoint(stopPointId)
+                    val infoRequest = service.getStopPoint(naptanId)
                     infoRequest.request()
 
                     val infoResponse = try {
                         infoRequest.execute()
                     } catch (_: SocketTimeoutException) {
-                        Log.w(this.javaClass.name, "timeout for stopPoint $stopPointId")
+                        Log.w(this.javaClass.name, "timeout for stopPoint $naptanId")
                         return@mapNotNull null
                     }
 
                     val infoBody = infoResponse.body()
                     if (infoBody !is TflStopPoint) {
-                        Log.i(this.javaClass.name, "failed to find stopPoint $stopPointId body")
+                        Log.i(this.javaClass.name, "failed to find stopPoint $naptanId body")
                         return@mapNotNull null
                     }
 
@@ -106,8 +107,8 @@ class TflCompiler: Compiler {
                 .toSet()
                 .groupBy { it.lineId }
 
-        val fromLines = extractLines(fromStopPoints)
-        val toLines = extractLines(toStopPoints)
+        val fromLines = extractLines(fromNaptanIds)
+        val toLines = extractLines(toNaptanIds)
 
         val linesWithDirection = fromLines
             .flatMap { fromLine ->
