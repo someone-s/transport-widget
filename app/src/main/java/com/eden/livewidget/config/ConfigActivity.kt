@@ -83,13 +83,13 @@ class ConfigActivity: ComponentActivity() {
                             setCurrentAgency(fetchedAgency)
 
                         val fetchedName = preferences[LivePointWidget.NAME_KEY]
-                        val fetchedValue = preferences[LivePointWidget.VALUE_KEY]
+                        val fetchedValues = preferences[LivePointWidget.VALUES_KEY]
                         if (currentPoint == null)
                             setCurrentPoint(
-                                if (fetchedName != null && fetchedValue != null)
+                                if (fetchedName != null && fetchedValues != null)
                                     Model(
                                         name = fetchedName,
-                                        values = pointsFormat.decodeFromString(fetchedValue)
+                                        values = pointsFormat.decodeFromString(fetchedValues)
                                     )
                                 else
                                     null
@@ -217,7 +217,7 @@ class ConfigActivity: ComponentActivity() {
         updateAppWidgetState(context, glanceId) { preferences ->
             preferences[LivePointWidget.AGENCY_KEY] = agencyToString(agency)
             preferences[LivePointWidget.NAME_KEY] = point.name
-            preferences[LivePointWidget.VALUE_KEY] = pointsFormat.encodeToString(point.values)
+            preferences[LivePointWidget.VALUES_KEY] = pointsFormat.encodeToString(point.values)
             preferences[LivePointWidget.FETCH_STATE_KEY] = LivePointWidget.FETCH_RESULT_RAN_SKIPPED
             preferences[LivePointWidget.FILTER_STATE_KEY] = State.serialize(filterState)
         }

@@ -42,7 +42,7 @@ val pointsFormat = Json {
 enum class Provider(
     val dataSourceConstructor: (context: Context) -> DataSource,
     val filterConstructors: FilterConstructors,
-    val arrivalsApiConstructor: (apiValue: String, filterState: FilterState) -> Api,
+    val arrivalsApiConstructor: () -> Api,
     val keyProviders: KeyProviderConstructors = emptyMap()
 ) {
     TFL(
@@ -59,11 +59,8 @@ enum class Provider(
         filterConstructors = FilterConstructors(
             destinationCompilerConstructor = { DestinationTflCompiler() },
         ),
-        arrivalsApiConstructor = { commaSeparatedNaptanIds, filterState ->
-            ArrivalsTflApi(
-                commaSeparatedNaptanIds = commaSeparatedNaptanIds,
-                filterState = filterState,
-            )
+        arrivalsApiConstructor = {
+            ArrivalsTflApi()
         },
     ),
     RDG(
@@ -82,11 +79,8 @@ enum class Provider(
         filterConstructors = FilterConstructors(
             destinationCompilerConstructor = { DestinationTflCompiler() },
         ),
-        arrivalsApiConstructor = { crsCode, filterState ->
-            ArrivalsRdgApi(
-                crsCode,
-                RDG
-            )
+        arrivalsApiConstructor = {
+            ArrivalsRdgApi()
         },
         keyProviders = mapOf(
             EnumSet.of(KeyPurpose.POINTS) to { ObscuredKeyProvider($"${RDG.name}-${KeyPurpose.POINTS.name}") },

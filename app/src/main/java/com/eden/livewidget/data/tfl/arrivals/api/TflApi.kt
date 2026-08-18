@@ -4,7 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
+import com.eden.livewidget.data.common.points.Value
 import com.eden.livewidget.data.tfl.filter.destination.LineWithDirection
+import com.eden.livewidget.data.tfl.points.TflValue
 import com.eden.livewidget.data.common.filter.State as FilterState
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
@@ -65,28 +67,28 @@ private interface TflApiService {
 }
 
 
-class TflApi(
-    commaSeparatedNaptanIds: String,
-    filterState: FilterState,
-) : Api {
+class TflApi: Api {
 
-    private val naptanIds: List<String> = commaSeparatedNaptanIds.split(",")
-
-    private val filterLines: Map<String, List<String>> =
-        filterState.destinationFilters
-            .mapNotNull { filter -> filter.filterValue }
-            .flatMap { filterString -> LineWithDirection.deserializeList(filterString) }
-            .groupBy(
-                keySelector = { lineWithDirection -> lineWithDirection.lineId },
-                valueTransform = { lineWithDirection -> lineWithDirection.direction }
-            )
+//    private val filterLines: Map<String, List<String>> =
+//        filterState.destinationFilters
+//            .mapNotNull { filter -> filter.filterValue }
+//            .flatMap { filterString -> LineWithDirection.deserializeList(filterString) }
+//            .groupBy(
+//                keySelector = { lineWithDirection -> lineWithDirection.lineId },
+//                valueTransform = { lineWithDirection -> lineWithDirection.direction }
+//            )
 
 
     private val service: TflApiService by lazy {
         retrofit.create(TflApiService::class.java)
     }
 
-    override suspend fun fetchLatestArrivals(context: Context): List<Model> {
+    override suspend fun fetchLatestArrivals(
+        context: Context,
+        values: List<Value>,
+    ): List<Model> {
+
+        val naptanIds = values.map { (it as TflValue).naptanId }
 
         val entries = mutableListOf<TflEntry>()
 
@@ -125,14 +127,14 @@ class TflApi(
             .filter {
                 it.isValid()
             }
-            .filter {
-                if (filterLines.isEmpty())
-                    return@filter true
-
-                val validDirections = filterLines[it.lineId] ?: return@filter false
-
-                return@filter validDirections.contains(it.direction)
-            }
+//            .filter {
+//                if (filterLines.isEmpty())
+//                    return@filter true
+//
+//                val validDirections = filterLines[it.lineId] ?: return@filter false
+//
+//                return@filter validDirections.contains(it.direction)
+//            }
             .mapNotNull{ entry ->
                 try {
                     Log.i("ARRIVAL-INFO", entry.expectedArrivalString!!)
