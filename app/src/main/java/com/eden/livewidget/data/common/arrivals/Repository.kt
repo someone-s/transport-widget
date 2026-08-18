@@ -2,8 +2,10 @@
 package com.eden.livewidget.data.common.arrivals
 
 import android.content.Context
+import android.util.Log
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.filter.State as FilterState
+import com.eden.livewidget.data.common.filter.State
+import com.eden.livewidget.data.common.points.Value
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,14 +14,17 @@ import java.time.LocalDateTime
 
 class Repository(
     private val dataSource: DataSource,
+    private val values: List<Value>,
+    private val filterState: State,
 ) {
 
     private val arrivalsDataMutable = MutableStateFlow(Data())
     val arrivalsData = arrivalsDataMutable.asStateFlow()
 
     suspend fun fetchLatestArrival(context: Context): FetchResult {
-        val output = dataSource.fetchLatestArrivals(context)
+        val output = dataSource.fetchLatestArrivals(context, values)
 
+        Log.i(javaClass.name, "${output.first}")
 
         arrivalsDataMutable.getAndUpdate { previousData ->
             when (output.first) {
@@ -51,25 +56,28 @@ class Repository(
 
     companion object {
 
-        data class ArrivalsKey(
-            val apiProvider: Provider,
-            val apiValue: String,
-            val filterState: FilterState,
+        data class Key(
+            val agencyString: String,
+            val valuesString: String,
+            val filterStateString: String,
         )
-        private var instances: MutableMap<ArrivalsKey, Repository> = mutableMapOf()
+
+        private var instances: MutableMap<Key, Repository> = mutableMapOf()
 
         fun getInstance(
-            apiProvider: Provider,
-            apiValue: String,
-            filterState: FilterState,
+            key: Key,
+            provider: Provider,
+            values: List<Value>,
+            filterState: State,
         ): Repository {
-            val key = ArrivalsKey(apiProvider, apiValue, filterState)
             if (!instances.contains(key)) {
                 instances[key] = Repository(
                     DataSource(
-                        apiProvider.arrivalsApiConstructor(apiValue, filterState),
+                        provider.arrivalsApiConstructor(),
                         Dispatchers.IO
                     ),
+                    values,
+                    filterState,
                 )
             }
 

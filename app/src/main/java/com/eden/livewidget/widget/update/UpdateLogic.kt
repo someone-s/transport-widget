@@ -11,6 +11,8 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.eden.livewidget.agencyFromString
 import com.eden.livewidget.data.common.arrivals.Repository
+import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.pointsFormat
 import com.eden.livewidget.data.common.filter.State as FilterState
 import com.eden.livewidget.data.common.filter.emptyState as emptyFilterState
 import com.eden.livewidget.widget.LivePointWidget
@@ -65,18 +67,37 @@ private suspend fun updateData(
     // PreferencesGlanceStateDefinition is the default state definition used
     val preferences = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
 
-    val agency = agencyFromString(preferences[LivePointWidget.AGENCY_KEY])
-        ?: return UpdateResult.ERROR_UNKNOWN
+    val agencyString = preferences[LivePointWidget.AGENCY_KEY]
+    val agency = try {
+        checkNotNull(agencyString)
+        agencyFromString(agencyString)!!
+    } catch (_: Exception) {
+        return UpdateResult.ERROR_UNKNOWN
+    }
 
-    val apiValue = preferences[LivePointWidget.VALUE_KEY]
-        ?: return UpdateResult.ERROR_UNKNOWN
+    val valuesString = preferences[LivePointWidget.VALUES_KEY]
+    val values: List<Value> = try {
+        checkNotNull(valuesString)
+        pointsFormat.decodeFromString(valuesString)
+    } catch (_: Exception) {
+        return UpdateResult.ERROR_UNKNOWN
+    }
 
     val filterStateString = preferences[LivePointWidget.FILTER_STATE_KEY]
     val filterState = if (filterStateString == null) emptyFilterState() else FilterState.deserialize(filterStateString)
 
     try {
         // Update data source
-        val repository = Repository.getInstance(agency.apiProvider, apiValue, filterState)
+        val repository = Repository.getInstance(
+            key = Repository.Companion.Key(
+                agencyString = agencyString,
+                valuesString = valuesString,
+                filterStateString = filterStateString ?: "",
+            ),
+            provider = agency.apiProvider,
+            values = values,
+            filterState = filterState
+        )
         val result = repository.fetchLatestArrival(context)
 
         return when (result) {

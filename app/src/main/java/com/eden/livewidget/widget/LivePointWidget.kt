@@ -18,6 +18,8 @@ import com.eden.livewidget.Agency
 import com.eden.livewidget.agencyFromString
 import com.eden.livewidget.data.common.arrivals.Data
 import com.eden.livewidget.data.common.arrivals.Repository
+import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.pointsFormat
 import com.eden.livewidget.data.common.filter.emptyState as emptyFilterState
 import com.eden.livewidget.data.common.filter.State as FilterState
 import com.eden.livewidget.widget.ui.MockContent
@@ -31,7 +33,7 @@ class LivePointWidget : GlanceAppWidget() {
     companion object {
 
         val AGENCY_KEY = stringPreferencesKey("agency")
-        val VALUE_KEY = stringPreferencesKey("value")
+        val VALUES_KEY = stringPreferencesKey("values")
         val NAME_KEY = stringPreferencesKey("name")
         val FETCH_STATE_KEY = stringPreferencesKey("fetchState")
         val FILTER_STATE_KEY = stringPreferencesKey("filterState")
@@ -58,6 +60,8 @@ class LivePointWidget : GlanceAppWidget() {
 
         provideContent {
             GlanceTheme {
+                Log.i(javaClass.name, "Restart")
+
                 val agencyString = currentState(AGENCY_KEY)
                 if (agencyString == null) {
                     PlaceholderContent(context, id)
@@ -70,8 +74,11 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
-                val apiValue = currentState(VALUE_KEY)
-                if (apiValue == null) {
+                val valuesString = currentState(VALUES_KEY)
+                val values: List<Value> = try {
+                    checkNotNull(valuesString)
+                    pointsFormat.decodeFromString(valuesString)
+                } catch (_: Exception) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
@@ -95,7 +102,16 @@ class LivePointWidget : GlanceAppWidget() {
 
                 val fetchResultOptions = currentState(FETCH_STATE_KEY)
 
-                val repository = Repository.getInstance(agency.apiProvider, apiValue, filterState)
+                val repository = Repository.getInstance(
+                    key = Repository.Companion.Key(
+                        agencyString = agencyString,
+                        valuesString = valuesString,
+                        filterStateString = filterStateString ?: "",
+                    ),
+                    provider = agency.apiProvider,
+                    values = values,
+                    filterState = filterState
+                )
                 val arrivalsData by repository.arrivalsData.collectAsState()
 
                 val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)

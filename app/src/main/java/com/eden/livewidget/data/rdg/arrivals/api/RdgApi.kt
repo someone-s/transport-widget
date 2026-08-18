@@ -7,6 +7,8 @@ import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.getKeyProviderConstructor
+import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.rdg.points.RdgValue
 import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -80,16 +82,19 @@ private interface RdgApiService {
     ): Call<RdgDepartureResponse>
 }
 
-class RdgApi(
-    private val crsCode: String,
-    private val apiProvider: Provider
-) : Api {
+class RdgApi : Api {
 
     private val service: RdgApiService by lazy {
         retrofit.create(RdgApiService::class.java)
     }
 
-    override suspend fun fetchLatestArrivals(context: Context): List<Model> {
+    override suspend fun fetchLatestArrivals(
+        context: Context,
+        values: List<Value>,
+    ): List<Model> {
+
+        assert(values.size == 1)
+        val crsCode = (values[0] as RdgValue).crsCode
 
         val currentTime = LocalDateTime.now()
         val requestTimeFormatter = DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss")

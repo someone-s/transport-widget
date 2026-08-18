@@ -1,7 +1,6 @@
 package com.eden.livewidget.data.common.points
 
 import kotlinx.serialization.Polymorphic
-import kotlinx.serialization.Serializable
 
 /**
  * Inherit this class and add @Serializable to the subclass
