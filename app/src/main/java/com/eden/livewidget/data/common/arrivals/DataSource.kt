@@ -2,6 +2,7 @@
 package com.eden.livewidget.data.common.arrivals
 
 import android.content.Context
+import android.util.Log
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.points.Value
 import kotlinx.coroutines.CoroutineDispatcher
