@@ -19,9 +19,8 @@ import com.eden.livewidget.agencyFromString
 import com.eden.livewidget.data.common.arrivals.Data
 import com.eden.livewidget.data.common.arrivals.Repository
 import com.eden.livewidget.data.common.points.Value
-import com.eden.livewidget.data.pointsFormat
-import com.eden.livewidget.data.common.filter.emptyState as emptyFilterState
-import com.eden.livewidget.data.common.filter.State as FilterState
+import com.eden.livewidget.data.format
+import com.eden.livewidget.data.common.arrivals.filter.emptyState as emptyFilterState
 import com.eden.livewidget.widget.ui.MockContent
 import com.eden.livewidget.widget.ui.MyContent
 import com.eden.livewidget.widget.ui.MyContentMode
@@ -32,11 +31,11 @@ class LivePointWidget : GlanceAppWidget() {
 
     companion object {
 
-        val AGENCY_KEY = stringPreferencesKey("agency")
-        val VALUES_KEY = stringPreferencesKey("values")
-        val NAME_KEY = stringPreferencesKey("name")
-        val FETCH_STATE_KEY = stringPreferencesKey("fetchState")
-        val FILTER_STATE_KEY = stringPreferencesKey("filterState")
+        val AGENCY_KEY = stringPreferencesKey("agency:0")
+        val VALUES_KEY = stringPreferencesKey("values:0")
+        val NAME_KEY = stringPreferencesKey("name:0")
+        val FETCH_STATE_KEY = stringPreferencesKey("fetchState:0")
+        val FILTER_STATE_KEY = stringPreferencesKey("filterState:1")
 
         const val FETCH_PENDING = "pending"
         const val FETCH_RESULT_ERROR_UNKNOWN = "result-error-unknown"
@@ -77,7 +76,7 @@ class LivePointWidget : GlanceAppWidget() {
                 val valuesString = currentState(VALUES_KEY)
                 val values: List<Value> = try {
                     checkNotNull(valuesString)
-                    pointsFormat.decodeFromString(valuesString)
+                    format.decodeFromString(valuesString)
                 } catch (_: Exception) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
@@ -95,7 +94,7 @@ class LivePointWidget : GlanceAppWidget() {
                     if (filterStateString == null)
                         emptyFilterState()
                     else
-                        FilterState.deserialize(filterStateString)
+                        format.decodeFromString(filterStateString)
                 } catch (_: Exception) {
                     emptyFilterState()
                 }

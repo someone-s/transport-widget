@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("tfl")
+@SerialName("p-tfl")
 class TflValue(
 
     @SerialName("n")

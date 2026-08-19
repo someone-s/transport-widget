@@ -4,9 +4,10 @@ package com.eden.livewidget.data.common.arrivals
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.filter.State
+import com.eden.livewidget.data.common.arrivals.filter.State
+import com.eden.livewidget.data.common.arrivals.filter.PostFetchExecutor
+import com.eden.livewidget.data.common.arrivals.filter.PreFetchExecutor
 import com.eden.livewidget.data.common.points.Value
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
@@ -15,21 +16,38 @@ import java.time.LocalDateTime
 class Repository(
     private val dataSource: DataSource,
     private val values: List<Value>,
-    private val filterState: State,
+    private val preFetchExecutors: List<PreFetchExecutor>,
+    private val postFetchExecutors: List<PostFetchExecutor>,
 ) {
 
     private val arrivalsDataMutable = MutableStateFlow(Data())
     val arrivalsData = arrivalsDataMutable.asStateFlow()
 
     suspend fun fetchLatestArrival(context: Context): FetchResult {
-        val output = dataSource.fetchLatestArrivals(context, values)
+
+
+        val filteredValues = values.run {
+            var intermediateValues = this
+            for (executor in preFetchExecutors)
+                intermediateValues = executor.execute(intermediateValues)
+            intermediateValues
+        }
+        val output = dataSource.fetchLatestArrivals(context, filteredValues)
 
         Log.i(javaClass.name, "${output.first}")
 
         arrivalsDataMutable.getAndUpdate { previousData ->
             when (output.first) {
-                DataSource.FetchResult.SUCCESS ->
-                    Data(LocalDateTime.now(), Data.Validity.VALID, output.second)
+                DataSource.FetchResult.SUCCESS -> {
+                    val results = output.second
+                    val filteredResults = results.run {
+                        var intermediateResults = this
+                        for (executor in postFetchExecutors)
+                            intermediateResults = executor.execute(intermediateResults)
+                        intermediateResults
+                    }
+                    Data(LocalDateTime.now(), Data.Validity.VALID, filteredResults)
+                }
                 DataSource.FetchResult.ERROR_UNRESOLVED ->
                     Data(LocalDateTime.now(), Data.Validity.INVALID, previousData.lastValidData)
                 DataSource.FetchResult.ERROR_UNREACHABLE ->
@@ -69,19 +87,16 @@ class Repository(
             provider: Provider,
             values: List<Value>,
             filterState: State,
-        ): Repository {
-            if (!instances.contains(key)) {
-                instances[key] = Repository(
-                    DataSource(
-                        provider.arrivalsApiConstructor(),
-                        Dispatchers.IO
-                    ),
-                    values,
-                    filterState,
+        ): Repository =
+            instances.getOrPut(key) {
+                val constructors = provider.arrivalsConstructors
+
+                Repository(
+                    dataSource = constructors.dataSourceConstructor(),
+                    values = values,
+                    preFetchExecutors = constructors.preFetchExecutorConstructor(filterState),
+                    postFetchExecutors = constructors.postFetchExecutorConstructor(filterState),
                 )
             }
-
-            return instances[key] as Repository
-        }
     }
 }

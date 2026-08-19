@@ -12,9 +12,11 @@ import androidx.room.RoomDatabase
 import androidx.room.SkipQueryVerification
 import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.cache.Cache
-import com.eden.livewidget.data.pointsFormat
+import com.eden.livewidget.data.format
 
-@Entity()
+@Entity(
+    tableName = "e",
+)
 data class TflEntity(
 
     @ColumnInfo(name = "name")
@@ -38,7 +40,7 @@ interface TflDao {
                 "FROM " +
                 "   ( " +
                 "       SELECT name, '[' || group_concat(value, ',') || ']' AS concatValue " +
-                "       FROM tflentity " +
+                "       FROM e " +
                 "       GROUP BY name " +
                 "   ) " +
                 "   AS merged " +
@@ -50,7 +52,7 @@ interface TflDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(point: TflEntity)
 
-    @Query("DELETE FROM tflentity")
+    @Query("DELETE FROM e")
     fun deleteAll()
 }
 
@@ -58,19 +60,19 @@ interface TflDao {
  * This database is designed to support the following relationship:
  * 1 name -> many value
  */
-@Database(entities = [TflEntity::class], version = 5)
+@Database(entities = [TflEntity::class], version = 9)
 abstract class TflDatabase : RoomDatabase(), Cache {
     abstract fun pointDao(): TflDao
 
     override fun getAllFuzzyMatches(search: String): List<Model> =
         pointDao()
             .getAllFuzzyMatches(search)
-            .map { native -> Model(name = native.name, values = pointsFormat.decodeFromString(native.value)) }
+            .map { native -> Model(name = native.name, values = format.decodeFromString(native.value)) }
 
     override fun insert(point: Model) =
         point.values.forEach { value ->
             pointDao()
-                .insert(TflEntity(name = point.name, value = pointsFormat.encodeToString(value)))
+                .insert(TflEntity(name = point.name, value = format.encodeToString(value)))
         }
 
     override fun deleteAll() =

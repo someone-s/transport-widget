@@ -15,8 +15,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.R
-import com.eden.livewidget.data.common.filter.Status
-import com.eden.livewidget.data.common.filter.destination.Filter
+import com.eden.livewidget.data.common.arrivals.filter.Status
+import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
 
 @Composable
 fun ItemContent(

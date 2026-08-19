@@ -14,7 +14,7 @@ interface DataSource {
 
         fun getInstance(context: Context, apiProvider: Provider): DataSource {
             if (!instances.contains(apiProvider))
-                instances[apiProvider] = apiProvider.dataSourceConstructor(context)
+                instances[apiProvider] = apiProvider.pointsConstructors.dataSourceConstructor()
 
 
             return instances[apiProvider]!!

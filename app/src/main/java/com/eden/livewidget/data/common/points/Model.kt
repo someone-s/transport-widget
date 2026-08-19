@@ -1,5 +1,8 @@
 package com.eden.livewidget.data.common.points
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Model(
     val name: String,
     val values: List<Value>, // api specific value

@@ -23,8 +23,8 @@ import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.R
 import com.eden.livewidget.config.ui.common.SearchGroup
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.filter.Status
-import com.eden.livewidget.data.common.filter.destination.Filter
+import com.eden.livewidget.data.common.arrivals.filter.Status
+import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
 import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.Repository
 import kotlinx.coroutines.flow.MutableStateFlow

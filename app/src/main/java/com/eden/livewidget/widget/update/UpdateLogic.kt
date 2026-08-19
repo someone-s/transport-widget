@@ -12,9 +12,8 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.eden.livewidget.agencyFromString
 import com.eden.livewidget.data.common.arrivals.Repository
 import com.eden.livewidget.data.common.points.Value
-import com.eden.livewidget.data.pointsFormat
-import com.eden.livewidget.data.common.filter.State as FilterState
-import com.eden.livewidget.data.common.filter.emptyState as emptyFilterState
+import com.eden.livewidget.data.format
+import com.eden.livewidget.data.common.arrivals.filter.emptyState as emptyFilterState
 import com.eden.livewidget.widget.LivePointWidget
 
 enum class UpdateResult(val widgetValue: String) {
@@ -78,13 +77,17 @@ private suspend fun updateData(
     val valuesString = preferences[LivePointWidget.VALUES_KEY]
     val values: List<Value> = try {
         checkNotNull(valuesString)
-        pointsFormat.decodeFromString(valuesString)
+        format.decodeFromString(valuesString)
     } catch (_: Exception) {
         return UpdateResult.ERROR_UNKNOWN
     }
 
     val filterStateString = preferences[LivePointWidget.FILTER_STATE_KEY]
-    val filterState = if (filterStateString == null) emptyFilterState() else FilterState.deserialize(filterStateString)
+    val filterState =
+        if (filterStateString == null)
+            emptyFilterState()
+        else
+            format.decodeFromString(filterStateString)
 
     try {
         // Update data source

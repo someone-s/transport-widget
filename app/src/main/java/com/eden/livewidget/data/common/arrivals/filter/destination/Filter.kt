@@ -1,12 +1,14 @@
-package com.eden.livewidget.data.common.filter.destination
+package com.eden.livewidget.data.common.arrivals.filter.destination
 
-import com.eden.livewidget.data.common.filter.Status
+import com.eden.livewidget.data.common.arrivals.filter.Status
 import com.eden.livewidget.data.common.points.Model
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Filter(
     val fromPoint: Model,
     val toPoint: Model,
-    val filterValue: String?,
+    val values: List<Value>?,
     val status: Status,
 ) {
     companion object {
@@ -16,16 +18,16 @@ data class Filter(
         ) = Filter(
             fromPoint = fromPoint,
             toPoint = toPoint,
-            filterValue = null,
+            values = null,
             status = Status.PENDING,
         )
 
         fun Filter.cloneApplied(
-            filterValue: String,
+            values: List<Value>,
         ) = Filter(
             fromPoint = this.fromPoint,
             toPoint = this.toPoint,
-            filterValue = filterValue,
+            values = values,
             status = Status.APPLIED,
         )
     }

@@ -6,7 +6,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.filter.destination.Filter
+import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
 import com.eden.livewidget.data.common.points.Model
 import kotlin.uuid.Uuid
 

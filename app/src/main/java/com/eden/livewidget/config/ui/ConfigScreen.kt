@@ -36,8 +36,8 @@ import com.eden.livewidget.config.ui.agency.Item
 import com.eden.livewidget.config.ui.common.LabelItem
 import com.eden.livewidget.config.ui.destination.Group
 import com.eden.livewidget.config.ui.point.Item
-import com.eden.livewidget.data.common.filter.destination.Filter
-import com.eden.livewidget.data.common.filter.Status
+import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
+import com.eden.livewidget.data.common.arrivals.filter.Status
 import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.Value
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme

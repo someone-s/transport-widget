@@ -26,11 +26,11 @@ import com.eden.livewidget.Agency
 import com.eden.livewidget.agencyFromString
 import com.eden.livewidget.agencyToString
 import com.eden.livewidget.config.ui.ConfigScreen
-import com.eden.livewidget.data.common.filter.destination.DestinationCompiler
-import com.eden.livewidget.data.common.filter.State
-import com.eden.livewidget.data.common.filter.destination.Filter
+import com.eden.livewidget.data.common.arrivals.filter.destination.Compiler as DestinationCompiler
+import com.eden.livewidget.data.common.arrivals.filter.State
+import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
 import com.eden.livewidget.data.common.points.Model
-import com.eden.livewidget.data.pointsFormat
+import com.eden.livewidget.data.format
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.widget.LivePointWidget
 import com.eden.livewidget.widget.update.UpdateScheduler
@@ -69,7 +69,7 @@ class ConfigActivity: ComponentActivity() {
                     val (currentAgency, setCurrentAgency) = remember { mutableStateOf<Agency?>(null) }
                     val (currentPoint, setCurrentPoint) = remember { mutableStateOf<Model?>(null) }
                     val destinationFilters = remember { mutableStateMapOf<Uuid, Filter>() }
-                    val destinationFilterCompiler = remember(currentAgency) { currentAgency?.apiProvider?.filterConstructors?.destinationCompilerConstructor() }
+                    val destinationFilterCompiler = remember(currentAgency) { currentAgency?.apiProvider?.arrivalsConstructors?.destinationCompilerConstructor() }
                     val (anyChanges, setAnyChanges) = remember { mutableStateOf(false) }
 
                     val coroutineScope = rememberCoroutineScope()
@@ -89,7 +89,7 @@ class ConfigActivity: ComponentActivity() {
                                 if (fetchedName != null && fetchedValues != null)
                                     Model(
                                         name = fetchedName,
-                                        values = pointsFormat.decodeFromString(fetchedValues)
+                                        values = format.decodeFromString(fetchedValues)
                                     )
                                 else
                                     null
@@ -97,7 +97,7 @@ class ConfigActivity: ComponentActivity() {
 
                         val filterStateString = preferences[LivePointWidget.FILTER_STATE_KEY]
                         if (filterStateString != null) {
-                            val filterState = State.deserialize(filterStateString)
+                            val filterState: State = format.decodeFromString(filterStateString)
                             destinationFilters.putAll(
                                 filterState.destinationFilters.map { Pair(Uuid.random(), it) }
                             )
@@ -217,9 +217,9 @@ class ConfigActivity: ComponentActivity() {
         updateAppWidgetState(context, glanceId) { preferences ->
             preferences[LivePointWidget.AGENCY_KEY] = agencyToString(agency)
             preferences[LivePointWidget.NAME_KEY] = point.name
-            preferences[LivePointWidget.VALUES_KEY] = pointsFormat.encodeToString(point.values)
+            preferences[LivePointWidget.VALUES_KEY] = format.encodeToString(point.values)
             preferences[LivePointWidget.FETCH_STATE_KEY] = LivePointWidget.FETCH_RESULT_RAN_SKIPPED
-            preferences[LivePointWidget.FILTER_STATE_KEY] = State.serialize(filterState)
+            preferences[LivePointWidget.FILTER_STATE_KEY] = format.encodeToString(filterState)
         }
 
         LivePointWidget().update(context, glanceId)

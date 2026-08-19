@@ -191,7 +191,7 @@ class RdgApi : Api {
         return stripViaTextRegex.replace(input, "")
     }
 
-    private val stripOperatorNameRegex = Regex("(?<=[^\\s])[^A-Z]")
+    private val stripOperatorNameRegex = Regex("(?<=\\S)[^A-Z]")
     private fun processOperatorName(input: String): String {
         return if (input.length <= 8)
             input

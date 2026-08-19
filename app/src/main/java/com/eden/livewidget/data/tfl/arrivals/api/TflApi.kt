@@ -5,6 +5,7 @@ import android.util.Log
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.tfl.arrivals.TflModel
 import com.eden.livewidget.data.tfl.points.TflValue
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
@@ -125,18 +126,10 @@ class TflApi: Api {
             .filter {
                 it.isValid()
             }
-//            .filter {
-//                if (filterLines.isEmpty())
-//                    return@filter true
-//
-//                val validDirections = filterLines[it.lineId] ?: return@filter false
-//
-//                return@filter validDirections.contains(it.direction)
-//            }
             .mapNotNull{ entry ->
                 try {
                     Log.i("ARRIVAL-INFO", entry.expectedArrivalString!!)
-                    Model(
+                    TflModel(
                         operatorName = "TfL",
                         serviceName = processServiceName(entry.lineName!!),
                         destinationName = processDestinationName(entry.destinationName!!),
@@ -148,7 +141,9 @@ class TflApi: Api {
                                 .from(responseTimeFormatter.parse(entry.expectedArrivalString))
                                 .atOffset(ZoneOffset.UTC)
                                 .atZoneSameInstant(ZoneId.systemDefault())
-                                .toLocalDateTime()
+                                .toLocalDateTime(),
+                        lineId = entry.lineId!!,
+                        direction = entry.direction!!,
                     )
                 } catch (e: Exception) {
                     Log.e("ARRIVAL-INFO", e.message.toString())
