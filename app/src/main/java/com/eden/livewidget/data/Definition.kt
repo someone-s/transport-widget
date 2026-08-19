@@ -3,8 +3,6 @@ package com.eden.livewidget.data
 import android.content.Context
 import com.eden.livewidget.data.common.arrivals.DataSource as ArrivalsDataSource
 import com.eden.livewidget.data.common.arrivals.Constructors as ArrivalsConstructors
-import com.eden.livewidget.data.common.arrivals.api.Api
-import com.eden.livewidget.data.common.arrivals.filter.Constructors as FilterConstructors
 import com.eden.livewidget.data.common.keys.KeyProviderConstructors
 import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.ObscuredKeyProvider
@@ -12,21 +10,24 @@ import com.eden.livewidget.data.common.points.Constructors as PointsConstructors
 import com.eden.livewidget.data.common.points.Value as PointsValue
 import com.eden.livewidget.data.common.points.datasource.RemoteDataSource as PointsRemoteDataSource
 import com.eden.livewidget.data.common.points.cache.DatabaseProvider
+import com.eden.livewidget.data.rdg.arrivals.filter.destination.RdgPreFetchExecutor
 import com.eden.livewidget.data.common.arrivals.filter.destination.Value as FilterDestinationValue
+import com.eden.livewidget.data.rdg.arrivals.api.RdgApi as ArrivalsRdgApi
+import com.eden.livewidget.data.rdg.arrivals.filter.destination.RdgValue as FilterDestinationRdgValue
+import com.eden.livewidget.data.rdg.arrivals.filter.destination.RdgCompiler as DestinationRdgCompiler
 import com.eden.livewidget.data.rdg.points.RdgValue as PointsRdgValue
 import com.eden.livewidget.data.rdg.points.cache.RdgDatabase
 import com.eden.livewidget.data.rdg.points.cache.RdgDatabaseInfo
+import com.eden.livewidget.data.rdg.points.api.RdgApi as PointsRdgApi
+import com.eden.livewidget.data.tfl.arrivals.api.TflApi as ArrivalsTflApi
 import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflPostFetchExecutor
 import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflPreFetchExecutor
-import com.eden.livewidget.data.rdg.points.api.RdgApi as PointsRdgApi
-import com.eden.livewidget.data.rdg.arrivals.api.RdgApi as ArrivalsRdgApi
 import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflValue as FilterDestinationTflValue
+import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflCompiler as DestinationTflCompiler
 import com.eden.livewidget.data.tfl.points.TflValue as PointsTflValue
 import com.eden.livewidget.data.tfl.points.cache.TflDatabase
 import com.eden.livewidget.data.tfl.points.cache.TflDatabaseInfo
 import com.eden.livewidget.data.tfl.points.api.TflApi as PointsTflApi
-import com.eden.livewidget.data.tfl.arrivals.api.TflApi as ArrivalsTflApi
-import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflCompiler as DestinationTflCompiler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -42,6 +43,7 @@ val format = Json {
         }
         polymorphic(FilterDestinationValue::class) {
             subclass(FilterDestinationTflValue::class)
+            subclass(FilterDestinationRdgValue::class)
         }
     }
 }
@@ -117,12 +119,18 @@ enum class Provider(
                 )
             },
             destinationCompilerConstructor = {
-                DestinationTflCompiler()
+                DestinationRdgCompiler()
             },
             preFetchExecutorConstructor = { state ->
-                listOf()
+                listOf(
+                    RdgPreFetchExecutor(
+                        values = state.destinationFilters
+                            .flatMap { it.values!! }
+                            .map { it as FilterDestinationRdgValue }
+                    )
+                )
             },
-            postFetchExecutorConstructor = { state ->
+            postFetchExecutorConstructor = { _ ->
                 listOf()
             },
         ),

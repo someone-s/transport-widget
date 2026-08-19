@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("p-rdg")
-class RdgValue(
+open class RdgValue(
     @SerialName("c")
     val crsCode: String,
 ): Value {

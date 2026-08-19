@@ -8,7 +8,7 @@ import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.getKeyProviderConstructor
 import com.eden.livewidget.data.common.points.Value
-import com.eden.livewidget.data.rdg.points.RdgValue
+import com.eden.livewidget.data.rdg.arrivals.AugmentedRdgValue
 import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -78,7 +78,11 @@ private interface RdgApiService {
         @Query("numRows")
         maxCount: Int,
         @Query("timeWindow")
-        timeWindowMinutes: Int
+        timeWindowMinutes: Int,
+        @Query("filterCRS")
+        filterCrsCode: String? = null,
+        @Query("filterType")
+        filterMode: String? = null,
     ): Call<RdgDepartureResponse>
 }
 
@@ -94,7 +98,9 @@ class RdgApi : Api {
     ): List<Model> {
 
         assert(values.size == 1)
-        val crsCode = (values[0] as RdgValue).crsCode
+        val value = values[0] as AugmentedRdgValue
+        val crsCode = value.crsCode
+        val toCrsCodes = value.toCrsCodes
 
         val currentTime = LocalDateTime.now()
         val requestTimeFormatter = DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss")
@@ -102,20 +108,42 @@ class RdgApi : Api {
 
         Log.i(this.javaClass.name, "Data fetching")
 
+        return if (toCrsCodes.isEmpty())
+            fetchIteration(context, crsCode, currentTimeText, currentTime)
+        else
+            toCrsCodes
+                .flatMap { toCrsCode ->
+                    fetchIteration(context, crsCode, currentTimeText, currentTime, toCrsCode)
+                }
+                .sortedBy { model -> model.remainingS }
+                .distinct()
+    }
+
+    private fun fetchIteration(
+        context: Context,
+        crsCode: String,
+        currentTimeText: String,
+        currentTime: LocalDateTime?,
+        toCrsCode: String? = null,
+    ): List<Model> {
         val headers = mapOf(
             "x-apikey" to Provider.RDG
                 .keyProviders.getKeyProviderConstructor(KeyPurpose.ARRIVALS)!!()
                 .getKey(context)
         )
         val request = service.getDepartureBoardWithDetails(
-            headers,
-            crsCode,
-            currentTimeText,
-            30,
-            60
+            headers = headers,
+            crsCode = crsCode,
+            timeText = currentTimeText,
+            maxCount = 30,
+            timeWindowMinutes = 60,
+            filterCrsCode = toCrsCode,
+            filterMode = if (toCrsCode != null) "to" else null,
         )
 
-        val response = try { request.execute() } catch (e: IOException) {
+        val response = try {
+            request.execute()
+        } catch (e: IOException) {
             Log.w(this.javaClass.name, e.message ?: "mo error message")
             throw Api.UnresolvedException("Unable to reach server")
         }
@@ -183,7 +211,6 @@ class RdgApi : Api {
                     null
                 }
             }
-            .sortedBy { model -> model.remainingS }
     }
 
     private val stripViaTextRegex = Regex("[Vv]ia ")

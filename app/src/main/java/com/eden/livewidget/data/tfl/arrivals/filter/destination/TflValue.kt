@@ -7,8 +7,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("f-d-tfl")
 class TflValue(
+    @SerialName("l")
     val lineId: String,
+    @SerialName("f")
     val fromNaptanId: String,
+    @SerialName("d")
     val direction: String,
 ): Value {
 }
