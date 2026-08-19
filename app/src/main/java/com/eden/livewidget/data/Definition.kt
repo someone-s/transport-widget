@@ -1,6 +1,5 @@
 package com.eden.livewidget.data
 
-import android.content.Context
 import com.eden.livewidget.data.common.arrivals.DataSource as ArrivalsDataSource
 import com.eden.livewidget.data.common.arrivals.Constructors as ArrivalsConstructors
 import com.eden.livewidget.data.common.keys.KeyProviderConstructors
