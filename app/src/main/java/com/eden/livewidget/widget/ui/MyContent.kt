@@ -12,6 +12,8 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.components.Scaffold
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
+import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
@@ -42,11 +44,14 @@ enum class MyContentMode {
 fun MyContent(
     mode: MyContentMode,
     widgetId: Int,
-    displayName: String,
+    fromName: String,
+    toNames: List<String>,
     agency: Agency?,
     lastUpdate: LocalDateTime?,
     lastValidData: List<Model>,
 ) {
+
+    val context = LocalContext.current
 
     val configIntent = getExplicitConfigIntent(widgetId)
 
@@ -57,7 +62,7 @@ fun MyContent(
             .clickable(
                 onClick = actionStartActivity(configIntent)
             ),
-        horizontalPadding = 16.dp,
+        horizontalPadding = 0.dp,
         titleBar = {
             Row(
                 modifier = GlanceModifier
@@ -69,36 +74,53 @@ fun MyContent(
                         bottom = 8.dp
                     ),
                 horizontalAlignment = Alignment.Start,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top,
             ) {
-                Text(
+                Column(
                     modifier = GlanceModifier
                         .defaultWeight(),
-                    text = displayName,
-                    style = TextStyle(
-                        color = GlanceTheme.colors.onBackground,
-                        fontSize = 25.sp,
-                    ),
+                ) {
+                    Text(
+                        text = fromName,
+                        style = TextStyle(
+                            color = GlanceTheme.colors.onBackground,
+                            fontSize = 25.sp,
+                        ),
 
-                    maxLines = 1
-                )
-
+                        maxLines = 1
+                    )
+                    if (toNames.isNotEmpty())
+                        ToGroup(context, toNames)
+                }
                 if (mode != MyContentMode.PAUSED_OK_READY)
                     ControlGroup(mode, widgetId, lastUpdate)
             }
         }
     ) {
-        when (mode) {
-            MyContentMode.ACTIVE_VALID -> ActiveValidBlock(lastValidData)
-            MyContentMode.ACTIVE_UNINITIALIZED -> ActiveUnInitializedBlock()
-            MyContentMode.ACTIVE_RETRY -> ActiveRetryBlock()
-            MyContentMode.PAUSED_OK_READY -> ReadyBlock()
-            MyContentMode.PAUSED_ERROR_METERED -> MeteredErrorBlock()
-            MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
-            MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock()
-            MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock()
-            MyContentMode.PAUSED_ERROR_AUTHENTICATE -> AuthenticateErrorBlock(agency)
-            MyContentMode.PAUSED_ERROR_UNKNOWN -> UnknownErrorBlock()
+        Box(
+            modifier = GlanceModifier
+                .fillMaxSize()
+        ) {
+            Box(
+                modifier = GlanceModifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                when (mode) {
+                    MyContentMode.ACTIVE_VALID -> ActiveValidBlock(lastValidData)
+                    MyContentMode.ACTIVE_UNINITIALIZED -> ActiveUnInitializedBlock()
+                    MyContentMode.ACTIVE_RETRY -> ActiveRetryBlock()
+                    MyContentMode.PAUSED_OK_READY -> ReadyBlock()
+                    MyContentMode.PAUSED_ERROR_METERED -> MeteredErrorBlock()
+                    MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
+                    MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock()
+                    MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock()
+                    MyContentMode.PAUSED_ERROR_AUTHENTICATE -> AuthenticateErrorBlock(agency)
+                    MyContentMode.PAUSED_ERROR_UNKNOWN -> UnknownErrorBlock()
+                }
+            }
+
+
         }
     }
 
@@ -129,7 +151,11 @@ fun MyContentPreview() {
         MyContent(
             mode = MyContentMode.ACTIVE_VALID,
             widgetId = -1,
-            displayName = "Display name",
+            fromName = "Display name",
+            toNames = listOf(
+                "Destination One",
+                "Destination Two",
+            ),
             agency = null,
             lastUpdate = null,
             lastValidData = listOf(

@@ -157,4 +157,7 @@
     <string name="config_ui_destination_itemdeletebackground_action">Delete</string>
     <string name="config_ui_destination_item_input_placeholder">Search for destination</string>
     <string name="config_ui_destination_addbutton_input_placeholder">Search for destination</string>
+    <string name="widget_ui_togroup_separator">, </string>
+    <string name="widget_ui_mockcontent_destination_0_name">Shepherd\'s Bush</string>
+    <string name="widget_ui_togroup_filter">Filtered by</string>
 </resources>

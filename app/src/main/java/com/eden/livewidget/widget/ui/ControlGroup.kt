@@ -19,6 +19,7 @@ import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.size
 import androidx.glance.layout.width
@@ -46,50 +47,51 @@ fun ControlGroup(
             MyContentMode.ACTIVE_RETRY -> true
             else -> false
         }
-
-    FilledButton(
-        icon =
-            if (isActive)
-                ImageProvider(R.drawable.ic_widget_refresh)
-            else
-                ImageProvider(R.drawable.ic_shared_outlined_warning),
-        text =
-            lastUpdate?.format(timeFormatter) ?: timeInvalid,
-        colors =
-            if (isActive)
-                ButtonDefaults.buttonColors()
-            else
-                ButtonDefaults.buttonColors(
-                    backgroundColor = GlanceTheme.colors.error,
-                    contentColor = GlanceTheme.colors.onError
-                ),
-        onClick = actionRunCallback<UpdateBeginCallback>(),
-        maxLines = 1
-    )
-
-    if (isActive) {
-
-        Spacer(
-            modifier = GlanceModifier.width(2.dp)
+    Row {
+        FilledButton(
+            icon =
+                if (isActive)
+                    ImageProvider(R.drawable.ic_widget_refresh)
+                else
+                    ImageProvider(R.drawable.ic_shared_outlined_warning),
+            text =
+                lastUpdate?.format(timeFormatter) ?: timeInvalid,
+            colors =
+                if (isActive)
+                    ButtonDefaults.buttonColors()
+                else
+                    ButtonDefaults.buttonColors(
+                        backgroundColor = GlanceTheme.colors.error,
+                        contentColor = GlanceTheme.colors.onError
+                    ),
+            onClick = actionRunCallback<UpdateBeginCallback>(),
+            maxLines = 1,
         )
 
-        val explicitUpdateCancelIntent =
-                getExplicitUpdateCancelIntent(LocalContext.current, widgetId)
+        if (isActive) {
 
-        Box(
-            modifier = GlanceModifier
-                .size(40.dp)
-                .cornerRadius(20.dp)
-                .background(GlanceTheme.colors.tertiary)
-                .clickable(actionSendBroadcast(explicitUpdateCancelIntent)),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                provider = ImageProvider(R.drawable.ic_shared_outlined_pause),
-                contentDescription = LocalContext.current.getString(R.string.widget_pause_button_icon),
-                colorFilter = ColorFilter.tint(GlanceTheme.colors.onTertiary),
-                modifier = GlanceModifier.size(16.dp)
+            Spacer(
+                modifier = GlanceModifier.width(2.dp)
             )
+
+            val explicitUpdateCancelIntent =
+                    getExplicitUpdateCancelIntent(LocalContext.current, widgetId)
+
+            Box(
+                modifier = GlanceModifier
+                    .size(40.dp)
+                    .cornerRadius(20.dp)
+                    .background(GlanceTheme.colors.tertiary)
+                    .clickable(actionSendBroadcast(explicitUpdateCancelIntent)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    provider = ImageProvider(R.drawable.ic_shared_outlined_pause),
+                    contentDescription = LocalContext.current.getString(R.string.widget_pause_button_icon),
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onTertiary),
+                    modifier = GlanceModifier.size(16.dp)
+                )
+            }
         }
     }
 }

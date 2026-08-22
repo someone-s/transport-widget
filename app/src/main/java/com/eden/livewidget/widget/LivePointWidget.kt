@@ -151,6 +151,17 @@ class LivePointWidget : GlanceAppWidget() {
                 val updateTime = if (fetchResultOptions != FETCH_PENDING) arrivalsData.lastUpdate else null
 
                 MyContent(mode, widgetId, displayName, agency, updateTime, arrivalsData.lastValidData)
+                val destinationNames = filterState.destinationFilters.map { filter -> filter.toPoint.name }
+
+                MyContent(
+                    mode = mode,
+                    widgetId = widgetId,
+                    fromName = displayName,
+                    toNames = destinationNames,
+                    agency = agency,
+                    lastUpdate = updateTime,
+                    lastValidData =  arrivalsData.lastValidData,
+                )
             }
         }
     }
