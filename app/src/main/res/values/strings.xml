@@ -160,4 +160,5 @@
     <string name="widget_ui_togroup_separator">, </string>
     <string name="widget_ui_mockcontent_destination_0_name">Shepherd\'s Bush</string>
     <string name="widget_ui_togroup_filter">Filtered by</string>
+    <string name="widget_ui_mycontent_edit">Edit</string>
 </resources>

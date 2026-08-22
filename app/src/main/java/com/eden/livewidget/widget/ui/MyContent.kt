@@ -5,8 +5,11 @@ import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -23,6 +26,7 @@ import androidx.glance.preview.Preview
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.Agency
+import com.eden.livewidget.R
 import com.eden.livewidget.config.ConfigActivity
 import com.eden.livewidget.data.common.arrivals.Model
 import java.time.LocalDateTime
@@ -94,6 +98,17 @@ fun MyContent(
                 }
                 if (mode != MyContentMode.PAUSED_OK_READY)
                     ControlGroup(mode, widgetId, lastUpdate)
+                else
+                    Box(
+                        modifier = GlanceModifier
+                            .padding(4.dp)
+                    ) {
+                        Image(
+                            provider = ImageProvider(R.drawable.edit),
+                            contentDescription = context.getString(R.string.widget_ui_mycontent_edit),
+                            colorFilter = ColorFilter.tint(GlanceTheme.colors.onBackground)
+                        )
+                    }
             }
         }
     ) {
@@ -149,7 +164,7 @@ private fun getExplicitConfigIntent(widgetId: Int): Intent {
 fun MyContentPreview() {
     GlanceTheme {
         MyContent(
-            mode = MyContentMode.ACTIVE_VALID,
+            mode = MyContentMode.PAUSED_OK_READY,
             widgetId = -1,
             fromName = "Display name",
             toNames = listOf(
