@@ -9,13 +9,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
@@ -26,7 +24,6 @@ import com.eden.livewidget.Agency
 import com.eden.livewidget.agencyFromString
 import com.eden.livewidget.agencyToString
 import com.eden.livewidget.config.ui.ConfigScreen
-import com.eden.livewidget.data.common.arrivals.filter.destination.Compiler as DestinationCompiler
 import com.eden.livewidget.data.common.arrivals.filter.State
 import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
 import com.eden.livewidget.data.common.points.Model
@@ -34,7 +31,6 @@ import com.eden.livewidget.data.format
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.widget.LivePointWidget
 import com.eden.livewidget.widget.update.UpdateScheduler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -136,12 +132,18 @@ class ConfigActivity: ComponentActivity() {
                             }
                             setAnyChanges(true)
                         },
-                        updateDestinationFilter = function(
-                            destinationFilters,
-                            coroutineScope,
-                            destinationFilterCompiler,
-                            setAnyChanges
-                        ),
+                        updateDestinationFilter = { id, newFilter ->
+                            destinationFilters[id] = newFilter
+                            coroutineScope.launch {
+                                if (destinationFilterCompiler == null) return@launch
+
+                                val compiledFilter = withContext(Dispatchers.IO) {
+                                    destinationFilterCompiler.compileFilter(newFilter)
+                                }
+                                destinationFilters.replace(id, compiledFilter)
+                            }
+                            setAnyChanges(true)
+                        },
                         removeDestinationFilter = { id ->
                             destinationFilters.remove(id)
                             setAnyChanges(true)
@@ -175,28 +177,6 @@ class ConfigActivity: ComponentActivity() {
             }
         }
     }
-
-    @Composable
-    private fun function(
-        destinationFilters: SnapshotStateMap<Uuid, Filter>,
-        coroutineScope: CoroutineScope,
-        destinationFilterCompiler: DestinationCompiler?,
-        setAnyChanges: (Boolean) -> Unit
-    ): (Uuid, Filter) -> Unit {
-        return { id, newFilter ->
-            destinationFilters[id] = newFilter
-            coroutineScope.launch {
-                if (destinationFilterCompiler == null) return@launch
-
-                val compiledFilter = withContext(Dispatchers.IO) {
-                    destinationFilterCompiler.compileFilter(newFilter)
-                }
-                destinationFilters.replace(id, compiledFilter)
-            }
-            setAnyChanges(true)
-        }
-    }
-
 
     private suspend fun createWidget(
         context: Context,
