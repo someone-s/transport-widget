@@ -35,7 +35,7 @@ class LivePointWidget : GlanceAppWidget() {
         val VALUES_KEY = stringPreferencesKey("values:0")
         val NAME_KEY = stringPreferencesKey("name:0")
         val FETCH_STATE_KEY = stringPreferencesKey("fetchState:0")
-        val FILTER_STATE_KEY = stringPreferencesKey("filterState:2")
+        val FILTER_STATE_KEY = stringPreferencesKey("filterState:4")
 
         const val FETCH_PENDING = "pending"
         const val FETCH_RESULT_ERROR_UNKNOWN = "result-error-unknown"

@@ -13,5 +13,7 @@ class TflValue(
     val fromNaptanId: String,
     @SerialName("d")
     val direction: String,
+    @SerialName("t")
+    val finalNaptanIds: List<String>,
 ): Value {
 }

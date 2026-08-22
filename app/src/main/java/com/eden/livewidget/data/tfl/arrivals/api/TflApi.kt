@@ -29,6 +29,8 @@ private data class TflEntry(
     val lineName: String?,
     @SerializedName("platformName")
     val platformName: String?,
+    @SerializedName("destinationNaptanId")
+    val finalNaptanId: String?,
     @SerializedName("destinationName")
     val destinationName: String?,
     @SerializedName("direction")
@@ -39,17 +41,22 @@ private data class TflEntry(
     val timeToStation: Int?,
     @SerializedName("expectedArrival")
     val expectedArrivalString: String?,
+    @SerializedName("modeName")
+    val modeName: String?,
 ) {
     fun isValid() =
         lineId != null &&
         lineName != null &&
         platformName != null &&
+        finalNaptanId != null &&
         destinationName != null &&
         direction != null &&
         towards != null &&
         timeToStation != null &&
-        expectedArrivalString != null
+        expectedArrivalString != null &&
+        modeName != null
 }
+
 private const val BASE_URL = "https://api.tfl.gov.uk"
 
 private val retrofit = Retrofit.Builder()
@@ -67,17 +74,6 @@ private interface TflApiService {
 
 
 class TflApi: Api {
-
-//    private val filterLines: Map<String, List<String>> =
-//        filterState.destinationFilters
-//            .mapNotNull { filter -> filter.filterValue }
-//            .flatMap { filterString -> LineWithDirection.deserializeList(filterString) }
-//            .groupBy(
-//                keySelector = { lineWithDirection -> lineWithDirection.lineId },
-//                valueTransform = { lineWithDirection -> lineWithDirection.direction }
-//            )
-
-
     private val service: TflApiService by lazy {
         retrofit.create(TflApiService::class.java)
     }
@@ -123,16 +119,14 @@ class TflApi: Api {
         val responseTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss'Z'")
 
         return entries
-            .filter {
-                it.isValid()
-            }
+            .filter { it.isValid() }
             .mapNotNull{ entry ->
                 try {
                     Log.i("ARRIVAL-INFO", entry.expectedArrivalString!!)
                     TflModel(
                         operatorName = "TfL",
                         serviceName = processServiceName(entry.lineName!!),
-                        destinationName = processDestinationName(entry.destinationName!!),
+                        destinationName = entry.destinationName!!,
                         viaText = if (entry.towards!! != "null") entry.towards else "",
                         platformName = processPlatformName(entry.platformName!!),
                         remainingS = max(0, entry.timeToStation!! - 60),
@@ -142,8 +136,10 @@ class TflApi: Api {
                                 .atOffset(ZoneOffset.UTC)
                                 .atZoneSameInstant(ZoneId.systemDefault())
                                 .toLocalDateTime(),
+                        modeName = entry.modeName!!,
                         lineId = entry.lineId!!,
                         direction = entry.direction!!,
+                        finalNaptanId = entry.finalNaptanId!!,
                     )
                 } catch (e: Exception) {
                     Log.e("ARRIVAL-INFO", e.message.toString())
@@ -151,11 +147,6 @@ class TflApi: Api {
                 }
             }
             .sortedBy { model -> model.remainingS }
-    }
-
-    private val stripDestinationNameRegex = Regex("( Underground Station)|(, Bus Station)|( Station)|( DLR)")
-    private fun processDestinationName(input: String): String {
-        return stripDestinationNameRegex.replace(input, "")
     }
 
     private val stripPlatformDirectionRegex = Regex(".+?(?=Platform)|(Platform)|(\\s)")

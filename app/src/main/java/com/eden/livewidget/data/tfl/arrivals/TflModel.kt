@@ -11,8 +11,10 @@ class TflModel(
     platformName: String,
     remainingS: Int,
     expectedDateTime: LocalDateTime,
+    val modeName: String,
     val lineId: String,
     val direction: String,
+    val finalNaptanId: String,
 ): Model(
     operatorName = operatorName,
     serviceName = serviceName,
