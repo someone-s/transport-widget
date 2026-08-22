@@ -1,0 +1,3 @@
+Ability to filter departures by stops
+Redesigned widget configuration screen
+Fix widget in invalid state when added

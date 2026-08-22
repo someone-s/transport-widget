@@ -1,3 +1,5 @@
+![Banner](fastlane/metadata/android/en-US/images/featureGraphic.png)
+
 # Transport Widget
 
 Available for England, Scotland, and Wales rail services and London buses, tube, and riverbus services
@@ -14,9 +16,9 @@ Android (F-Droid)                            |	Android (Release Page)
 ## Screenshots
 
 
-|                                            Widget |                 Search Screen                  |                  Provider Screen                   | About Screen                                 |
-|--------------------------------------------------:|:----------------------------------------------:|:--------------------------------------------------:|:---------------------------------------------|
-| ![Provider Screen](screenshot/widget-running.png) | ![Provider Screen](screenshot/widget-edit.png) | ![Provider Screen](screenshot/provider-screen.png) | ![About Screen](screenshot/about-screen.png) |
+|                                            Widget |                 Config Screen                  |                  Home Screen                   | About Screen                                 |
+|--------------------------------------------------:|:----------------------------------------------:|:----------------------------------------------:|:---------------------------------------------|
+| ![Provider Screen](fastlane/metadata/android/en-US/images/phoneScreenshots/1.png) | ![Config Screen](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png) | ![Home Screen](fastlane/metadata/android/en-US/images/phoneScreenshots/2.png) | ![About Screen](/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png) |
 
 ## Adding Widgets
 Widgets can be added to the home screen from the home screen or from the app (Android 8+).
