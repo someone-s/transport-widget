@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,11 +71,37 @@ fun SourceContainer(
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
 
-                if (agency.apiProvider.keyProviders.isNotEmpty()) {
-                    SourceKeyConfigItems(context, agency, setCurrentInputKeyAction, setCurrentKeyValueAction, setInputKeyState)
+                val showKeyConfig = agency.apiProvider.keyProviders.isNotEmpty()
+                if (showKeyConfig) {
+                    SourceKeyConfigItems(
+                        context,
+                        agency,
+                        setCurrentInputKeyAction,
+                        setCurrentKeyValueAction,
+                        setInputKeyState,
+                        ListItemDefaults.segmentedShapes(0, 3),
+                    )
                 }
-                SourceDownloadItems(context, agency, setCurrentDownloadAction, setDownloadWarningState)
-                SourceResetItem(context, agency, setCurrentResetAction, setResetWarningState)
+                SourceDownloadItems(
+                    context,
+                    agency,
+                    setCurrentDownloadAction,
+                    setDownloadWarningState,
+                    if (showKeyConfig)
+                        ListItemDefaults.segmentedShapes(1, 3)
+                    else
+                        ListItemDefaults.segmentedShapes(0, 2),
+                )
+                SourceResetItem(
+                    context,
+                    agency,
+                    setCurrentResetAction,
+                    setResetWarningState,
+                    if (showKeyConfig)
+                        ListItemDefaults.segmentedShapes(2, 3)
+                    else
+                        ListItemDefaults.segmentedShapes(1, 2),
+                )
             }
         }
     }

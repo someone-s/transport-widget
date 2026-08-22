@@ -16,8 +16,11 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
 import com.eden.livewidget.Agency
 import com.eden.livewidget.agencyFromString
-import com.eden.livewidget.data.arrivals.ArrivalsData
-import com.eden.livewidget.data.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.common.arrivals.Data
+import com.eden.livewidget.data.common.arrivals.Repository
+import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.format
+import com.eden.livewidget.data.common.arrivals.filter.emptyState as emptyFilterState
 import com.eden.livewidget.widget.ui.MockContent
 import com.eden.livewidget.widget.ui.MyContent
 import com.eden.livewidget.widget.ui.MyContentMode
@@ -28,10 +31,11 @@ class LivePointWidget : GlanceAppWidget() {
 
     companion object {
 
-        val AGENCY_KEY = stringPreferencesKey("agency")
-        val API_VALUE_KEY = stringPreferencesKey("apiValue")
-        val DISPLAY_NAME_KEY = stringPreferencesKey("displayName")
-        val FETCH_STATE_KEY = stringPreferencesKey("inactiveText")
+        val AGENCY_KEY = stringPreferencesKey("agency:0")
+        val VALUES_KEY = stringPreferencesKey("values:0")
+        val NAME_KEY = stringPreferencesKey("name:0")
+        val FETCH_STATE_KEY = stringPreferencesKey("fetchState:0")
+        val FILTER_STATE_KEY = stringPreferencesKey("filterState:2")
 
         const val FETCH_PENDING = "pending"
         const val FETCH_RESULT_ERROR_UNKNOWN = "result-error-unknown"
@@ -55,12 +59,13 @@ class LivePointWidget : GlanceAppWidget() {
 
         provideContent {
             GlanceTheme {
+                Log.i(javaClass.name, "Restart")
+
                 val agencyString = currentState(AGENCY_KEY)
                 if (agencyString == null) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
-
                 val agency = try {
                     agencyFromString(agencyString) as Agency
                 } catch (_: Exception) {
@@ -68,21 +73,44 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
-                val apiValue = currentState(API_VALUE_KEY)
-                if (apiValue == null) {
+                val valuesString = currentState(VALUES_KEY)
+                val values: List<Value> = try {
+                    checkNotNull(valuesString)
+                    format.decodeFromString(valuesString)
+                } catch (_: Exception) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
 
-                val displayName = currentState(DISPLAY_NAME_KEY)
+                val displayName = currentState(NAME_KEY)
                 if (displayName == null) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
 
+
+                val filterStateString = currentState(FILTER_STATE_KEY)
+                val filterState = try {
+                    if (filterStateString == null)
+                        emptyFilterState()
+                    else
+                        format.decodeFromString(filterStateString)
+                } catch (_: Exception) {
+                    emptyFilterState()
+                }
+
                 val fetchResultOptions = currentState(FETCH_STATE_KEY)
 
-                val repository = ArrivalsRepository.getInstance(agency.apiProvider, apiValue)
+                val repository = Repository.getInstance(
+                    key = Repository.Companion.Key(
+                        agencyString = agencyString,
+                        valuesString = valuesString,
+                        filterStateString = filterStateString ?: "",
+                    ),
+                    provider = agency.apiProvider,
+                    values = values,
+                    filterState = filterState
+                )
                 val arrivalsData by repository.arrivalsData.collectAsState()
 
                 val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
@@ -98,8 +126,9 @@ class LivePointWidget : GlanceAppWidget() {
                             FETCH_RESULT_RAN_SKIPPED,
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
-                                    ArrivalsData.Validity.VALID -> MyContentMode.ACTIVE_VALID
-                                    ArrivalsData.Validity.INVALID -> MyContentMode.ACTIVE_UNINITIALIZED
+                                    Data.Validity.VALID -> MyContentMode.ACTIVE_VALID
+                                    Data.Validity.INVALID,
+                                    Data.Validity.UNINITIALIZED -> MyContentMode.ACTIVE_UNINITIALIZED
                                 }
                             else -> MyContentMode.ACTIVE_RETRY
                         }
@@ -108,8 +137,9 @@ class LivePointWidget : GlanceAppWidget() {
                             FETCH_RESULT_RAN_SKIPPED,
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
-                                    ArrivalsData.Validity.VALID -> MyContentMode.PAUSED_OK_READY
-                                    ArrivalsData.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                                    Data.Validity.UNINITIALIZED,
+                                    Data.Validity.VALID -> MyContentMode.PAUSED_OK_READY
+                                    Data.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
                                 }
                             FETCH_RESULT_ERROR_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
                             FETCH_RESULT_ERROR_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
@@ -122,7 +152,17 @@ class LivePointWidget : GlanceAppWidget() {
 
                 val updateTime = if (fetchResultOptions != FETCH_PENDING) arrivalsData.lastUpdate else null
 
-                MyContent(mode, widgetId, displayName, agency, updateTime, arrivalsData.lastValidData)
+                val destinationNames = filterState.destinationFilters.map { filter -> filter.toPoint.name }
+
+                MyContent(
+                    mode = mode,
+                    widgetId = widgetId,
+                    fromName = displayName,
+                    toNames = destinationNames,
+                    agency = agency,
+                    lastUpdate = updateTime,
+                    lastValidData =  arrivalsData.lastValidData,
+                )
             }
         }
     }

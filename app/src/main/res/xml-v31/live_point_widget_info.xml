@@ -7,7 +7,7 @@
     android:updatePeriodMillis="0"
     android:description="@string/live_point_widget_description"
     android:initialLayout="@layout/glance_default_loading_layout"
-    android:configure="com.eden.livewidget.configurator.LivePointWidgetConfigurationActivity"
+    android:configure="com.eden.livewidget.config.ConfigActivity"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:widgetFeatures="reconfigurable">
