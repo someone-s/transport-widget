@@ -127,7 +127,8 @@ class LivePointWidget : GlanceAppWidget() {
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
                                     Data.Validity.VALID -> MyContentMode.ACTIVE_VALID
-                                    Data.Validity.INVALID -> MyContentMode.ACTIVE_UNINITIALIZED
+                                    Data.Validity.INVALID,
+                                    Data.Validity.UNINITIALIZED -> MyContentMode.ACTIVE_UNINITIALIZED
                                 }
                             else -> MyContentMode.ACTIVE_RETRY
                         }
@@ -136,6 +137,7 @@ class LivePointWidget : GlanceAppWidget() {
                             FETCH_RESULT_RAN_SKIPPED,
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
+                                    Data.Validity.UNINITIALIZED,
                                     Data.Validity.VALID -> MyContentMode.PAUSED_OK_READY
                                     Data.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
                                 }
@@ -150,7 +152,6 @@ class LivePointWidget : GlanceAppWidget() {
 
                 val updateTime = if (fetchResultOptions != FETCH_PENDING) arrivalsData.lastUpdate else null
 
-                MyContent(mode, widgetId, displayName, agency, updateTime, arrivalsData.lastValidData)
                 val destinationNames = filterState.destinationFilters.map { filter -> filter.toPoint.name }
 
                 MyContent(
