@@ -11,6 +11,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,14 +30,13 @@ fun SourceKeyConfigItems(
     agency: Agency,
     setCurrentInputKeyAction: (((String) -> Unit)?) -> Unit,
     setCurrentKeyValue: (String) -> Unit,
-    setInputKeyState: (Boolean) -> Unit
+    setInputKeyState: (Boolean) -> Unit,
+    shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
     var isConfigureExpanded by remember { mutableStateOf(false) }
 
     ListItem(
-        shapes = ListItemDefaults.shapes(
-            shape = MaterialTheme.shapes.medium
-        ),
+        shapes = shapes,
         leadingContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_shared_outlined_key),

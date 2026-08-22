@@ -49,7 +49,7 @@
             tools:node="merge" />
 
         <activity
-            android:name=".configurator.LivePointWidgetConfigurationActivity"
+            android:name=".config.ConfigActivity"
             android:exported="false"
             android:label="@string/live_point_widget_configuration_activity_label">
             <intent-filter>

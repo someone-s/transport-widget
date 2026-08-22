@@ -9,8 +9,11 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.eden.livewidget.data.arrivals.ArrivalsRepository
-import com.eden.livewidget.data.providerFromString
+import com.eden.livewidget.agencyFromString
+import com.eden.livewidget.data.common.arrivals.Repository
+import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.format
+import com.eden.livewidget.data.common.arrivals.filter.emptyState as emptyFilterState
 import com.eden.livewidget.widget.LivePointWidget
 
 enum class UpdateResult(val widgetValue: String) {
@@ -63,22 +66,48 @@ private suspend fun updateData(
     // PreferencesGlanceStateDefinition is the default state definition used
     val preferences = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
 
-    val apiProvider = providerFromString(preferences[LivePointWidget.AGENCY_KEY])
-        ?: return UpdateResult.ERROR_UNKNOWN
+    val agencyString = preferences[LivePointWidget.AGENCY_KEY]
+    val agency = try {
+        checkNotNull(agencyString)
+        agencyFromString(agencyString)!!
+    } catch (_: Exception) {
+        return UpdateResult.ERROR_UNKNOWN
+    }
 
-    val apiValue = preferences[LivePointWidget.API_VALUE_KEY]
-        ?: return UpdateResult.ERROR_UNKNOWN
+    val valuesString = preferences[LivePointWidget.VALUES_KEY]
+    val values: List<Value> = try {
+        checkNotNull(valuesString)
+        format.decodeFromString(valuesString)
+    } catch (_: Exception) {
+        return UpdateResult.ERROR_UNKNOWN
+    }
+
+    val filterStateString = preferences[LivePointWidget.FILTER_STATE_KEY]
+    val filterState =
+        if (filterStateString == null)
+            emptyFilterState()
+        else
+            format.decodeFromString(filterStateString)
 
     try {
         // Update data source
-        val repository = ArrivalsRepository.getInstance(apiProvider, apiValue)
+        val repository = Repository.getInstance(
+            key = Repository.Companion.Key(
+                agencyString = agencyString,
+                valuesString = valuesString,
+                filterStateString = filterStateString ?: "",
+            ),
+            provider = agency.apiProvider,
+            values = values,
+            filterState = filterState
+        )
         val result = repository.fetchLatestArrival(context)
 
         return when (result) {
-            ArrivalsRepository.FetchResult.SUCCESS -> UpdateResult.RAN_COMPLETED
-            ArrivalsRepository.FetchResult.ERROR_AUTHENTICATION -> UpdateResult.ERROR_AUTHENTICATION
-            ArrivalsRepository.FetchResult.ERROR_UNREACHABLE -> UpdateResult.ERROR_UNREACHABLE
-            ArrivalsRepository.FetchResult.ERROR_UNRESOLVED -> identifyMeteredNetworkIssue(context)
+            Repository.FetchResult.SUCCESS -> UpdateResult.RAN_COMPLETED
+            Repository.FetchResult.ERROR_AUTHENTICATION -> UpdateResult.ERROR_AUTHENTICATION
+            Repository.FetchResult.ERROR_UNREACHABLE -> UpdateResult.ERROR_UNREACHABLE
+            Repository.FetchResult.ERROR_UNRESOLVED -> identifyMeteredNetworkIssue(context)
         }
 
     } catch (e: Exception) {

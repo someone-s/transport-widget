@@ -27,7 +27,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.configurator.LivePointWidgetConfigurationActivity
+import com.eden.livewidget.config.ConfigActivity
 
 @Composable
 fun PlaceholderContent(context: Context?, id: GlanceId?) {
@@ -35,7 +35,7 @@ fun PlaceholderContent(context: Context?, id: GlanceId?) {
     val widgetId = if (context != null && id != null) GlanceAppWidgetManager(context).getAppWidgetId(id) else -1
 
     val configureIntent = if (context != null)
-        Intent(context.applicationContext, LivePointWidgetConfigurationActivity::class.java)
+        Intent(context.applicationContext, ConfigActivity::class.java)
             .apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
