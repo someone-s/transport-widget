@@ -1,6 +1,5 @@
 package com.eden.livewidget.main.ui.datasync
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,12 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.Agency
-import com.eden.livewidget.data.common.points.datasource.CachedDataSource
 import com.eden.livewidget.data.common.points.datasource.DataSource
 
 @Composable
 fun SourceContainer(
-    context: Context?,
     agency: Agency,
     setCurrentInputKeyAction: (((String) -> Unit)?) -> Unit,
     setCurrentKeyValueAction: (String) -> Unit,

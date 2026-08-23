@@ -107,7 +107,7 @@ fun DataSyncScreen(
             ) {
             itemsIndexed(Agency.entries) { _, agency ->
                 SourceContainer(
-                    context, agency,
+                    agency,
                     setCurrentInputKeyAction, setCurrentKeyValueAction, setInputKeyState,
                     setCurrentDownloadAction, setDownloadWarningState,
                     setCurrentResetAction, setResetWarningState,

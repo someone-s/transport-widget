@@ -19,7 +19,6 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.points.datasource.CachedDataSource
 import com.eden.livewidget.data.common.points.datasource.DataSource
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.data.providerToString
@@ -111,8 +110,6 @@ class DataSyncWorker(
         }
 
     }
-
-    class UnsupportedDataSourceException(message: String?) : RuntimeException(message)
 
     // Creates an instance of ForegroundInfo which can be used to update the
     // ongoing notification.
