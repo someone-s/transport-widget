@@ -8,6 +8,7 @@ import com.eden.livewidget.data.common.keys.ObscuredKeyProvider
 import com.eden.livewidget.data.common.points.Constructors as PointsConstructors
 import com.eden.livewidget.data.common.points.Value as PointsValue
 import com.eden.livewidget.data.common.points.datasource.CachedDataSource as PointsCachedDataSource
+import com.eden.livewidget.data.common.points.datasource.DirectDataSource as PointsDirectDataSource
 import com.eden.livewidget.data.common.points.cache.DatabaseProvider
 import com.eden.livewidget.data.rdg.arrivals.filter.destination.RdgPreFetchExecutor
 import com.eden.livewidget.data.common.arrivals.filter.destination.Value as FilterDestinationValue
@@ -26,20 +27,23 @@ import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflCompiler as D
 import com.eden.livewidget.data.tfl.points.TflValue as PointsTflValue
 import com.eden.livewidget.data.tfl.points.cache.TflDatabase
 import com.eden.livewidget.data.tfl.points.cache.TflDatabaseInfo
+import com.eden.livewidget.data.transitous.arrivals.api.TransitousApi as ArrivalsTransitousApi
 import com.eden.livewidget.data.tfl.points.api.TflBufferedApi as PointsTflBufferedApi
+import com.eden.livewidget.data.transitous.points.api.TransitousDirectApi as PointsTransitousDirectApi
+import com.eden.livewidget.data.transitous.points.TransitousValue as PointsTransitousValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import java.util.EnumSet
-import kotlin.reflect.KClass
 
 val format = Json {
     serializersModule = SerializersModule {
         polymorphic(PointsValue::class) {
             subclass(PointsTflValue::class)
             subclass(PointsRdgValue::class)
+            subclass(PointsTransitousValue::class)
         }
         polymorphic(FilterDestinationValue::class) {
             subclass(FilterDestinationTflValue::class)
@@ -138,7 +142,34 @@ enum class Provider(
             EnumSet.of(KeyPurpose.POINTS) to { ObscuredKeyProvider($"${RDG.name}-${KeyPurpose.POINTS.name}") },
             EnumSet.of(KeyPurpose.ARRIVALS) to { ObscuredKeyProvider($"${RDG.name}-${KeyPurpose.ARRIVALS.name}") }
         )
-    )
+    ),
+    T00(
+        pointsConstructors = PointsConstructors(
+            dataSourceConstructor = {
+                PointsDirectDataSource(
+                    pointsDirectApi = PointsTransitousDirectApi(),
+                    ioDispatcher = Dispatchers.IO,
+                )
+            }
+        ),
+        arrivalsConstructors = ArrivalsConstructors(
+            dataSourceConstructor = {
+                ArrivalsDataSource(
+                    api = ArrivalsTransitousApi(),
+                    ioDispatcher = Dispatchers.IO,
+                )
+            },
+            destinationCompilerConstructor = {
+                DestinationRdgCompiler()
+            },
+            preFetchExecutorConstructor = { _ ->
+                listOf()
+            },
+            postFetchExecutorConstructor = { _ ->
+                listOf()
+            },
+        )
+    ),
 }
 
 fun providerToString(provider: Provider): String = provider.name

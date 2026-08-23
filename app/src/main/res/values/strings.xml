@@ -161,4 +161,7 @@
     <string name="widget_ui_mockcontent_destination_0_name">Shepherd\'s Bush</string>
     <string name="widget_ui_togroup_filter">Filtered by</string>
     <string name="widget_ui_mycontent_edit">Edit</string>
+    <string name="agency_t00_title">Transitous</string>
+    <string name="agency_t00_about_short">International community-run service</string>
+    <string name="agency_t00_about_full">An international community-run service using open data and FOSS routing engine.</string>
 </resources>
