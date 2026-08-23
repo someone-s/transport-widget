@@ -19,6 +19,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.R
 import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.common.points.datasource.CachedDataSource
 import com.eden.livewidget.data.common.points.datasource.DataSource
 import com.eden.livewidget.data.providerFromString
 import com.eden.livewidget.data.providerToString
@@ -103,13 +104,15 @@ class DataSyncWorker(
         // Downloads a file and updates bytes read
         // Calls setForeground() periodically when it needs to update
         // the ongoing Notification
-        DataSource
-            .getInstance(context, provider)
-            .refresh(context) { status ->
-                setForegroundAsync(createForegroundInfo(status))
-            }
+        val source = DataSource.getInstance(context, provider)
+        assert(source is DataSource.Refreshable)
+        (source as DataSource.Refreshable).refresh(context) { status ->
+            setForegroundAsync(createForegroundInfo(status))
+        }
 
     }
+
+    class UnsupportedDataSourceException(message: String?) : RuntimeException(message)
 
     // Creates an instance of ForegroundInfo which can be used to update the
     // ongoing notification.

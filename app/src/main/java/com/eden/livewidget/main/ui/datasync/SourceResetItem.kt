@@ -54,9 +54,9 @@ fun SourceResetItem(
                 DataSyncWorker.cancelCurrentRequest(context, agency.apiProvider)
 
                 coroutineScope.launch(Dispatchers.IO) {
-                    DataSource
-                        .getInstance(context, agency.apiProvider)
-                        .reset(context)
+                    val source = DataSource.getInstance(context, agency.apiProvider)
+                    assert(source is DataSource.Resettable)
+                    (source as DataSource.Resettable).reset(context)
                 }
             }
             setResetWarningState(true)

@@ -7,7 +7,7 @@ import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.ObscuredKeyProvider
 import com.eden.livewidget.data.common.points.Constructors as PointsConstructors
 import com.eden.livewidget.data.common.points.Value as PointsValue
-import com.eden.livewidget.data.common.points.datasource.RemoteDataSource as PointsRemoteDataSource
+import com.eden.livewidget.data.common.points.datasource.CachedDataSource as PointsCachedDataSource
 import com.eden.livewidget.data.common.points.cache.DatabaseProvider
 import com.eden.livewidget.data.rdg.arrivals.filter.destination.RdgPreFetchExecutor
 import com.eden.livewidget.data.common.arrivals.filter.destination.Value as FilterDestinationValue
@@ -17,7 +17,7 @@ import com.eden.livewidget.data.rdg.arrivals.filter.destination.RdgCompiler as D
 import com.eden.livewidget.data.rdg.points.RdgValue as PointsRdgValue
 import com.eden.livewidget.data.rdg.points.cache.RdgDatabase
 import com.eden.livewidget.data.rdg.points.cache.RdgDatabaseInfo
-import com.eden.livewidget.data.rdg.points.api.RdgApi as PointsRdgApi
+import com.eden.livewidget.data.rdg.points.api.RdgBufferedApi as PointsRdgBufferedApi
 import com.eden.livewidget.data.tfl.arrivals.api.TflApi as ArrivalsTflApi
 import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflPostFetchExecutor
 import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflPreFetchExecutor
@@ -26,13 +26,14 @@ import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflCompiler as D
 import com.eden.livewidget.data.tfl.points.TflValue as PointsTflValue
 import com.eden.livewidget.data.tfl.points.cache.TflDatabase
 import com.eden.livewidget.data.tfl.points.cache.TflDatabaseInfo
-import com.eden.livewidget.data.tfl.points.api.TflApi as PointsTflApi
+import com.eden.livewidget.data.tfl.points.api.TflBufferedApi as PointsTflBufferedApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import java.util.EnumSet
+import kotlin.reflect.KClass
 
 val format = Json {
     serializersModule = SerializersModule {
@@ -55,8 +56,8 @@ enum class Provider(
     TFL(
         pointsConstructors = PointsConstructors(
             dataSourceConstructor = {
-                PointsRemoteDataSource(
-                    pointsApi = PointsTflApi(),
+                PointsCachedDataSource(
+                    pointsBufferedApi = PointsTflBufferedApi(),
                     cacheProvider = DatabaseProvider(
                         info = TflDatabaseInfo(),
                         klass = TflDatabase::class.java,
@@ -98,8 +99,8 @@ enum class Provider(
     RDG(
         pointsConstructors = PointsConstructors(
             dataSourceConstructor = {
-                PointsRemoteDataSource(
-                    pointsApi = PointsRdgApi(
+                PointsCachedDataSource(
+                    pointsBufferedApi = PointsRdgBufferedApi(
                         apiProvider = RDG
                     ),
                     cacheProvider = DatabaseProvider(

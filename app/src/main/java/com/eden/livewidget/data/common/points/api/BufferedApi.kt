@@ -4,7 +4,7 @@ import android.content.Context
 import com.eden.livewidget.data.common.points.Model
 import kotlinx.coroutines.flow.Flow
 
-interface Api {
+interface BufferedApi {
     suspend fun fetchPoints(
         context: Context,
         statusUpdate: (status: String) -> Unit,

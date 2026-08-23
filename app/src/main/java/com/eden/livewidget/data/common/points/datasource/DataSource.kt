@@ -6,8 +6,14 @@ import com.eden.livewidget.data.common.points.Model
 
 interface DataSource {
     suspend fun fetchMatching(context: Context, input: String): List<Model>
-    suspend fun refresh(context: Context, statusUpdate: (String) -> Unit)
-    suspend fun reset(context: Context)
+
+    interface Refreshable {
+        suspend fun refresh(context: Context, statusUpdate: (status: String) -> Unit)
+    }
+
+    interface Resettable {
+        suspend fun reset(context: Context)
+    }
 
     companion object {
         private var instances: MutableMap<Provider, DataSource> = mutableMapOf()

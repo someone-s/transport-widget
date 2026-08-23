@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.eden.livewidget.R
 import com.eden.livewidget.data.common.points.Model
-import com.eden.livewidget.data.common.points.api.Api
+import com.eden.livewidget.data.common.points.api.BufferedApi
 import com.eden.livewidget.data.tfl.points.TflValue
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
@@ -68,7 +68,7 @@ private interface PointsTflApiService {
     ): Call<List<TflStopPoint>>
 }
 
-class TflApi: Api {
+class TflBufferedApi: BufferedApi {
 
     private val fetchStopTypes = setOf(
         "NaptanFerryPort",

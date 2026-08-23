@@ -4,15 +4,15 @@ import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.cache.CacheProvider
-import com.eden.livewidget.data.common.points.api.Api
+import com.eden.livewidget.data.common.points.api.BufferedApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-class RemoteDataSource(
-    private val pointsApi: Api,
+class CachedDataSource(
+    private val pointsBufferedApi: BufferedApi,
     private val cacheProvider: CacheProvider,
     private val ioDispatcher: CoroutineDispatcher
-): DataSource {
+): DataSource, DataSource.Refreshable, DataSource.Resettable {
 
     override suspend fun reset(context: Context) {
         Log.i(this.javaClass.name, "Database reset")
@@ -27,7 +27,7 @@ class RemoteDataSource(
         cacheProvider.getCache(context).deleteAll()
 
         withContext(ioDispatcher) {
-            pointsApi.fetchPoints(
+            pointsBufferedApi.fetchPoints(
                 context,
                 statusUpdate,
             ).collect { point ->

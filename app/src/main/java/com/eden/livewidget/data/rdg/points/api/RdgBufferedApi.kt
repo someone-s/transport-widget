@@ -7,7 +7,7 @@ import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.getKeyProviderConstructor
 import com.eden.livewidget.data.common.points.Model
-import com.eden.livewidget.data.common.points.api.Api
+import com.eden.livewidget.data.common.points.api.BufferedApi
 import com.eden.livewidget.data.rdg.points.RdgValue
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
@@ -53,9 +53,9 @@ private interface PointsRdgApiService {
     ): Call<RdgStationListResponse>
 }
 
-class RdgApi(
+class RdgBufferedApi(
     val apiProvider: Provider
-): Api {
+): BufferedApi {
 
     private val service: PointsRdgApiService by lazy {
         retrofit.create(PointsRdgApiService::class.java)
