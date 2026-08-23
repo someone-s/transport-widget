@@ -128,15 +128,17 @@ class TflCompiler: Compiler {
 
                         val finalNaptanIds = routes
                             .filter { it.isValid() }
-                            .filter {
+                            .flatMap {
                                 checkNotNull(it.naptanIds)
 
                                 val fromIndex = it.naptanIds.indexOf(fromNaptanId)
                                 val toIndex = it.naptanIds.indexOf(toNaptanId)
 
-                                fromIndex >= 0 && toIndex >= 0 && fromIndex < toIndex
+                                if (fromIndex >= 0 && toIndex >= 0 && fromIndex < toIndex)
+                                    it.naptanIds.subList(toIndex, it.naptanIds.lastIndex)
+                                else
+                                    emptyList()
                             }
-                            .map { it.naptanIds!!.last() }
 
                         for (finalNaptanId in finalNaptanIds)
                             Log.i(this.javaClass.name, "$fromNaptanId-$toNaptanId found valid final $finalNaptanId")
