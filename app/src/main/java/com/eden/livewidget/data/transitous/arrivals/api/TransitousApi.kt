@@ -12,6 +12,7 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.Query
 import java.io.IOException
 import java.time.LocalDateTime
@@ -118,6 +119,7 @@ private val retrofit = Retrofit.Builder()
 
 private interface TransitousApiService {
 
+    @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
     @GET("api/v6/stoptimes")
     fun getStopTimes(
         @Query("stopId")
@@ -126,6 +128,7 @@ private interface TransitousApiService {
         window: Int,
     ): Call<TransitousUnfilteredResponse>
 
+    @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
     @GET("api/v6/plan")
     fun getItineraries(
         @Query("fromPlace")

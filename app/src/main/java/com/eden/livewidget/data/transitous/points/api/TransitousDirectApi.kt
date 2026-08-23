@@ -12,6 +12,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.Query
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
@@ -42,6 +43,7 @@ private val retrofit = Retrofit.Builder()
     .build()
 
 private interface PointsTransitousApiService {
+    @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
     @GET("api/v1/geocode")
     fun getAutoComplete(
         @Query("type")
