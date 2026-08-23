@@ -1,0 +1,1 @@
+Clicking on Providers in app now opens the Wiki

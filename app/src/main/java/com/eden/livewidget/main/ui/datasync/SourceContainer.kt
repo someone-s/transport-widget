@@ -1,5 +1,7 @@
 package com.eden.livewidget.main.ui.datasync
 
+import android.content.Intent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,10 +36,13 @@ fun SourceContainer(
     setCurrentResetAction: ((() -> Unit)?) -> Unit,
     setResetWarningState: (Boolean) -> Unit,
 ) {
-
+    val context = LocalContext.current
+    val intent = Intent(Intent.ACTION_VIEW, agency.agencyHelp)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { context.startActivity(intent) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             MaterialTheme.colorScheme.surfaceContainer
