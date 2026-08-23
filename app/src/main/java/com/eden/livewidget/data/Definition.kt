@@ -61,6 +61,39 @@ enum class Provider(
     val arrivalsConstructors: ArrivalsConstructors,
     val keyProviders: KeyProviderConstructors = emptyMap()
 ) {
+    T00(
+        pointsConstructors = PointsConstructors(
+            dataSourceConstructor = {
+                PointsDirectDataSource(
+                    pointsDirectApi = PointsTransitousDirectApi(),
+                    ioDispatcher = Dispatchers.IO,
+                )
+            }
+        ),
+        arrivalsConstructors = ArrivalsConstructors(
+            dataSourceConstructor = {
+                ArrivalsDataSource(
+                    api = ArrivalsTransitousApi(),
+                    ioDispatcher = Dispatchers.IO,
+                )
+            },
+            destinationCompilerConstructor = {
+                DestinationTransitousCompiler()
+            },
+            preFetchExecutorConstructor = { state ->
+                listOf(
+                    TransitousPreFetchExecutor(
+                        values = state.destinationFilters
+                            .flatMap { it.values!! }
+                            .map { it as FilterDestinationTransitousValue }
+                    )
+                )
+            },
+            postFetchExecutorConstructor = { _ ->
+                listOf()
+            },
+        )
+    ),
     TFL(
         pointsConstructors = PointsConstructors(
             dataSourceConstructor = {
@@ -145,39 +178,6 @@ enum class Provider(
         keyProviders = mapOf(
             EnumSet.of(KeyPurpose.POINTS) to { ObscuredKeyProvider($"${RDG.name}-${KeyPurpose.POINTS.name}") },
             EnumSet.of(KeyPurpose.ARRIVALS) to { ObscuredKeyProvider($"${RDG.name}-${KeyPurpose.ARRIVALS.name}") }
-        )
-    ),
-    T00(
-        pointsConstructors = PointsConstructors(
-            dataSourceConstructor = {
-                PointsDirectDataSource(
-                    pointsDirectApi = PointsTransitousDirectApi(),
-                    ioDispatcher = Dispatchers.IO,
-                )
-            }
-        ),
-        arrivalsConstructors = ArrivalsConstructors(
-            dataSourceConstructor = {
-                ArrivalsDataSource(
-                    api = ArrivalsTransitousApi(),
-                    ioDispatcher = Dispatchers.IO,
-                )
-            },
-            destinationCompilerConstructor = {
-                DestinationTransitousCompiler()
-            },
-            preFetchExecutorConstructor = { state ->
-                listOf(
-                    TransitousPreFetchExecutor(
-                        values = state.destinationFilters
-                            .flatMap { it.values!! }
-                            .map { it as FilterDestinationTransitousValue }
-                    )
-                )
-            },
-            postFetchExecutorConstructor = { _ ->
-                listOf()
-            },
         )
     ),
 }
