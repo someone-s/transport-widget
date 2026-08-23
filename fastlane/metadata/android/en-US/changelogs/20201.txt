@@ -1,1 +1,1 @@
-Add Transitous as data source, now provides international coverage
+Add user agent header to Transitous requests

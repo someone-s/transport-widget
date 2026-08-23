@@ -38,8 +38,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.eden.livewidget"
         minSdk = 24
         targetSdk = 37
-        versionCode = 20201
-        versionName = "2.2.1"
+        versionCode = 20202
+        versionName = "2.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
