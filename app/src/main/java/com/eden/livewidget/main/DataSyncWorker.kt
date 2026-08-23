@@ -103,11 +103,11 @@ class DataSyncWorker(
         // Downloads a file and updates bytes read
         // Calls setForeground() periodically when it needs to update
         // the ongoing Notification
-        DataSource
-            .getInstance(context, provider)
-            .refresh(context) { status ->
-                setForegroundAsync(createForegroundInfo(status))
-            }
+        val source = DataSource.getInstance(context, provider)
+        assert(source is DataSource.Refreshable)
+        (source as DataSource.Refreshable).refresh(context) { status ->
+            setForegroundAsync(createForegroundInfo(status))
+        }
 
     }
 

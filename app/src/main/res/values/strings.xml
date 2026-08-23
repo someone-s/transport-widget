@@ -137,7 +137,7 @@
     <string name="widget_retry_metered_reason_text">Network restricted</string>
     <string name="widget_retry_metered_data_saver_text">Check data saver</string>
     <string name="widget_retry_metered_add_whitelist_text">Allow unrestricted</string>
-    <string name="config_ui_configscreen_label_agency">Agency</string>
+    <string name="config_ui_configscreen_label_agency">Provider</string>
     <string name="config_ui_agencyitem_action">Swap</string>
     <string name="config_ui_configscreen_label_point">Point</string>
     <string name="config_ui_pointitem_action">Swap</string>
@@ -161,4 +161,7 @@
     <string name="widget_ui_mockcontent_destination_0_name">Shepherd\'s Bush</string>
     <string name="widget_ui_togroup_filter">Filtered by</string>
     <string name="widget_ui_mycontent_edit">Edit</string>
+    <string name="agency_t00_title">Transitous</string>
+    <string name="agency_t00_about_short">International community-run service</string>
+    <string name="agency_t00_about_full">An international community-run service using open data and FOSS routing engine.</string>
 </resources>

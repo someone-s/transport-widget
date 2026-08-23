@@ -12,6 +12,13 @@ enum class Agency(
     val apiProvider: Provider,
     val agencyHelp: Uri,
 ) {
+    TOO(
+        agencyName = R.string.agency_t00_title,
+        agencyShortDescription = R.string.agency_t00_about_short,
+        agencyDescription = R.string.agency_t00_about_full,
+        apiProvider = Provider.T00,
+        agencyHelp = "https://someone-s.github.io/transport-widget/provider/t00".toUri()
+    ),
     TFL(
         agencyName = R.string.agency_tfl_title,
         agencyShortDescription = R.string.agency_tfl_about_short,
@@ -25,7 +32,7 @@ enum class Agency(
         agencyDescription = R.string.agency_rdg_about_full,
         apiProvider = Provider.RDG,
         agencyHelp = "https://someone-s.github.io/transport-widget/provider/rdg".toUri()
-    )
+    ),
 }
 
 fun agencyToString(agency: Agency): String = agency.name

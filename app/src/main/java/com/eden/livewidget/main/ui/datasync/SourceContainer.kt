@@ -1,6 +1,5 @@
 package com.eden.livewidget.main.ui.datasync
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,15 +15,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.Agency
+import com.eden.livewidget.data.common.points.datasource.DataSource
 
 @Composable
 fun SourceContainer(
-    context: Context?,
     agency: Agency,
     setCurrentInputKeyAction: (((String) -> Unit)?) -> Unit,
     setCurrentKeyValueAction: (String) -> Unit,
@@ -64,44 +64,57 @@ fun SourceContainer(
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Justify
             )
-            Spacer(Modifier.height(8.dp))
+            val showKeyConfig = agency.apiProvider.keyProviders.isNotEmpty()
+
+            val context = LocalContext.current
+            val source = DataSource.getInstance(context, agency.apiProvider)
+            val showDownload = source is DataSource.Refreshable
+            val showReset = source is DataSource.Resettable
+
+            val showAny = showKeyConfig || showDownload || showReset
+
+            if (showAny) {
+                Spacer(Modifier.height(8.dp))
 
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
 
-                val showKeyConfig = agency.apiProvider.keyProviders.isNotEmpty()
-                if (showKeyConfig) {
-                    SourceKeyConfigItems(
-                        context,
-                        agency,
-                        setCurrentInputKeyAction,
-                        setCurrentKeyValueAction,
-                        setInputKeyState,
-                        ListItemDefaults.segmentedShapes(0, 3),
-                    )
+                    if (showKeyConfig) {
+                        SourceKeyConfigItems(
+                            context,
+                            agency,
+                            setCurrentInputKeyAction,
+                            setCurrentKeyValueAction,
+                            setInputKeyState,
+                            ListItemDefaults.segmentedShapes(0, 3),
+                        )
+                    }
+                    if (showDownload)
+                        SourceDownloadItems(
+                            context,
+                            agency,
+                            setCurrentDownloadAction,
+                            setDownloadWarningState,
+                            if (showKeyConfig)
+                                ListItemDefaults.segmentedShapes(1, 3)
+                            else
+                                ListItemDefaults.segmentedShapes(0, 2),
+                        )
+                    if (showReset)
+                        SourceResetItem(
+                            context,
+                            agency,
+                            setCurrentResetAction,
+                            setResetWarningState,
+                            if (showKeyConfig)
+                                ListItemDefaults.segmentedShapes(2, 3)
+                            else
+                                ListItemDefaults.segmentedShapes(1, 2),
+                        )
                 }
-                SourceDownloadItems(
-                    context,
-                    agency,
-                    setCurrentDownloadAction,
-                    setDownloadWarningState,
-                    if (showKeyConfig)
-                        ListItemDefaults.segmentedShapes(1, 3)
-                    else
-                        ListItemDefaults.segmentedShapes(0, 2),
-                )
-                SourceResetItem(
-                    context,
-                    agency,
-                    setCurrentResetAction,
-                    setResetWarningState,
-                    if (showKeyConfig)
-                        ListItemDefaults.segmentedShapes(2, 3)
-                    else
-                        ListItemDefaults.segmentedShapes(1, 2),
-                )
+
             }
         }
     }

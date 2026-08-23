@@ -7,7 +7,8 @@ import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.ObscuredKeyProvider
 import com.eden.livewidget.data.common.points.Constructors as PointsConstructors
 import com.eden.livewidget.data.common.points.Value as PointsValue
-import com.eden.livewidget.data.common.points.datasource.RemoteDataSource as PointsRemoteDataSource
+import com.eden.livewidget.data.common.points.datasource.CachedDataSource as PointsCachedDataSource
+import com.eden.livewidget.data.common.points.datasource.DirectDataSource as PointsDirectDataSource
 import com.eden.livewidget.data.common.points.cache.DatabaseProvider
 import com.eden.livewidget.data.rdg.arrivals.filter.destination.RdgPreFetchExecutor
 import com.eden.livewidget.data.common.arrivals.filter.destination.Value as FilterDestinationValue
@@ -17,7 +18,7 @@ import com.eden.livewidget.data.rdg.arrivals.filter.destination.RdgCompiler as D
 import com.eden.livewidget.data.rdg.points.RdgValue as PointsRdgValue
 import com.eden.livewidget.data.rdg.points.cache.RdgDatabase
 import com.eden.livewidget.data.rdg.points.cache.RdgDatabaseInfo
-import com.eden.livewidget.data.rdg.points.api.RdgApi as PointsRdgApi
+import com.eden.livewidget.data.rdg.points.api.RdgBufferedApi as PointsRdgBufferedApi
 import com.eden.livewidget.data.tfl.arrivals.api.TflApi as ArrivalsTflApi
 import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflPostFetchExecutor
 import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflPreFetchExecutor
@@ -26,7 +27,13 @@ import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflCompiler as D
 import com.eden.livewidget.data.tfl.points.TflValue as PointsTflValue
 import com.eden.livewidget.data.tfl.points.cache.TflDatabase
 import com.eden.livewidget.data.tfl.points.cache.TflDatabaseInfo
-import com.eden.livewidget.data.tfl.points.api.TflApi as PointsTflApi
+import com.eden.livewidget.data.tfl.points.api.TflBufferedApi as PointsTflBufferedApi
+import com.eden.livewidget.data.transitous.arrivals.api.TransitousApi as ArrivalsTransitousApi
+import com.eden.livewidget.data.transitous.arrivals.filter.destination.TransitousPreFetchExecutor
+import com.eden.livewidget.data.transitous.arrivals.filter.destination.TransitousValue as FilterDestinationTransitousValue
+import com.eden.livewidget.data.transitous.arrivals.filter.destination.TransitousCompiler as DestinationTransitousCompiler
+import com.eden.livewidget.data.transitous.points.api.TransitousDirectApi as PointsTransitousDirectApi
+import com.eden.livewidget.data.transitous.points.TransitousValue as PointsTransitousValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -39,10 +46,12 @@ val format = Json {
         polymorphic(PointsValue::class) {
             subclass(PointsTflValue::class)
             subclass(PointsRdgValue::class)
+            subclass(PointsTransitousValue::class)
         }
         polymorphic(FilterDestinationValue::class) {
             subclass(FilterDestinationTflValue::class)
             subclass(FilterDestinationRdgValue::class)
+            subclass(FilterDestinationTransitousValue::class)
         }
     }
 }
@@ -52,11 +61,44 @@ enum class Provider(
     val arrivalsConstructors: ArrivalsConstructors,
     val keyProviders: KeyProviderConstructors = emptyMap()
 ) {
+    T00(
+        pointsConstructors = PointsConstructors(
+            dataSourceConstructor = {
+                PointsDirectDataSource(
+                    pointsDirectApi = PointsTransitousDirectApi(),
+                    ioDispatcher = Dispatchers.IO,
+                )
+            }
+        ),
+        arrivalsConstructors = ArrivalsConstructors(
+            dataSourceConstructor = {
+                ArrivalsDataSource(
+                    api = ArrivalsTransitousApi(),
+                    ioDispatcher = Dispatchers.IO,
+                )
+            },
+            destinationCompilerConstructor = {
+                DestinationTransitousCompiler()
+            },
+            preFetchExecutorConstructor = { state ->
+                listOf(
+                    TransitousPreFetchExecutor(
+                        values = state.destinationFilters
+                            .flatMap { it.values!! }
+                            .map { it as FilterDestinationTransitousValue }
+                    )
+                )
+            },
+            postFetchExecutorConstructor = { _ ->
+                listOf()
+            },
+        )
+    ),
     TFL(
         pointsConstructors = PointsConstructors(
             dataSourceConstructor = {
-                PointsRemoteDataSource(
-                    pointsApi = PointsTflApi(),
+                PointsCachedDataSource(
+                    pointsBufferedApi = PointsTflBufferedApi(),
                     cacheProvider = DatabaseProvider(
                         info = TflDatabaseInfo(),
                         klass = TflDatabase::class.java,
@@ -98,8 +140,8 @@ enum class Provider(
     RDG(
         pointsConstructors = PointsConstructors(
             dataSourceConstructor = {
-                PointsRemoteDataSource(
-                    pointsApi = PointsRdgApi(
+                PointsCachedDataSource(
+                    pointsBufferedApi = PointsRdgBufferedApi(
                         apiProvider = RDG
                     ),
                     cacheProvider = DatabaseProvider(
@@ -137,7 +179,7 @@ enum class Provider(
             EnumSet.of(KeyPurpose.POINTS) to { ObscuredKeyProvider($"${RDG.name}-${KeyPurpose.POINTS.name}") },
             EnumSet.of(KeyPurpose.ARRIVALS) to { ObscuredKeyProvider($"${RDG.name}-${KeyPurpose.ARRIVALS.name}") }
         )
-    )
+    ),
 }
 
 fun providerToString(provider: Provider): String = provider.name
