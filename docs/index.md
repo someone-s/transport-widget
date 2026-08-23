@@ -1,8 +1,8 @@
 # Transport Widget
 
-Available for England, Scotland, and Wales rail services and London buses, tube, and riverbus services
-
 View live arrival information at stops directly on your home screen. Simply search for your stop by name and add it to the home screen widget. View multiple stops simultaneously with multiple widgets.
+
+Utilize [Transitous](https://transitous.org/) as global data source, data feed directly from [Transport for London](https://api-portal.tfl.gov.uk/) and [Rail Delivery Group](https://raildata.org.uk/) also provided.
 
 Supports Android 7 to 16.
 
