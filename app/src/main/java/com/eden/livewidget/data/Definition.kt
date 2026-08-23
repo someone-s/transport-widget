@@ -27,8 +27,11 @@ import com.eden.livewidget.data.tfl.arrivals.filter.destination.TflCompiler as D
 import com.eden.livewidget.data.tfl.points.TflValue as PointsTflValue
 import com.eden.livewidget.data.tfl.points.cache.TflDatabase
 import com.eden.livewidget.data.tfl.points.cache.TflDatabaseInfo
-import com.eden.livewidget.data.transitous.arrivals.api.TransitousApi as ArrivalsTransitousApi
 import com.eden.livewidget.data.tfl.points.api.TflBufferedApi as PointsTflBufferedApi
+import com.eden.livewidget.data.transitous.arrivals.api.TransitousApi as ArrivalsTransitousApi
+import com.eden.livewidget.data.transitous.arrivals.filter.destination.TransitousPreFetchExecutor
+import com.eden.livewidget.data.transitous.arrivals.filter.destination.TransitousValue as FilterDestinationTransitousValue
+import com.eden.livewidget.data.transitous.arrivals.filter.destination.TransitousCompiler as DestinationTransitousCompiler
 import com.eden.livewidget.data.transitous.points.api.TransitousDirectApi as PointsTransitousDirectApi
 import com.eden.livewidget.data.transitous.points.TransitousValue as PointsTransitousValue
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +51,7 @@ val format = Json {
         polymorphic(FilterDestinationValue::class) {
             subclass(FilterDestinationTflValue::class)
             subclass(FilterDestinationRdgValue::class)
+            subclass(FilterDestinationTransitousValue::class)
         }
     }
 }
@@ -160,10 +164,16 @@ enum class Provider(
                 )
             },
             destinationCompilerConstructor = {
-                DestinationRdgCompiler()
+                DestinationTransitousCompiler()
             },
-            preFetchExecutorConstructor = { _ ->
-                listOf()
+            preFetchExecutorConstructor = { state ->
+                listOf(
+                    TransitousPreFetchExecutor(
+                        values = state.destinationFilters
+                            .flatMap { it.values!! }
+                            .map { it as FilterDestinationTransitousValue }
+                    )
+                )
             },
             postFetchExecutorConstructor = { _ ->
                 listOf()

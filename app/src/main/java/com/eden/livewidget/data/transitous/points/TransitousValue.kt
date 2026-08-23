@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("p-t00")
-class TransitousValue(
+open class TransitousValue(
     @SerialName("i")
     val id: String,
 ): Value {
