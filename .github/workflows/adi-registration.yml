@@ -1,9 +1,7 @@
 name: ADI Registration
 
 on:
-  push:
-    tags:
-    - 'adi-registration'
+  workflow_dispatch:
 
 jobs:
 
