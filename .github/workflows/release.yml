@@ -8,17 +8,25 @@ jobs:
 
     runs-on: ubuntu-latest
     
+    env:
+      CHANGELOG_ROOT: ./fastlane/metadata/android/en-US/changelogs
     outputs:
       NEW_RELEASE_NAME: ${{ steps.info_commit.outputs.NEW_RELEASE_NAME }}
       CHANGELOG_PATH: ${{ steps.check_changelog.outputs.CHANGELOG_PATH }}
       SHOULD_BUILD: ${{ steps.aggregate_result.outputs.SHOULD_BUILD }}
 
     steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          ${{ env.CHANGELOG_ROOT }}
+        sparse-checkout-cone-mode: false
+    
     - id: info_release
       name: Get latest release name
       run: |
         LATEST_RELEASE_NAME=$(gh release view --json name --jq '.name')
-        echo 'LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME' >> $GITHUB_ENV
+        echo 'LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME' >> $GITHUB_OUTPUT
         echo '::notice::latest release found is "$LATEST_RELEASE_NAME"'
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,7 +62,7 @@ jobs:
     - id: check_changelog
       name: Check if Fastlane have change log for commit version code
       run: |
-        CHANGELOG_PATH=./fastlane/metadata/android/en-US/changelogs/$COMMIT_VERSION_CODE.txt
+        CHANGELOG_PATH=$CHANGELOG_ROOT/$COMMIT_VERSION_CODE.txt
         echo "CHANGELOG_PATH=$CHANGELOG_PATH" >> $GITHUB_OUTPUT
         if [ -f $CHANGELOG_PATH ];
         then
@@ -66,6 +74,7 @@ jobs:
         fi
       env:
         COMMIT_VERSION_CODE: ${{ steps.info_commit.outputs.COMMIT_VERSION_CODE }}
+        CHANGELOG_ROOT: ${{ env.CHANGELOG_ROOT }}
 
     - id: aggregate_result
       name: Aggregate results
@@ -196,6 +205,11 @@ jobs:
       contents: write
 
     steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          ${{ needs.check.outputs.CHANGELOG_PATH }}
+        sparse-checkout-cone-mode: false
     
     - name: Download APK artifact
       uses: actions/download-artifact@v5
