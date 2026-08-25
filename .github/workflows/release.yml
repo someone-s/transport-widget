@@ -29,7 +29,7 @@ jobs:
       run: |
         LATEST_RELEASE_NAME=$(gh release view --json name --jq '.name')
         echo 'LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME' >> $GITHUB_OUTPUT
-        echo '::notice::latest release found is "$LATEST_RELEASE_NAME"'
+        echo '::notice::latest release found is "'$LATEST_RELEASE_NAME'"'
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
@@ -39,11 +39,11 @@ jobs:
         COMMIT_VERSION_NAME=$(cat $APP_GRADLE_PATH | sed -n -e 's/.*versionName *= *//p' | tr -d '"')
         echo "NEW_RELEASE_NAME=v$COMMIT_VERSION_NAME" >> $GITHUB_OUTPUT
         echo "COMMIT_VERSION_NAME=$COMMIT_VERSION_NAME" >> $GITHUB_OUTPUT
-        echo '::notice::commit version name found is "$COMMIT_VERSION_NAME"'
+        echo '::notice::commit version name found is "'$COMMIT_VERSION_NAME'"'
 
         COMMIT_VERSION_CODE=$(cat $APP_GRADLE_PATH | sed -n -e 's/.*versionCode *= *//p')
         echo "COMMIT_VERSION_CODE=$COMMIT_VERSION_CODE" >> $GITHUB_OUTPUT
-        echo '::notice::commit version code found is "$COMMIT_VERSION_CODE"'
+        echo '::notice::commit version code found is "'$COMMIT_VERSION_CODE'"'
       env:
         APP_GRADLE_PATH: ${{ env.APP_GRADLE_PATH }}
 
@@ -83,7 +83,7 @@ jobs:
     - id: aggregate_result
       name: Aggregate results
       run: |
-        if [ ${{ env.CHECK_VERSION_PASSED }} = true ] && [ ${{ env.CHECK_CHANGELOG_PASSED }} = true ];
+        if [ $CHECK_VERSION_PASSED = true ] && [ $CHECK_CHANGELOG_PASSED = true ];
         then
           echo "SHOULD_BUILD=true" >> $GITHUB_OUTPUT
         else
