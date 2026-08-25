@@ -27,8 +27,8 @@ jobs:
       name: Get latest release name
       run: |
         LATEST_RELEASE_NAME=$(gh release view --json name --jq '.name')
-        echo 'LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME' >> $GITHUB_OUTPUT
-        echo '::notice::latest release found is "'$LATEST_RELEASE_NAME'"'
+        echo "LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME" >> $GITHUB_OUTPUT
+        echo "::notice::latest release found is \"$LATEST_RELEASE_NAME\""
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
@@ -42,7 +42,7 @@ jobs:
 
         COMMIT_VERSION_CODE=$(cat $APP_GRADLE_PATH | sed -n -e 's/.*versionCode *= *//p')
         echo "COMMIT_VERSION_CODE=$COMMIT_VERSION_CODE" >> $GITHUB_OUTPUT
-        echo '::notice::commit version code found is "'$COMMIT_VERSION_CODE'"'
+        echo "::notice::commit version code found is \"$COMMIT_VERSION_CODE\""
       env:
         APP_GRADLE_PATH: ${{ env.APP_GRADLE_PATH }}
 
@@ -52,10 +52,10 @@ jobs:
         if [ v$COMMIT_VERSION_NAME = $LATEST_RELEASE_NAME ];
         then
           echo "CHECK_VERSION_PASSED=false" >> $GITHUB_OUTPUT
-          echo '::notice::commit version name same as latest release (leading "v" accounted)'
+          echo "::notice::commit version name same as latest release (leading "v" accounted)"
         else
           echo "CHECK_VERSION_PASSED=true" >> $GITHUB_OUTPUT
-          echo '::notice::commit version name differ from latest release (leading "v" accounted)'
+          echo "::notice::commit version name differ from latest release (leading "v" accounted)"
         fi
       env:
         LATEST_RELEASE_NAME: ${{ steps.info_release.outputs.LATEST_RELEASE_NAME }}
@@ -70,10 +70,10 @@ jobs:
         if [ -f $CHANGELOG_PATH ];
         then
           echo "CHECK_CHANGELOG_PASSED=true" >> $GITHUB_OUTPUT
-          echo '::notice::changelog for commit version code found'
+          echo "::notice::changelog for commit version code found"
         else
           echo "CHECK_CHANGELOG_PASSED=false" >> $GITHUB_OUTPUT
-          echo '::notice::changelog for commit version code missing'
+          echo "::notice::changelog for commit version code missing"
         fi
       env:
         COMMIT_VERSION_CODE: ${{ steps.info_commit.outputs.COMMIT_VERSION_CODE }}
