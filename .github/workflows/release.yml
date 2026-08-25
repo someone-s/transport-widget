@@ -22,7 +22,6 @@ jobs:
         sparse-checkout: |
           ${{ env.CHANGELOG_ROOT }}
           ${{ env.APP_GRADLE_PATH }}
-        sparse-checkout-cone-mode: false
     
     - id: info_release
       name: Get latest release name
