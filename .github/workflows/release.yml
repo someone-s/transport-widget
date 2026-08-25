@@ -1,0 +1,217 @@
+name: Release CI
+
+on: [push, workflow_dispatch]
+
+jobs:
+
+  check:
+
+    runs-on: ubuntu-latest
+    
+    outputs:
+      NEW_RELEASE_NAME: ${{ steps.info_commit.outputs.NEW_RELEASE_NAME }}
+      CHANGELOG_PATH: ${{ steps.check_changelog.outputs.CHANGELOG_PATH }}
+      SHOULD_BUILD: ${{ steps.aggregate_result.outputs.SHOULD_BUILD }}
+
+    steps:
+    - id: info_release
+      name: Get latest release name
+      run: |
+        LATEST_RELEASE_NAME=$(gh release view --json name --jq '.name')
+        echo 'LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME' >> $GITHUB_ENV
+        echo '::notice::latest release found is "$LATEST_RELEASE_NAME"'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - id: info_commit
+      name: Get commit version name and code
+      run: |
+        COMMIT_VERSION_NAME=$(cat ./app/build.gradle.kts | sed -n -e 's/.*versionName *= *//p' | tr -d '"')
+        echo "NEW_RELEASE_NAME=v$COMMIT_VERSION_NAME" >> $GITHUB_OUTPUT
+        echo "COMMIT_VERSION_NAME=$COMMIT_VERSION_NAME" >> $GITHUB_OUTPUT
+        echo '::notice::commit version name found is "$COMMIT_VERSION_NAME"'
+
+        COMMIT_VERSION_CODE=$(cat ./app/build.gradle.kts | sed -n -e 's/.*versionCode *= *//p')
+        echo "COMMIT_VERSION_CODE=$COMMIT_VERSION_CODE" >> $GITHUB_OUTPUT
+        echo '::notice::commit version code found is "$COMMIT_VERSION_CODE"'
+
+    - id: check_version
+      name: Check if commit version name different to latest release name
+      run: |
+        if [ v$COMMIT_VERSION_NAME = $LATEST_RELEASE_NAME ];
+        then
+          echo "CHECK_VERSION_PASSED=false" >> $GITHUB_OUTPUT
+          echo '::notice::commit version name same as latest release (leading "v" accounted)'
+        else
+          echo "CHECK_VERSION_PASSED=true" >> $GITHUB_OUTPUT
+          echo '::notice::commit version name differ from latest release (leading "v" accounted)'
+        fi
+      env:
+        LATEST_RELEASE_NAME: ${{ steps.info_release.outputs.LATEST_RELEASE_NAME }}
+        COMMIT_VERSION_NAME: ${{ steps.info_commit.outputs.COMMIT_VERSION_NAME }}
+
+    
+    - id: check_changelog
+      name: Check if Fastlane have change log for commit version code
+      run: |
+        CHANGELOG_PATH=./fastlane/metadata/android/en-US/changelogs/$COMMIT_VERSION_CODE.txt
+        echo "CHANGELOG_PATH=$CHANGELOG_PATH" >> $GITHUB_OUTPUT
+        if [ -f $CHANGELOG_PATH ];
+        then
+          echo "CHECK_CHANGELOG_PASSED=true" >> $GITHUB_OUTPUT
+          echo '::notice::changelog for commit version code found'
+        else
+          echo "CHECK_CHANGELOG_PASSED=false" >> $GITHUB_OUTPUT
+          echo '::notice::changelog for commit version code missing'
+        fi
+      env:
+        COMMIT_VERSION_CODE: ${{ steps.info_commit.outputs.COMMIT_VERSION_CODE }}
+
+    - id: aggregate_result
+      name: Aggregate results
+      run: |
+        if [ ${{ env.CHECK_VERSION_PASSED }} = true ] && [ ${{ env.CHECK_CHANGELOG_PASSED }} = true ];
+        then
+          echo "SHOULD_BUILD=true" >> $GITHUB_OUTPUT
+        else
+          echo "SHOULD_BUILD=false" >> $GITHUB_OUTPUT
+        fi
+      env:
+        CHECK_VERSION_PASSED: ${{ steps.check_version.outputs.CHECK_VERSION_PASSED }}
+        CHECK_CHANGELOG_PASSED: ${{ steps.check_changelog.outputs.CHECK_CHANGELOG_PASSED }}
+
+  build-apk:
+
+    needs: check
+    if: ${{ needs.check.outputs.SHOULD_BUILD == 'true' }}
+
+    runs-on: ubuntu-latest
+    
+    environment: production
+
+    env:
+      ARTIFACT_NAME: signed apk release
+      ARTIFACT_PATH: ${{github.ref_name}}_signed.apk
+
+    outputs:
+      ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
+      ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew :app:assembleRelease
+
+    - uses: r0adkll/sign-android-release@v1
+      name: Sign app APK
+      # ID used to access action output
+      id: sign_app
+      with:
+        releaseDirectory: app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.ALIAS }}
+        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
+      env:
+        # override default build-tools version (33.0.0) -- optional
+        BUILD_TOOLS_VERSION: "34.0.0"
+
+    - name: Rename file 
+      run: mv ${{steps.sign_app.outputs.signedReleaseFile}} ${{ env.ARTIFACT_PATH }}
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.ARTIFACT_PATH }}
+
+  build-aab:
+
+    needs: check
+    if: ${{ needs.check.outputs.SHOULD_BUILD == 'true' }}
+    runs-on: ubuntu-latest
+
+    environment: production
+
+    env:
+      ARTIFACT_NAME: signed aab release
+      ARTIFACT_PATH: ${{github.ref_name}}_signed.aab
+
+    outputs:
+      ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
+      ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew :app:bundleRelease
+
+    - uses: r0adkll/sign-android-release@v1
+      name: Sign app AAB
+      # ID used to access action output
+      id: sign_app
+      with:
+        releaseDirectory: app/build/outputs/bundle/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.ALIAS }}
+        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
+      env:
+        # override default build-tools version (33.0.0) -- optional
+        BUILD_TOOLS_VERSION: "34.0.0"
+
+    - name: Rename file 
+      run: mv ${{steps.sign_app.outputs.signedReleaseFile}} ${{ env.ARTIFACT_PATH }}
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path:  ${{ env.ARTIFACT_PATH }}
+
+  release:
+
+    needs: [check, build-apk, build-aab]
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write
+
+    steps:
+    
+    - name: Download APK artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: ${{ needs.build-apk.outputs.ARTIFACT_NAME }}
+
+    - name: Download AAB artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: ${{ needs.build-aab.outputs.ARTIFACT_NAME }}
+
+    - name: Create release
+      run: |
+        gh release create $NEW_RELEASE_NAME -F $CHANGELOG_PATH $APK_ARTIFACT_PATH $AAB_ARTIFACT_PATH
+      env:
+        NEW_RELEASE_NAME: ${{ needs.check.outputs.NEW_RELEASE_NAME }}
+        CHANGELOG_PATH: ${{ needs.check.outputs.CHANGELOG_PATH }}
+        APK_ARTIFACT_PATH: ${{ needs.build-apk.outputs.ARTIFACT_PATH }}
+        AAB_ARTIFACT_PATH: ${{ needs.build-aab.outputs.ARTIFACT_PATH }}
