@@ -10,6 +10,7 @@ jobs:
     
     env:
       CHANGELOG_ROOT: ./fastlane/metadata/android/en-US/changelogs
+      APP_GRADLE_PATH: ./app/build.gradle.kts
     outputs:
       NEW_RELEASE_NAME: ${{ steps.info_commit.outputs.NEW_RELEASE_NAME }}
       CHANGELOG_PATH: ${{ steps.check_changelog.outputs.CHANGELOG_PATH }}
@@ -20,6 +21,7 @@ jobs:
       with:
         sparse-checkout: |
           ${{ env.CHANGELOG_ROOT }}
+          ${{ env.APP_GRADLE_PATH }}
         sparse-checkout-cone-mode: false
     
     - id: info_release
@@ -34,14 +36,16 @@ jobs:
     - id: info_commit
       name: Get commit version name and code
       run: |
-        COMMIT_VERSION_NAME=$(cat ./app/build.gradle.kts | sed -n -e 's/.*versionName *= *//p' | tr -d '"')
+        COMMIT_VERSION_NAME=$(cat $APP_GRADLE_PATH | sed -n -e 's/.*versionName *= *//p' | tr -d '"')
         echo "NEW_RELEASE_NAME=v$COMMIT_VERSION_NAME" >> $GITHUB_OUTPUT
         echo "COMMIT_VERSION_NAME=$COMMIT_VERSION_NAME" >> $GITHUB_OUTPUT
         echo '::notice::commit version name found is "$COMMIT_VERSION_NAME"'
 
-        COMMIT_VERSION_CODE=$(cat ./app/build.gradle.kts | sed -n -e 's/.*versionCode *= *//p')
+        COMMIT_VERSION_CODE=$(cat $APP_GRADLE_PATH | sed -n -e 's/.*versionCode *= *//p')
         echo "COMMIT_VERSION_CODE=$COMMIT_VERSION_CODE" >> $GITHUB_OUTPUT
         echo '::notice::commit version code found is "$COMMIT_VERSION_CODE"'
+      env:
+        APP_GRADLE_PATH: ${{ env.APP_GRADLE_PATH }}
 
     - id: check_version
       name: Check if commit version name different to latest release name
