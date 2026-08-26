@@ -86,12 +86,11 @@ private data class TransitousLeg(
 
 private data class TransitousPlaceSelf(
     @SerializedName("track")
-    val track: String?,
+    val trackNullable: String?,
     @SerializedName("departure")
     val departure: String?,
 ) {
     fun isValid() =
-        track != null &&
         departure != null
 }
 
@@ -200,7 +199,7 @@ class TransitousApi: Api {
             operatorName = stopTime.agencyName!!,
             serviceName = stopTime.routeName!!,
             destinationName = stopTime.tripTo.name!!,
-            platformName = stopTime.place.track!!,
+            platformName = stopTime.place.trackNullable ?: "",
             remainingS = secondsToDeparture,
             expectedDateTime = expectDateTime,
         )

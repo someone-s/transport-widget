@@ -7,7 +7,7 @@ open class Model(
     val serviceName: String,
     val destinationName: String,
     val viaText: String = "",
-    val platformName: String,
+    val platformName: String = "",
     val remainingS: Int,
     val expectedDateTime: LocalDateTime,
 )
