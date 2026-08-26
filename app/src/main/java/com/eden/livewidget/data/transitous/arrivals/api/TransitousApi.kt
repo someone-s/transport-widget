@@ -123,6 +123,8 @@ private interface TransitousApiService {
     fun getStopTimes(
         @Query("stopId")
         id: String,
+        @Query("n")
+        count: Int,
         @Query("window")
         window: Int,
     ): Call<TransitousUnfilteredResponse>
@@ -211,6 +213,7 @@ class TransitousApi: Api {
 
         val request = service.getStopTimes(
             id = id,
+            count = 10,
             window = 3600,
         )
 
