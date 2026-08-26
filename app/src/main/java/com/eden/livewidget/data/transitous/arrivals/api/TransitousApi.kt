@@ -123,6 +123,8 @@ private interface TransitousApiService {
     fun getStopTimes(
         @Query("stopId")
         id: String,
+        @Query("radius")
+        radius: Int,
         @Query("n")
         count: Int,
         @Query("window")
@@ -161,23 +163,27 @@ class TransitousApi: Api {
         val currentTime = LocalDateTime.now()
 
         val responseTimeFormatter = DateTimeFormatterBuilder()
-            .appendPattern("uuuu-MM-dd'T'HH:mm:ss")
-            .appendOffset("+HH:MM:SS", "Z")
-            .toFormatter()
+                .appendPattern("uuuu-MM-dd'T'HH:mm:ss")
+                .appendOffset("+HH:MM:SS", "Z")
+                .toFormatter()
 
-            if (value.toIds.isEmpty()) {
-                val stopPoints = fetchUnfiltered(value.id) ?: return emptyList()
-                return stopPoints
-                    .filter { it.isValid() }
-                    .map { constructModel(it, responseTimeFormatter, currentTime) }
-            }
-            else
-                return value.toIds
-                    .flatMap { toId -> fetchFiltered(value.id, toId) ?: return emptyList() }
-                    .filter { it.isValid() }
-                    .distinct()
-                    .map { constructModel(it, responseTimeFormatter, currentTime) }
-                    .sortedBy { model -> model.remainingS }
+        if (value.toIds.isEmpty()) {
+            val stopPoints = fetchUnfiltered(value.id) ?: return emptyList()
+            return stopPoints
+                .filter { it.isValid() }
+                .map { constructModel(it, responseTimeFormatter, currentTime) }
+                .filter { it.remainingS < 86400 }
+        }
+        else
+            return value.toIds
+                .flatMap { toId -> fetchFiltered(value.id, toId) ?: return emptyList() }
+                .asSequence()
+                .filter { it.isValid() }
+                .distinct()
+                .map { constructModel(it, responseTimeFormatter, currentTime) }
+                .sortedBy { model -> model.remainingS }
+                .filter { it.remainingS < 86400 }
+                .toList()
     }
 
     private fun constructModel(
@@ -213,6 +219,7 @@ class TransitousApi: Api {
 
         val request = service.getStopTimes(
             id = id,
+            radius = 50,
             count = 10,
             window = 3600,
         )
