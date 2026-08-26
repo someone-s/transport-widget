@@ -140,8 +140,33 @@ private interface TransitousApiService {
         maxTransfers: Int,
         @Query("searchWindow")
         window: Int,
+        @Query("transitModes")
+        commaSeparatedModes: String,
     ): Call<TransitousFilteredResponse>
 }
+
+val validFilterModes = setOf(
+    "FLEX",
+    "TRAM",
+    "SUBWAY",
+    "FERRY",
+    "BUS",
+    "COACH",
+    "RAIL",
+    "HIGHSPEED_RAIL",
+    "LONG_DISTANCE",
+    "NIGHT_RAIL",
+    "REGIONAL_FAST_RAIL",
+    "REGIONAL_RAIL",
+    "SUBURBAN",
+    "FUNICULAR",
+    "AERIAL_LIFT",
+    "AREAL_LIFT",
+    "METRO",
+    "CABLE_CAR",
+)
+
+val commaSeparatedValidFilterModes = validFilterModes.joinToString(",")
 
 class TransitousApi: Api {
 
@@ -252,6 +277,7 @@ class TransitousApi: Api {
             toId = toId,
             maxTransfers = 0,
             window = 60,
+            commaSeparatedModes = commaSeparatedValidFilterModes,
         )
 
         val response = try {
