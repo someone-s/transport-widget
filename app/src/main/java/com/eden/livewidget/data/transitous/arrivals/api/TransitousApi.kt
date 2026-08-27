@@ -2,6 +2,7 @@ package com.eden.livewidget.data.transitous.arrivals.api
 
 import android.content.Context
 import android.util.Log
+import com.eden.livewidget.data.common.arrivals.LocationBoard
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.points.Value
@@ -85,12 +86,15 @@ private data class TransitousLeg(
 }
 
 private data class TransitousPlaceSelf(
+    @SerializedName("name")
+    val name: String?,
     @SerializedName("track")
     val trackNullable: String?,
     @SerializedName("departure")
     val departure: String?,
 ) {
     fun isValid() =
+        name != null &&
         departure != null
 }
 
@@ -207,7 +211,10 @@ class TransitousApi: Api {
             operatorName = stopTime.agencyName!!,
             serviceName = stopTime.routeName!!,
             destinationName = stopTime.tripTo.name!!,
-            platformName = stopTime.place.trackNullable ?: "",
+            locationPretext = LocationBoard(
+                boardText = stopTime.place.name!!,
+            ),
+            platformName = stopTime.place.trackNullable,
             remainingS = secondsToDeparture,
             expectedDateTime = expectDateTime,
         )
@@ -219,7 +226,7 @@ class TransitousApi: Api {
 
         val request = service.getStopTimes(
             id = id,
-            radius = 100,
+            radius = 200,
             count = 10,
             window = 3600,
         )

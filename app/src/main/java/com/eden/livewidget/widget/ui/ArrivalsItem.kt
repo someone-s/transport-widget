@@ -28,6 +28,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
+import com.eden.livewidget.data.common.arrivals.LocationBoard
 import com.eden.livewidget.data.common.arrivals.LocationFrom
 import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
@@ -166,13 +167,38 @@ private fun DirectionBlock(arrival: Model) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 12.dp)
+            .padding(top = 4.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
     ) {
+
+        if (arrival.locationPretext != null) {
+            Box(
+                modifier = GlanceModifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.TopStart
+            ) {
+                Row {
+                    Text(
+                        text = when (arrival.locationPretext) {
+                            is LocationBoard -> arrival.locationPretext.boardText
+                        },
+                        style = TextStyle(
+                            color = GlanceTheme.colors.onSurfaceVariant,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 12.sp,
+                        ),
+                        maxLines = 1
+                    )
+                }
+            }
+        }
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .padding(bottom = 22.dp),
-            contentAlignment = Alignment.BottomStart
+                .padding(
+                    top = if (arrival.locationPretext != null) 26.dp else 0.dp,
+                    bottom = if (arrival.locationSupplement != null) 26.dp else 0.dp,
+                ),
+            contentAlignment = if (arrival.locationPretext != null) Alignment.TopStart else Alignment.BottomStart
         ) {
             Text(
                 text = arrival.destinationName,
@@ -201,7 +227,7 @@ private fun DirectionBlock(arrival: Model) {
                             fontWeight = FontWeight.Normal,
                             fontSize = 12.sp,
                         ),
-                        maxLines = 2
+                        maxLines = 1
                     )
                     Spacer(
                         modifier = GlanceModifier
