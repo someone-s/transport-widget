@@ -28,6 +28,9 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
+import com.eden.livewidget.data.common.arrivals.LocationBoard
+import com.eden.livewidget.data.common.arrivals.LocationFrom
+import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
 import java.time.format.DateTimeFormatter
 
@@ -164,15 +167,38 @@ private fun DirectionBlock(arrival: Model) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 12.dp)
+            .padding(top = 4.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
     ) {
-        val haveViaText = arrival.viaText != "" && arrival.viaText != arrival.destinationName
 
+        if (arrival.locationPretext != null) {
+            Box(
+                modifier = GlanceModifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.TopStart
+            ) {
+                Row {
+                    Text(
+                        text = when (arrival.locationPretext) {
+                            is LocationBoard -> arrival.locationPretext.boardText
+                        },
+                        style = TextStyle(
+                            color = GlanceTheme.colors.onSurfaceVariant,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 12.sp,
+                        ),
+                        maxLines = 1
+                    )
+                }
+            }
+        }
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .padding(bottom = 22.dp),
-            contentAlignment = Alignment.BottomStart
+                .padding(
+                    top = if (arrival.locationPretext != null) 26.dp else 0.dp,
+                    bottom = if (arrival.locationSupplement != null) 26.dp else 0.dp,
+                ),
+            contentAlignment = if (arrival.locationPretext != null) Alignment.TopStart else Alignment.BottomStart
         ) {
             Text(
                 text = arrival.destinationName,
@@ -184,7 +210,7 @@ private fun DirectionBlock(arrival: Model) {
                 maxLines = 2
             )
         }
-        if (haveViaText) {
+        if (arrival.locationSupplement != null) {
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize(),
@@ -192,20 +218,26 @@ private fun DirectionBlock(arrival: Model) {
             ) {
                 Row {
                     Text(
-                        text = LocalContext.current.getString(R.string.widget_arrival_via_text),
+                        text = when (arrival.locationSupplement) {
+                            is LocationVia -> LocalContext.current.getString(R.string.widget_arrival_via_text)
+                            is LocationFrom -> LocalContext.current.getString(R.string.widget_arrival_from_text)
+                        },
                         style = TextStyle(
                             color = GlanceTheme.colors.onSurfaceVariant,
                             fontWeight = FontWeight.Normal,
                             fontSize = 12.sp,
                         ),
-                        maxLines = 2
+                        maxLines = 1
                     )
                     Spacer(
                         modifier = GlanceModifier
                             .width(4.dp)
                     )
                     Text(
-                        text = arrival.viaText,
+                        text = when (arrival.locationSupplement) {
+                            is LocationVia -> arrival.locationSupplement.viaText
+                            is LocationFrom -> arrival.locationSupplement.fromText
+                        },
                         style = TextStyle(
                             color = GlanceTheme.colors.onSurfaceVariant,
                             fontWeight = FontWeight.Normal,
@@ -251,7 +283,7 @@ private fun IdentifierColumn(arrival: Model) {
                 )
                 Text(
                     modifier = GlanceModifier.fillMaxWidth(),
-                    text = arrival.platformName,
+                    text = arrival.platformName ?: LocalContext.current.getString(R.string.widget_platform_platform_placeholder),
                     style = TextStyle(
                         color = GlanceTheme.colors.onSecondaryContainer,
                         fontWeight = FontWeight.Bold,

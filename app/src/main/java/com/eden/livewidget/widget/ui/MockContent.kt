@@ -26,7 +26,6 @@ fun MockContent() {
                 operatorName = LocalContext.current.getString(R.string.widget_mock_arrival_0_operator_text),
                 serviceName = LocalContext.current.getString(R.string.widget_mock_arrival_0_service_text),
                 destinationName = LocalContext.current.getString(R.string.widget_mock_arrival_0_destination_text),
-                viaText = "",
                 platformName = LocalContext.current.getString(R.string.widget_mock_arrival_0_platform_text),
                 remainingS = 30,
                 expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
@@ -35,7 +34,6 @@ fun MockContent() {
                 operatorName = LocalContext.current.getString(R.string.widget_mock_arrival_1_operator_text),
                 serviceName = LocalContext.current.getString(R.string.widget_mock_arrival_1_service_text),
                 destinationName = LocalContext.current.getString(R.string.widget_mock_arrival_1_destination_text),
-                viaText = "",
                 platformName = LocalContext.current.getString(R.string.widget_mock_arrival_1_platform_text),
                 remainingS = 240,
                 expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 42)
@@ -44,7 +42,6 @@ fun MockContent() {
                 operatorName = LocalContext.current.getString(R.string.widget_mock_arrival_2_operator_text),
                 serviceName = LocalContext.current.getString(R.string.widget_mock_arrival_2_service_text),
                 destinationName = LocalContext.current.getString(R.string.widget_mock_arrival_2_destination_text),
-                viaText = "",
                 platformName = LocalContext.current.getString(R.string.widget_mock_arrival_2_platform_text),
                 remainingS = 4096,
                 expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 54)

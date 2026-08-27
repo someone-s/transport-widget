@@ -2,6 +2,7 @@ package com.eden.livewidget.data.tfl.arrivals.api
 
 import android.content.Context
 import android.util.Log
+import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.points.Value
@@ -122,12 +123,20 @@ class TflApi: Api {
             .filter { it.isValid() }
             .mapNotNull{ entry ->
                 try {
+                    checkNotNull(entry.destinationName)
+                    checkNotNull(entry.towards)
                     Log.i("ARRIVAL-INFO", entry.expectedArrivalString!!)
                     TflModel(
                         operatorName = "TfL",
                         serviceName = processServiceName(entry.lineName!!),
-                        destinationName = entry.destinationName!!,
-                        viaText = if (entry.towards!! != "null") entry.towards else "",
+                        destinationName = entry.destinationName,
+                        locationSupplement = LocationVia(
+                            viaText =
+                                if (entry.towards != "null" && entry.towards != entry.destinationName)
+                                    entry.towards
+                                else
+                                    ""
+                        ),
                         platformName = processPlatformName(entry.platformName!!),
                         remainingS = max(0, entry.timeToStation!! - 60),
                         expectedDateTime =

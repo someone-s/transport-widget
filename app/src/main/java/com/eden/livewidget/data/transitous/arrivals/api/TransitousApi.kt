@@ -2,6 +2,7 @@ package com.eden.livewidget.data.transitous.arrivals.api
 
 import android.content.Context
 import android.util.Log
+import com.eden.livewidget.data.common.arrivals.LocationBoard
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.points.Value
@@ -85,12 +86,15 @@ private data class TransitousLeg(
 }
 
 private data class TransitousPlaceSelf(
+    @SerializedName("name")
+    val name: String?,
     @SerializedName("track")
     val trackNullable: String?,
     @SerializedName("departure")
     val departure: String?,
 ) {
     fun isValid() =
+        name != null &&
         departure != null
 }
 
@@ -123,6 +127,8 @@ private interface TransitousApiService {
     fun getStopTimes(
         @Query("stopId")
         id: String,
+        @Query("radius")
+        radius: Int,
         @Query("n")
         count: Int,
         @Query("window")
@@ -186,23 +192,27 @@ class TransitousApi: Api {
         val currentTime = LocalDateTime.now()
 
         val responseTimeFormatter = DateTimeFormatterBuilder()
-            .appendPattern("uuuu-MM-dd'T'HH:mm:ss")
-            .appendOffset("+HH:MM:SS", "Z")
-            .toFormatter()
+                .appendPattern("uuuu-MM-dd'T'HH:mm:ss")
+                .appendOffset("+HH:MM:SS", "Z")
+                .toFormatter()
 
-            if (value.toIds.isEmpty()) {
-                val stopPoints = fetchUnfiltered(value.id) ?: return emptyList()
-                return stopPoints
-                    .filter { it.isValid() }
-                    .map { constructModel(it, responseTimeFormatter, currentTime) }
-            }
-            else
-                return value.toIds
-                    .flatMap { toId -> fetchFiltered(value.id, toId) ?: return emptyList() }
-                    .filter { it.isValid() }
-                    .distinct()
-                    .map { constructModel(it, responseTimeFormatter, currentTime) }
-                    .sortedBy { model -> model.remainingS }
+        if (value.toIds.isEmpty()) {
+            val stopPoints = fetchUnfiltered(value.id) ?: return emptyList()
+            return stopPoints
+                .filter { it.isValid() }
+                .map { constructModel(it, responseTimeFormatter, currentTime) }
+                .filter { it.remainingS < 86400 }
+        }
+        else
+            return value.toIds
+                .flatMap { toId -> fetchFiltered(value.id, toId) ?: return emptyList() }
+                .asSequence()
+                .filter { it.isValid() }
+                .distinct()
+                .map { constructModel(it, responseTimeFormatter, currentTime) }
+                .sortedBy { model -> model.remainingS }
+                .filter { it.remainingS < 86400 }
+                .toList()
     }
 
     private fun constructModel(
@@ -226,7 +236,10 @@ class TransitousApi: Api {
             operatorName = stopTime.agencyName!!,
             serviceName = stopTime.routeName!!,
             destinationName = stopTime.tripTo.name!!,
-            platformName = stopTime.place.trackNullable ?: "",
+            locationPretext = LocationBoard(
+                boardText = stopTime.place.name!!,
+            ),
+            platformName = stopTime.place.trackNullable,
             remainingS = secondsToDeparture,
             expectedDateTime = expectDateTime,
         )
@@ -238,6 +251,7 @@ class TransitousApi: Api {
 
         val request = service.getStopTimes(
             id = id,
+            radius = 200,
             count = 10,
             window = 3600,
         )

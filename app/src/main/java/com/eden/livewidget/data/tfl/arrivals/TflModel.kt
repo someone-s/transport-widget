@@ -1,5 +1,6 @@
 package com.eden.livewidget.data.tfl.arrivals
 
+import com.eden.livewidget.data.common.arrivals.LocationSupplement
 import com.eden.livewidget.data.common.arrivals.Model
 import java.time.LocalDateTime
 
@@ -7,7 +8,7 @@ class TflModel(
     operatorName: String,
     serviceName: String,
     destinationName: String,
-    viaText: String = "",
+    locationSupplement: LocationSupplement?,
     platformName: String,
     remainingS: Int,
     expectedDateTime: LocalDateTime,
@@ -19,7 +20,7 @@ class TflModel(
     operatorName = operatorName,
     serviceName = serviceName,
     destinationName = destinationName,
-    viaText = viaText,
+    locationSupplement = locationSupplement,
     platformName = platformName,
     remainingS = remainingS,
     expectedDateTime = expectedDateTime,

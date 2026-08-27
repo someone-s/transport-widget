@@ -164,4 +164,7 @@
     <string name="agency_t00_title">Transitous</string>
     <string name="agency_t00_about_short">International community-run service</string>
     <string name="agency_t00_about_full">An international community-run service using open data and FOSS routing engine.</string>
+    <string name="widget_arrival_from_text">from</string>
+    <string name="widget_platform_platform_placeholder">-</string>
+    <string name="widget_arrival_board_text">board</string>
 </resources>
