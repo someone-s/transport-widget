@@ -31,7 +31,7 @@ jobs:
     - id: info_release
       name: Get latest release name
       run: |
-        LATEST_RELEASE_NAME=$(gh release view --json name --jq '.name')
+        LATEST_RELEASE_NAME=$(gh release view --json tagName --jq '.tagName')
         echo "LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME" >> $GITHUB_OUTPUT
         echo "::notice::latest release found is \"$LATEST_RELEASE_NAME\""
       env:
