@@ -28,6 +28,8 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
+import com.eden.livewidget.data.common.arrivals.LocationFrom
+import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
 import java.time.format.DateTimeFormatter
 
@@ -166,8 +168,6 @@ private fun DirectionBlock(arrival: Model) {
             .fillMaxSize()
             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 12.dp)
     ) {
-        val haveViaText = arrival.viaText != "" && arrival.viaText != arrival.destinationName
-
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -184,7 +184,7 @@ private fun DirectionBlock(arrival: Model) {
                 maxLines = 2
             )
         }
-        if (haveViaText) {
+        if (arrival.locationSupplement != null) {
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize(),
@@ -192,7 +192,10 @@ private fun DirectionBlock(arrival: Model) {
             ) {
                 Row {
                     Text(
-                        text = LocalContext.current.getString(R.string.widget_arrival_via_text),
+                        text = when (arrival.locationSupplement) {
+                            is LocationVia -> LocalContext.current.getString(R.string.widget_arrival_via_text)
+                            is LocationFrom -> LocalContext.current.getString(R.string.widget_arrival_from_text)
+                        },
                         style = TextStyle(
                             color = GlanceTheme.colors.onSurfaceVariant,
                             fontWeight = FontWeight.Normal,
@@ -205,7 +208,10 @@ private fun DirectionBlock(arrival: Model) {
                             .width(4.dp)
                     )
                     Text(
-                        text = arrival.viaText,
+                        text = when (arrival.locationSupplement) {
+                            is LocationVia -> arrival.locationSupplement.viaText
+                            is LocationFrom -> arrival.locationSupplement.fromText
+                        },
                         style = TextStyle(
                             color = GlanceTheme.colors.onSurfaceVariant,
                             fontWeight = FontWeight.Normal,
@@ -251,7 +257,7 @@ private fun IdentifierColumn(arrival: Model) {
                 )
                 Text(
                     modifier = GlanceModifier.fillMaxWidth(),
-                    text = arrival.platformName,
+                    text = arrival.platformName ?: LocalContext.current.getString(R.string.widget_platform_platform_placeholder),
                     style = TextStyle(
                         color = GlanceTheme.colors.onSecondaryContainer,
                         fontWeight = FontWeight.Bold,

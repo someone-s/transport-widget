@@ -219,7 +219,7 @@ class TransitousApi: Api {
 
         val request = service.getStopTimes(
             id = id,
-            radius = 50,
+            radius = 100,
             count = 10,
             window = 3600,
         )

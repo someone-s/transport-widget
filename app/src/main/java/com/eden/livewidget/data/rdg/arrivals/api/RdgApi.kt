@@ -3,6 +3,7 @@ package com.eden.livewidget.data.rdg.arrivals.api
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.Provider
+import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
 import com.eden.livewidget.data.common.keys.KeyPurpose
@@ -199,9 +200,13 @@ class RdgApi : Api {
                         operatorName = processOperatorName(service.operator),
                         serviceName = service.trainId,
                         destinationName = firstDestination.locationName,
-                        viaText = if (firstDestination.viaText != null) processViaText(
-                            firstDestination.viaText
-                        ) else "",
+                        locationSupplement = LocationVia(
+                            viaText =
+                                if (firstDestination.viaText != null)
+                                    processViaText(firstDestination.viaText)
+                                else
+                                    ""
+                        ),
                         platformName = service.platform ?: "",
                         remainingS = max(0, secondsToDeparture - 60),
                         expectedDateTime = expectDateTime
