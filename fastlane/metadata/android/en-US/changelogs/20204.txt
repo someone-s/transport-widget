@@ -1,0 +1,4 @@
+Fix transitous client to handle stops with no track
+Add Transitous data source now request both suggested min count and window when fetching unfiltered
+Fix Transitous data source filter mode do not allow non public transit modes
+Add Transitous data source display actual departing stop
