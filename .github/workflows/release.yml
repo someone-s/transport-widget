@@ -108,7 +108,7 @@ jobs:
 
     env:
       ARTIFACT_NAME: signed apk release
-      ARTIFACT_PATH: ${{github.ref_name}}_signed.apk
+      ARTIFACT_PATH: ${{ needs.check.outputs.NEW_RELEASE_NAME }}_signed.apk
 
     outputs:
       ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
@@ -161,7 +161,7 @@ jobs:
 
     env:
       ARTIFACT_NAME: signed aab release
-      ARTIFACT_PATH: ${{github.ref_name}}_signed.aab
+      ARTIFACT_PATH: ${{ needs.check.outputs.NEW_RELEASE_NAME }}_signed.aab
 
     outputs:
       ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
