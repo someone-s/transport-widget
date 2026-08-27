@@ -1,1 +1,1 @@
-Makke artifact name match previous ci for compatibility with cu rrent FDroid reproducible build setup
+Make artifact name match previous ci for compatibility with cu rrent FDroid reproducible build setup
