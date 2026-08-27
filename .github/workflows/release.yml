@@ -217,7 +217,6 @@ jobs:
       with:
         sparse-checkout: |
           ${{ needs.check.outputs.CHANGELOG_PATH }}
-        sparse-checkout-cone-mode: false
     
     - name: Download APK artifact
       uses: actions/download-artifact@v5
