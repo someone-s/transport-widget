@@ -233,6 +233,7 @@ jobs:
       run: |
         gh release create $NEW_RELEASE_NAME -F $CHANGELOG_PATH $APK_ARTIFACT_PATH $AAB_ARTIFACT_PATH
       env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NEW_RELEASE_NAME: ${{ needs.check.outputs.NEW_RELEASE_NAME }}
         CHANGELOG_PATH: ${{ needs.check.outputs.CHANGELOG_PATH }}
         APK_ARTIFACT_PATH: ${{ needs.build-apk.outputs.ARTIFACT_PATH }}
