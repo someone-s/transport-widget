@@ -2,7 +2,7 @@
 
 # Transport Widget
 
-View live arrival information at stops directly on your home screen. Simply search for your stop by name and add it to the home screen widget. View multiple stops simultaneously with multiple widgets.
+An app that provides home screen widgets displaying live arrival times of public transit services, supports multiple data source.
 
 Utilize [Transitous](https://transitous.org/) as global data source, data feed directly from [Transport for London](https://api-portal.tfl.gov.uk/) and [Rail Delivery Group](https://raildata.org.uk/) also provided.
 
