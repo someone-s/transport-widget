@@ -38,8 +38,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.eden.livewidget"
         minSdk = 24
         targetSdk = 37
-        versionCode = 20206
-        versionName = "2.2.6"
+        versionCode = 20207
+        versionName = "2.2.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,6 +53,9 @@ extensions.configure<ApplicationExtension> {
             )
             optimization {
                 enable = true // Enables code and resource optimizations.
+            }
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
             }
         }
         debug {
