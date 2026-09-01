@@ -147,7 +147,13 @@ private interface TransitousApiService {
         @Query("searchWindow")
         window: Int,
         @Query("transitModes")
-        commaSeparatedModes: String,
+        commaSeparatedTransitModes: String = "",
+        @Query("preTransitModes")
+        commaSeparatedPreTransitModes: String = "",
+        @Query("postTransitModes")
+        commaSeparatedPostTransitModes: String = "",
+        @Query("directModes")
+        commaSeparatedDirectModes: String = "",
     ): Call<TransitousFilteredResponse>
 }
 
@@ -291,7 +297,7 @@ class TransitousApi: Api {
             toId = toId,
             maxTransfers = 0,
             window = 60,
-            commaSeparatedModes = commaSeparatedValidFilterModes,
+            commaSeparatedTransitModes = commaSeparatedValidFilterModes,
         )
 
         val response = try {
