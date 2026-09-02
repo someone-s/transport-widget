@@ -9,9 +9,15 @@ Utilize [Transitous](https://transitous.org/) as global data source, data feed d
 Supports Android 7 to 16.
 
 ## Getting the App
-Android (F-Droid)                            |	Android (Release Page)
--------------------------------------------------------:|:-------------------------------------------------------
-[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.eden.livewidget/) |	[Release Page](https://github.com/someone-s/transport-widget/releases)
+Android (F-Droid)                            |	Android (Play Store)                            |	Android (Release Page)
+-------------------------------------------------------:|:-------------------------------------------------------:|:-------------------------------------------------------
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.eden.livewidget/) | [Closed Testing Google Group](https://groups.google.com/g/transport-widget-closed-testing) | [Release Page](https://github.com/someone-s/transport-widget/releases)
+
+I'm in the process of getting the app published on Play Store.
+
+I am looking for people to participate in closed testing to meet [Google's requirements](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en-GB) to publish the app.
+
+Join the [Google Group](https://groups.google.com/g/transport-widget-closed-testing) and follow the instructions within to help with the publishing process.
 
 ## How do I...?
 Refer to the individual help page on the [Wiki](https://someone-s.github.io/transport-widget/)
