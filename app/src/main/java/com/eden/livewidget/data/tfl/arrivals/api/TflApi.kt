@@ -130,13 +130,13 @@ class TflApi: Api {
                         operatorName = "TfL",
                         serviceName = processServiceName(entry.lineName!!),
                         destinationName = entry.destinationName,
-                        locationSupplement = LocationVia(
-                            viaText =
-                                if (entry.towards != "null" && entry.towards != entry.destinationName)
-                                    entry.towards
-                                else
-                                    ""
-                        ),
+                        locationSupplement =
+                            if (entry.towards != "null" && entry.towards != entry.destinationName)
+                                LocationVia(
+                                    viaText = entry.towards
+                                )
+                            else
+                                null,
                         platformName = processPlatformName(entry.platformName!!),
                         remainingS = max(0, entry.timeToStation!! - 60),
                         expectedDateTime =
