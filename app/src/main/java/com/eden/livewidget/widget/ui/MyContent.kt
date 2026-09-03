@@ -28,6 +28,7 @@ import androidx.glance.text.TextStyle
 import com.eden.livewidget.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.config.ConfigActivity
+import com.eden.livewidget.data.common.arrivals.LocationBoard
 import com.eden.livewidget.data.common.arrivals.LocationFrom
 import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
@@ -161,12 +162,12 @@ private fun getExplicitConfigIntent(widgetId: Int): Intent {
 }
 
 @OptIn(ExperimentalGlancePreviewApi::class)
-@Preview(widthDp = 380, heightDp = 300)
+@Preview(widthDp = 380, heightDp = 760)
 @Composable
 fun MyContentPreview() {
     GlanceTheme {
         MyContent(
-            mode = MyContentMode.PAUSED_OK_READY,
+            mode = MyContentMode.ACTIVE_VALID,
             widgetId = -1,
             fromName = "Display name",
             toNames = listOf(
@@ -181,6 +182,33 @@ fun MyContentPreview() {
                     serviceName = "Service 1",
                     destinationName = "Really long destination name to display name to display",
                     locationSupplement = LocationVia("Intermediate, More text"),
+                    locationPretext = LocationBoard("Departing stop"),
+                    platformName = "PF2",
+                    remainingS = 30,
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
+                ),
+                Model(
+                    operatorName = "Operator 1",
+                    serviceName = "Service 1",
+                    destinationName = "Really short",
+                    locationSupplement = LocationVia("Intermediate, More text"),
+                    locationPretext = LocationBoard("Departing stop"),
+                    platformName = "PF2",
+                    remainingS = 30,
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
+                ),
+                Model(
+                    operatorName = "Operator 1",
+                    serviceName = "Service 1",
+                    destinationName = "Really long destination name to display name to display",
+                    platformName = "PF2",
+                    remainingS = 30,
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
+                ),
+                Model(
+                    operatorName = "Operator 1",
+                    serviceName = "Service 1",
+                    destinationName = "Really short",
                     platformName = "PF2",
                     remainingS = 30,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
@@ -188,7 +216,17 @@ fun MyContentPreview() {
                 Model(
                     operatorName = "Operator 1",
                     serviceName = "SRV2A",
+                    destinationName = "Really long destination name to display name to display",
+                    locationPretext = LocationBoard("Departing stop"),
+                    platformName = "A",
+                    remainingS = 240,
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 23, 42)
+                ),
+                Model(
+                    operatorName = "Operator 1",
+                    serviceName = "SRV2A",
                     destinationName = "Really short",
+                    locationPretext = LocationBoard("Departing stop"),
                     platformName = "A",
                     remainingS = 240,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 23, 42)
@@ -197,6 +235,15 @@ fun MyContentPreview() {
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really long destination name to display name to display",
+                    locationSupplement = LocationFrom("Start stop"),
+                    platformName = "23",
+                    remainingS = 4096,
+                    expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 54)
+                ),
+                Model(
+                    operatorName = "Operator 1",
+                    serviceName = "Service 1",
+                    destinationName = "Really short",
                     locationSupplement = LocationFrom("Start stop"),
                     platformName = "23",
                     remainingS = 4096,
