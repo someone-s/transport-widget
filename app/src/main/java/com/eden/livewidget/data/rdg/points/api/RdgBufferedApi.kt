@@ -7,6 +7,7 @@ import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.common.keys.KeyPurpose
 import com.eden.livewidget.data.common.keys.getKeyProviderConstructor
 import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Option
 import com.eden.livewidget.data.common.points.api.BufferedApi
 import com.eden.livewidget.data.rdg.points.RdgValue
 import com.google.gson.annotations.SerializedName
@@ -64,7 +65,7 @@ class RdgBufferedApi(
     override suspend fun fetchPoints(
         context: Context,
         statusUpdate: (String) -> Unit
-    ): Flow<Model> = flow {
+    ): Flow<Option> = flow {
 
         val points = fetchData(context)
         for (point in points)
@@ -77,7 +78,7 @@ class RdgBufferedApi(
 
     private fun fetchData(
         context: Context,
-    ): List<Model> {
+    ): List<Option> {
         Log.i(this.javaClass.name, "request data")
 
         val headers = mapOf(
@@ -111,9 +112,12 @@ class RdgBufferedApi(
         Log.i(this.javaClass.name, "found ${stationList.size} entries")
 
         return stationList.map {
-            Model(
-                name = it.commonName,
-                value = RdgValue(it.crsCode),
+            Option(
+                model =
+                    Model(
+                        name = it.commonName,
+                        value = RdgValue(it.crsCode),
+                    ),
             )
         }
     }

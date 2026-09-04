@@ -20,9 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import com.eden.livewidget.R
 import kotlinx.coroutines.launch
 
+
+data class SearchOption(
+    val queryText: String,
+    val supportText: String? = null,
+)
 
 /**
  * Create full screen search bar and return zero height search bar to allow animation from desired location
@@ -34,8 +40,8 @@ fun SearchGroup(
     searchBarState: SearchBarState,
     textFieldState: TextFieldState,
     placeholder: String = "",
-    results: List<String>,
-    onResultClick: (index: Int, text: String) -> Unit,
+    options: List<SearchOption>,
+    onOptionClick: (index: Int, option: SearchOption) -> Unit,
 ) {
     val resultScrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -71,17 +77,27 @@ fun SearchGroup(
                 .verticalScroll(resultScrollState)
                 .heightIn(max = LocalWindowInfo.current.containerDpSize.height)
         ) {
-            itemsIndexed(results) { index, result ->
+            itemsIndexed(options) { index, option ->
                 ListItem(
                     onClick = {
-                        textFieldState.setTextAndPlaceCursorAtEnd(result)
-                        onResultClick(index, result)
+                        textFieldState.setTextAndPlaceCursorAtEnd(option.queryText)
+                        onOptionClick(index, option)
                         coroutineScope.launch { searchBarState.animateToCollapsed() }
                     },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                ) {
-                    Text(text = result)
-                }
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    content = {
+                        Text(
+                            text = option.queryText
+                        )
+                    },
+                    supportingContent = {
+                        Text(
+                            text = option.supportText ?: "",
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                    }
+                )
             }
         }
     }

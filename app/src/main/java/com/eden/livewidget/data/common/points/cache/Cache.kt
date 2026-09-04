@@ -1,12 +1,12 @@
 package com.eden.livewidget.data.common.points.cache
 
-import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Option
 
 interface Cache {
 
-    fun getAllFuzzyMatches(search: String): List<Model>
+    fun getAllFuzzyMatches(search: String): List<Option>
 
-    fun insert(point: Model)
+    fun insert(option: Option)
 
     fun deleteAll()
 }

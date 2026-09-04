@@ -11,6 +11,7 @@ import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.SkipQueryVerification
 import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Option
 import com.eden.livewidget.data.common.points.cache.Cache
 import com.eden.livewidget.data.format
 
@@ -64,15 +65,19 @@ interface TflDao {
 abstract class TflDatabase : RoomDatabase(), Cache {
     abstract fun pointDao(): TflDao
 
-    override fun getAllFuzzyMatches(search: String): List<Model> =
+    override fun getAllFuzzyMatches(search: String): List<Option> =
         pointDao()
             .getAllFuzzyMatches(search)
-            .map { native -> Model(name = native.name, values = format.decodeFromString(native.value)) }
+            .map { native ->
+                Option(
+                    model = Model(name = native.name, values = format.decodeFromString(native.value)),
+                )
+            }
 
-    override fun insert(point: Model) =
-        point.values.forEach { value ->
+    override fun insert(option: Option) =
+        option.model.values.forEach { value ->
             pointDao()
-                .insert(TflEntity(name = point.name, value = format.encodeToString(value)))
+                .insert(TflEntity(name = option.model.name, value = format.encodeToString(value)))
         }
 
     override fun deleteAll() =

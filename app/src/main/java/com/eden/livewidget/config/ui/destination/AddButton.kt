@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.R
 import com.eden.livewidget.config.ui.common.SearchGroup
+import com.eden.livewidget.config.ui.common.SearchOption
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
 import com.eden.livewidget.data.common.points.Model
@@ -61,13 +62,20 @@ fun AddButton(
             searchBarState = searchBarState,
             textFieldState = textFieldState,
             placeholder = stringResource(R.string.config_ui_destination_addbutton_input_placeholder),
-            results = matchingPoints.take(25).map { point -> point.name },
-            onResultClick = { index, _ ->
+            options = matchingPoints
+                .take(25)
+                .map { point ->
+                    SearchOption(
+                        queryText = point.model.name,
+                        supportText = point.annotation
+                    )
+                },
+            onOptionClick = { index, _ ->
                 if (index >= 0 && index < matchingPoints.size && currentPoint != null)
                     onAddFilter(
                         Filter.createPending(
                             fromPoint = currentPoint,
-                            toPoint = matchingPoints[index],
+                            toPoint = matchingPoints[index].model,
                         )
                     )
             }
