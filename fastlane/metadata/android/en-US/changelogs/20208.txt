@@ -1,0 +1,3 @@
+Fix tfl data source returning empty via instead of null via
+Refine widget padding / formatting
+Show battery optimization error if host unreachable
