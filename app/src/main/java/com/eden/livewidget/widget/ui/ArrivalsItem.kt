@@ -162,15 +162,35 @@ private fun TimeColumn(
     }
 }
 
+private enum class DirectionModes(val mask: Int) {
+    NONE(mask = 0),
+    TOP(mask = 1),
+    BOTTOM(mask = 2),
+    BOTH(mask = 3),
+}
+private fun DirectionModes.hasTop() = (this.mask and DirectionModes.TOP.mask) > 0
+private fun DirectionModes.hasBottom() = (this.mask and DirectionModes.BOTTOM.mask) > 0
+
 @Composable
 private fun DirectionBlock(arrival: Model) {
+
+    val mode =
+        if (arrival.locationPretext != null && arrival.locationSupplement != null)
+            DirectionModes.BOTH
+        else if (arrival.locationPretext != null)
+            DirectionModes.TOP
+        else if (arrival.locationSupplement != null)
+            DirectionModes.BOTTOM
+        else
+            DirectionModes.NONE
+
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
             .padding(top = 4.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
     ) {
 
-        if (arrival.locationPretext != null) {
+        if (mode.hasTop()) {
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize(),
@@ -178,7 +198,7 @@ private fun DirectionBlock(arrival: Model) {
             ) {
                 Row {
                     Text(
-                        text = when (arrival.locationPretext) {
+                        text = when (arrival.locationPretext!!) {
                             is LocationBoard -> arrival.locationPretext.boardText
                         },
                         style = TextStyle(
@@ -195,10 +215,10 @@ private fun DirectionBlock(arrival: Model) {
             modifier = GlanceModifier
                 .fillMaxSize()
                 .padding(
-                    top = if (arrival.locationPretext != null) 26.dp else 0.dp,
-                    bottom = if (arrival.locationSupplement != null) 26.dp else 0.dp,
+                    top = if (mode.hasTop()) 28.dp else 0.dp,
+                    bottom = if (mode.hasBottom() || !mode.hasTop()) 26.dp else 0.dp,
                 ),
-            contentAlignment = if (arrival.locationPretext != null) Alignment.TopStart else Alignment.BottomStart
+            contentAlignment = if (mode.hasTop()) Alignment.TopStart else Alignment.BottomStart
         ) {
             Text(
                 text = arrival.destinationName,
@@ -207,10 +227,10 @@ private fun DirectionBlock(arrival: Model) {
                     fontWeight = FontWeight.Medium,
                     fontSize = 20.sp
                 ),
-                maxLines = 2
+                maxLines = if (mode.hasTop() && mode.hasBottom()) 1 else 2
             )
         }
-        if (arrival.locationSupplement != null) {
+        if (mode.hasBottom()) {
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize(),
@@ -218,7 +238,7 @@ private fun DirectionBlock(arrival: Model) {
             ) {
                 Row {
                     Text(
-                        text = when (arrival.locationSupplement) {
+                        text = when (arrival.locationSupplement!!) {
                             is LocationVia -> LocalContext.current.getString(R.string.widget_arrival_via_text)
                             is LocationFrom -> LocalContext.current.getString(R.string.widget_arrival_from_text)
                         },

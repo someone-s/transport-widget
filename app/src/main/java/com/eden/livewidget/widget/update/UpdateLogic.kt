@@ -106,37 +106,71 @@ private suspend fun updateData(
         return when (result) {
             Repository.FetchResult.SUCCESS -> UpdateResult.RAN_COMPLETED
             Repository.FetchResult.ERROR_AUTHENTICATION -> UpdateResult.ERROR_AUTHENTICATION
-            Repository.FetchResult.ERROR_UNREACHABLE -> UpdateResult.ERROR_UNREACHABLE
-            Repository.FetchResult.ERROR_UNRESOLVED -> identifyMeteredNetworkIssue(context)
+            Repository.FetchResult.ERROR_UNREACHABLE -> identityIssue(
+                context = context,
+                currentResult = UpdateResult.ERROR_UNREACHABLE
+            )
+            Repository.FetchResult.ERROR_UNRESOLVED -> identityIssue(
+                context = context,
+                currentResult = UpdateResult.ERROR_UNRESOLVED
+            )
         }
 
     } catch (e: Exception) {
         Log.e(context.packageName, e.message ?: "Failed with no message", e)
 
-        return identifyBatteryOptimizationIssue(context)
+        return identityIssue(
+            context = context,
+            currentResult = UpdateResult.ERROR_UNKNOWN
+        )
     }
 }
 
-private fun identifyMeteredNetworkIssue(context: Context): UpdateResult {
-    val connectivityManager = (context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)
-        ?: return UpdateResult.ERROR_UNKNOWN
+private fun identityIssue(
+    context: Context,
+    currentResult: UpdateResult,
+): UpdateResult =
+    UpdateResultBuilder(
+        context = context,
+        storedResult = currentResult,
+    )
+    .tryIdentifyMeteredNetworkIssue()
+    .tryIdentifyBatteryOptimizationIssue()
+    .build()
 
-    connectivityManager.apply {
-        return if (isActiveNetworkMetered && restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)
-            UpdateResult.ERROR_METERED
-        else
-            UpdateResult.ERROR_UNRESOLVED
+private data class UpdateResultBuilder(
+    private val context: Context,
+    private val storedResult: UpdateResult = UpdateResult.ERROR_UNKNOWN,
+) {
+    fun build(): UpdateResult = storedResult
+
+    fun tryIdentifyMeteredNetworkIssue(): UpdateResultBuilder {
+
+        val currentBuilder = this
+
+        val connectivityManager = (context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)
+            ?: return currentBuilder
+
+        connectivityManager.apply {
+            return if (isActiveNetworkMetered && restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)
+                UpdateResultBuilder(context, UpdateResult.ERROR_METERED)
+            else
+                currentBuilder
+        }
+    }
+
+    fun tryIdentifyBatteryOptimizationIssue(): UpdateResultBuilder {
+        val currentBuilder = this
+
+        val powerManager = (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)
+            ?: return currentBuilder
+
+        powerManager.apply {
+            return if (isPowerSaveMode && isIgnoringBatteryOptimizations(context.packageName))
+                currentBuilder
+            else
+                UpdateResultBuilder(context, UpdateResult.ERROR_BATTERY)
+        }
     }
 }
 
-private fun identifyBatteryOptimizationIssue(context: Context): UpdateResult {
-    val powerManager = (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)
-        ?: return UpdateResult.ERROR_UNKNOWN
-
-    powerManager.apply {
-        return if (isPowerSaveMode && isIgnoringBatteryOptimizations(context.packageName))
-            UpdateResult.ERROR_BATTERY
-        else
-            UpdateResult.ERROR_UNKNOWN
-    }
-}
