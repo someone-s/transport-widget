@@ -13,7 +13,7 @@ class Repository(
     private val dataSource: DataSource,
 ) {
 
-    private val matchingPointsMutable = MutableStateFlow(emptyList<Model>())
+    private val matchingPointsMutable = MutableStateFlow(emptyList<Option>())
     val matchingPoints = matchingPointsMutable.asStateFlow()
 
     private val mutex = Mutex()

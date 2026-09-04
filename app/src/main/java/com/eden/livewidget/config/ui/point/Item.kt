@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.eden.livewidget.R
 import com.eden.livewidget.config.ui.common.SearchGroup
+import com.eden.livewidget.config.ui.common.SearchOption
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.common.points.Model
 import com.eden.livewidget.data.common.points.Repository
@@ -59,14 +60,11 @@ fun Item(
         searchBarState = searchBarState,
         textFieldState = textFieldState,
         placeholder = stringResource(R.string.config_ui_pointitem_input_placeholder),
-        results = matchingPoints.take(25).map { point -> point.name },
-        onResultClick = { index, _ ->
+        options = matchingPoints.take(25).map { SearchOption(queryText = it.model.name, supportText = it.annotation) },
+        onOptionClick = { index, _ ->
             onPointSelected(
                 if (index >= 0 && index < matchingPoints.size)
-                    Model(
-                        name = matchingPoints[index].name,
-                        values = matchingPoints[index].values,
-                    )
+                    matchingPoints[index].model
                 else
                     null
             )

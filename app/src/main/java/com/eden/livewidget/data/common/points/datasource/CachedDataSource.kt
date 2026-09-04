@@ -2,7 +2,7 @@ package com.eden.livewidget.data.common.points.datasource
 
 import android.content.Context
 import android.util.Log
-import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Option
 import com.eden.livewidget.data.common.points.cache.CacheProvider
 import com.eden.livewidget.data.common.points.api.BufferedApi
 import kotlinx.coroutines.CoroutineDispatcher
@@ -30,8 +30,8 @@ class CachedDataSource(
             pointsBufferedApi.fetchPoints(
                 context,
                 statusUpdate,
-            ).collect { point ->
-                cacheProvider.getCache(context).insert(point)
+            ).collect { option ->
+                cacheProvider.getCache(context).insert(option)
             }
         }
 
@@ -40,7 +40,7 @@ class CachedDataSource(
     override suspend fun fetchMatching(
         context: Context,
         input: String
-    ): List<Model> =
+    ): List<Option> =
         withContext(ioDispatcher) {
             cacheProvider
                 .getCache(context)

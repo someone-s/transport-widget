@@ -11,6 +11,7 @@ import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.SkipQueryVerification
 import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Option
 import com.eden.livewidget.data.common.points.cache.Cache
 import com.eden.livewidget.data.format
 
@@ -54,14 +55,18 @@ interface RdgDao {
 abstract class RdgDatabase : RoomDatabase(), Cache {
     abstract fun pointDao(): RdgDao
 
-    override fun getAllFuzzyMatches(search: String): List<Model> =
+    override fun getAllFuzzyMatches(search: String): List<Option> =
         pointDao()
             .getAllFuzzyMatches(search)
-            .map { native -> Model(name = native.name, values = format.decodeFromString(native.values)) }
+            .map { native ->
+                Option(
+                    model = Model(name = native.name, values = format.decodeFromString(native.values))
+                )
+            }
 
-    override fun insert(point: Model) =
+    override fun insert(option: Option) =
         pointDao()
-            .insert(RdgEntity(name = point.name, values = format.encodeToString(point.values)))
+            .insert(RdgEntity(name = option.model.name, values = format.encodeToString(option.model.values)))
 
     override fun deleteAll() =
         pointDao()

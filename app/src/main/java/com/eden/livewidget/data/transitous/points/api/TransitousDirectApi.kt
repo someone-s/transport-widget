@@ -3,6 +3,7 @@ package com.eden.livewidget.data.transitous.points.api
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Option
 import com.eden.livewidget.data.common.points.api.DirectApi
 import com.eden.livewidget.data.transitous.points.TransitousValue
 import com.google.gson.annotations.SerializedName
@@ -22,10 +23,20 @@ private data class TransitousAutoComplete(
     val name: String?,
     @SerializedName("id")
     val id: String?,
+    @SerializedName("areas")
+    val areasNullable: List<TransitousArea>?,
 ) {
     fun isValid() =
         name != null &&
         id != null
+}
+
+private data class TransitousArea(
+    @SerializedName("name")
+    val name: String?,
+) {
+    fun isValid() =
+        name != null
 }
 
 private const val BASE_URL = "https://api.transitous.org"
@@ -62,7 +73,7 @@ class TransitousDirectApi: DirectApi {
     override suspend fun getAllFuzzyMatches(
         context: Context,
         input: String
-    ): List<Model> {
+    ): List<Option> {
 
         val pageRequest = service.getAutoComplete("STOP", input)
         pageRequest.request()
@@ -86,9 +97,18 @@ class TransitousDirectApi: DirectApi {
         return autoCompletes
             .filter { it.isValid() }
             .map {
-                Model(
-                    name = it.name!!,
-                    value = TransitousValue(it.id!!),
+                Option(
+                    model =
+                        Model(
+                            name = it.name!!,
+                            value = TransitousValue(it.id!!),
+                        ),
+                    annotation =
+                        it.areasNullable
+                        ?.filter { area -> area.isValid() }
+                        ?.reversed()
+                        ?.joinToString(", ") { area -> area.name!! }
+                        ?: ""
                 )
             }
     }

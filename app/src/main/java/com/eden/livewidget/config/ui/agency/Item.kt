@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.eden.livewidget.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.config.ui.common.SearchGroup
+import com.eden.livewidget.config.ui.common.SearchOption
 import kotlinx.coroutines.launch
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
@@ -52,9 +53,9 @@ fun Item(
         searchBarState = searchBarState,
         textFieldState = textFieldState,
         placeholder = stringResource(R.string.config_ui_agencyitem_input_placeholder),
-        results,
-        onResultClick = { _, result ->
-            onAgencySelected(agencyLookup[result])
+        options = results.map { SearchOption(queryText = it) },
+        onOptionClick = { _, option ->
+            onAgencySelected(agencyLookup[option.queryText])
         }
     )
 

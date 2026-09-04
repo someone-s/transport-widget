@@ -2,10 +2,10 @@ package com.eden.livewidget.data.common.points.datasource
 
 import android.content.Context
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Option
 
 interface DataSource {
-    suspend fun fetchMatching(context: Context, input: String): List<Model>
+    suspend fun fetchMatching(context: Context, input: String): List<Option>
 
     interface Refreshable {
         suspend fun refresh(context: Context, statusUpdate: (status: String) -> Unit)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.eden.livewidget.R
 import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.points.Option
 import com.eden.livewidget.data.common.points.api.BufferedApi
 import com.eden.livewidget.data.tfl.points.TflValue
 import com.google.gson.annotations.SerializedName
@@ -90,7 +91,7 @@ class TflBufferedApi: BufferedApi {
     override suspend fun fetchPoints(
         context: Context,
         statusUpdate: (String) -> Unit,
-    ): Flow<Model> = channelFlow {
+    ): Flow<Option> = channelFlow {
 
         val pageBatch = 3
         val maxAttempt = 3
@@ -146,7 +147,7 @@ class TflBufferedApi: BufferedApi {
     private data class PageResult(
         val success: Boolean,
         val unfilteredIsEmpty: Boolean = false,
-        val values: List<Model>? = null,
+        val values: List<Option>? = null,
     )
     private fun fetchPage(
         pageZeroIndexed: Int,
@@ -183,12 +184,15 @@ class TflBufferedApi: BufferedApi {
                 .filter { it.isValid() }
                 .filter { it.modes!!.any { mode -> validModes.contains(mode) } }
                 .map { stopPoint ->
-                    Model(
-                        name = stopPoint.commonName!!,
-                        value = TflValue(
-                            naptanId = stopPoint.naptanId!!,
-                            lineIds = stopPoint.lines!!.map { it.id!! },
-                        ),
+                    Option(
+                        model =
+                            Model(
+                                name = stopPoint.commonName!!,
+                                value = TflValue(
+                                    naptanId = stopPoint.naptanId!!,
+                                    lineIds = stopPoint.lines!!.map { it.id!! },
+                                ),
+                            ),
                     )
                 }
         )
