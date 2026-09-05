@@ -1,0 +1,1 @@
+On all datasources, open details webpage of each departure by clicking on depature entry
