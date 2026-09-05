@@ -4,13 +4,17 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 
 fun getResolvedOpenUriIntent(packageManager: PackageManager, uri: Uri): Intent {
 
-    val openUrlIntent = Intent().apply {
-        action = Intent.ACTION_VIEW
-        data = uri
-    }
+    val openUrlIntent = CustomTabsIntent.Builder()
+        .addDefaultShareMenuItem()
+        .build()
+        .intent
+        .apply {
+            data = uri
+        }
 
     // Settings app should be visible by default
     @SuppressLint("QueryPermissionsNeeded")

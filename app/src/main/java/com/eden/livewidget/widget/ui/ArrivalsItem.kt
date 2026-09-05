@@ -1,9 +1,6 @@
 package com.eden.livewidget.widget.ui
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp

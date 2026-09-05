@@ -126,4 +126,5 @@ dependencies {
     testImplementation(libs.mockito.core)
     coreLibraryDesugaring(libs.desugarjdklibs)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.browser)
 }

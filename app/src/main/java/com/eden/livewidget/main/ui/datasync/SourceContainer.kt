@@ -1,6 +1,6 @@
 package com.eden.livewidget.main.ui.datasync
 
-import android.content.Intent
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +37,13 @@ fun SourceContainer(
     setResetWarningState: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
-    val intent = Intent(Intent.ACTION_VIEW, agency.agencyHelp)
+    val intent = CustomTabsIntent.Builder()
+        .addDefaultShareMenuItem()
+        .build()
+        .intent
+        .apply {
+            data = agency.agencyHelp
+        }
 
     Card(
         modifier = Modifier
