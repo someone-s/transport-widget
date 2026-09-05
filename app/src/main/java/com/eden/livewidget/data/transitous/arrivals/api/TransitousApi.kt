@@ -1,7 +1,9 @@
 package com.eden.livewidget.data.transitous.arrivals.api
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.eden.livewidget.data.common.arrivals.LocationBoard
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
@@ -39,6 +41,8 @@ private data class TransitousStopTime(
     val tripTo: TransitousPlaceTo?,
     @SerializedName("agencyName")
     val agencyName: String?,
+    @SerializedName("tripId")
+    val tripId: String?,
     @SerializedName("routeShortName")
     val routeName: String?,
 ) {
@@ -46,6 +50,7 @@ private data class TransitousStopTime(
         place != null && place.isValid() &&
         tripTo != null && tripTo.isValid() &&
         agencyName != null &&
+        tripId != null &&
         routeName != null
 }
 
@@ -58,10 +63,13 @@ private data class TransitousFilteredResponse(
 }
 
 private data class TransitousItinerary(
+    @SerializedName("id")
+    val itineraryId: String?,
     @SerializedName("legs")
     val legs: List<TransitousLeg>?,
 ) {
     fun isValid() =
+        itineraryId != null &&
         legs != null
 }
 
@@ -105,6 +113,14 @@ private data class TransitousPlaceTo(
     fun isValid() =
         name != null
 }
+
+private data class InterpretedTransitousEntry(
+    val fromPlace: TransitousPlaceSelf,
+    val toPlace: TransitousPlaceTo,
+    val agencyName: String,
+    val routeName: String,
+    val detailUri: Uri,
+)
 
 private const val BASE_URL = "https://api.transitous.org"
 
@@ -203,17 +219,15 @@ class TransitousApi: Api {
                 .toFormatter()
 
         if (value.toIds.isEmpty()) {
-            val stopPoints = fetchUnfiltered(value.id) ?: return emptyList()
-            return stopPoints
-                .filter { it.isValid() }
-                .map { constructModel(it, responseTimeFormatter, currentTime) }
-                .filter { it.remainingS < 86400 }
+            return fetchUnfiltered(value.id)
+                ?.map { constructModel(it, responseTimeFormatter, currentTime) }
+                ?.filter { it.remainingS < 86400 }
+                ?: emptyList()
         }
         else
             return value.toIds
                 .flatMap { toId -> fetchFiltered(value.id, toId) ?: return emptyList() }
                 .asSequence()
-                .filter { it.isValid() }
                 .distinct()
                 .map { constructModel(it, responseTimeFormatter, currentTime) }
                 .sortedBy { model -> model.remainingS }
@@ -222,16 +236,13 @@ class TransitousApi: Api {
     }
 
     private fun constructModel(
-        stopTime: TransitousStopTime,
+        entry: InterpretedTransitousEntry,
         responseTimeFormatter: DateTimeFormatter,
-        currentTime: LocalDateTime
+        currentTime: LocalDateTime,
     ): Model {
-        checkNotNull(stopTime.place)
-        checkNotNull(stopTime.tripTo)
-
         val expectDateTime =
             ZonedDateTime
-                .from(responseTimeFormatter.parse(stopTime.place.departure))
+                .from(responseTimeFormatter.parse(entry.fromPlace.departure))
                 .withZoneSameInstant(ZoneId.systemDefault())
                 .toLocalDateTime()
 
@@ -239,21 +250,22 @@ class TransitousApi: Api {
             Math.toIntExact(ChronoUnit.SECONDS.between(currentTime, expectDateTime))
 
         return Model(
-            operatorName = stopTime.agencyName!!,
-            serviceName = stopTime.routeName!!,
-            destinationName = stopTime.tripTo.name!!,
+            operatorName = entry.agencyName,
+            serviceName = entry.routeName,
+            destinationName = entry.toPlace.name!!,
             locationPretext = LocationBoard(
-                boardText = stopTime.place.name!!,
+                boardText = entry.fromPlace.name!!,
             ),
-            platformName = stopTime.place.trackNullable,
+            platformName = entry.fromPlace.trackNullable,
             remainingS = secondsToDeparture,
             expectedDateTime = expectDateTime,
+            detailUri = entry.detailUri,
         )
     }
 
     private fun fetchUnfiltered(
         id: String,
-    ): List<TransitousStopTime>? {
+    ): List<InterpretedTransitousEntry>? {
 
         val request = service.getStopTimes(
             id = id,
@@ -285,12 +297,22 @@ class TransitousApi: Api {
         }
 
         return body.stopTimes
+            ?.filter { it.isValid() }
+            ?.map {
+                InterpretedTransitousEntry(
+                    fromPlace = it.place!!,
+                    toPlace = it.tripTo!!,
+                    agencyName = it.agencyName!!,
+                    routeName = it.routeName!!,
+                    detailUri = "https://api.transitous.org/?tripId=${it.tripId}".toUri(),
+                )
+            }
     }
 
     private fun fetchFiltered(
         fromId: String,
         toId: String
-    ): List<TransitousStopTime>? {
+    ): List<InterpretedTransitousEntry>? {
 
         val request = service.getItineraries(
             fromId = fromId,
@@ -325,14 +347,16 @@ class TransitousApi: Api {
         return body.itineraries!!
             .asSequence()
             .filter { it.isValid() }
-            .flatMap { it.legs!! }
-            .filter { it.isValid() }
-            .map { leg ->
-                TransitousStopTime(
-                    place = leg.from,
-                    tripTo = leg.tripTo,
-                    agencyName = leg.agencyName,
-                    routeName = leg.routeName,
+            .filter { it.legs!!.size == 1 }
+            .filter { it.legs!![0].isValid() }
+            .map {
+                val leg = it.legs!![0]
+                InterpretedTransitousEntry(
+                    fromPlace = leg.from!!,
+                    toPlace = leg.tripTo!!,
+                    agencyName = leg.agencyName!!,
+                    routeName = leg.routeName!!,
+                    detailUri = "https://api.transitous.org/?itineraryId=${it.itineraryId}".toUri(),
                 )
             }
             .toList()
