@@ -1,5 +1,9 @@
 package com.eden.livewidget.widget.ui
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -9,6 +13,8 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.action.clickable
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -32,6 +38,7 @@ import com.eden.livewidget.data.common.arrivals.LocationBoard
 import com.eden.livewidget.data.common.arrivals.LocationFrom
 import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
+import com.eden.livewidget.widget.util.getResolvedOpenUriIntent
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -39,7 +46,16 @@ fun ArrivalsItem(
     arrival: Model,
     timeFormatter: DateTimeFormatter,
 ) {
-        Box {
+        val resolvedOpenUriIntent =
+            if (arrival.detailUri != null)
+                getResolvedOpenUriIntent(LocalContext.current.packageManager, arrival.detailUri)
+            else
+                Intent()
+
+        Box(
+            modifier = GlanceModifier
+                .clickable(actionStartActivity(resolvedOpenUriIntent))
+        ) {
 
             Box(
                 modifier = GlanceModifier

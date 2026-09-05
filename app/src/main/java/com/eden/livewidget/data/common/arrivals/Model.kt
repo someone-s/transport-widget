@@ -1,5 +1,6 @@
 package com.eden.livewidget.data.common.arrivals
 
+import android.net.Uri
 import java.time.LocalDateTime
 
 open class Model(
@@ -11,6 +12,7 @@ open class Model(
     val platformName: String? = null,
     val remainingS: Int,
     val expectedDateTime: LocalDateTime,
+    val detailUri: Uri? = null,
 )
 
 sealed interface LocationPretext
