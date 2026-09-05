@@ -135,7 +135,11 @@ class TflApi: Api {
                         serviceName = processServiceName(entry.lineName!!),
                         destinationName = entry.destinationName,
                         locationSupplement =
-                            if (entry.towards != "null" && entry.towards != entry.destinationName)
+                            if (
+                                entry.towards != "" &&
+                                entry.towards != "null" &&
+                                entry.towards != entry.destinationName
+                            )
                                 LocationVia(
                                     viaText = entry.towards
                                 )
