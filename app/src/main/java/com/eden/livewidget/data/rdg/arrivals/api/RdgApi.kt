@@ -2,6 +2,7 @@ package com.eden.livewidget.data.rdg.arrivals.api
 
 import android.content.Context
 import android.util.Log
+import androidx.core.net.toUri
 import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
@@ -37,6 +38,8 @@ private data class RdgService(
     val trainId: String,
     @SerializedName("destination")
     val destinations: List<RdgDestination>?,
+    @SerializedName("rid")
+    val retailId: String?,
     @SerializedName("platform")
     val platform: String?,
     @SerializedName("atdSpecified")
@@ -200,16 +203,26 @@ class RdgApi : Api {
                         operatorName = processOperatorName(service.operator),
                         serviceName = service.trainId,
                         destinationName = firstDestination.locationName,
-                        locationSupplement = LocationVia(
-                            viaText =
-                                if (firstDestination.viaText != null)
-                                    processViaText(firstDestination.viaText)
-                                else
-                                    ""
-                        ),
+                        locationSupplement =
+                            if (firstDestination.viaText != null)
+                                LocationVia(
+                                    viaText = processViaText(firstDestination.viaText)
+                                )
+                            else
+                                null,
                         platformName = service.platform ?: "",
                         remainingS = max(0, secondsToDeparture - 60),
-                        expectedDateTime = expectDateTime
+                        expectedDateTime = expectDateTime,
+                        detailUri =
+                            if (service.retailId != null)
+                                (
+                                    "https://www.nationalrail.co.uk/live-trains/details?" +
+                                    "sid=${service.retailId}&" +
+                                    "type=departures&" +
+                                    "targetCrs=${crsCode}"
+                                ).toUri()
+                            else
+                                null
                     )
                 } catch (e: Exception) {
                     Log.e("ARRIVAL-INFO", e.message.toString())

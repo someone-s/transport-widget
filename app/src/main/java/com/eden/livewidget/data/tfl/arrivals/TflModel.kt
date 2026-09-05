@@ -1,5 +1,6 @@
 package com.eden.livewidget.data.tfl.arrivals
 
+import android.net.Uri
 import com.eden.livewidget.data.common.arrivals.LocationSupplement
 import com.eden.livewidget.data.common.arrivals.Model
 import java.time.LocalDateTime
@@ -12,6 +13,7 @@ class TflModel(
     platformName: String,
     remainingS: Int,
     expectedDateTime: LocalDateTime,
+    detailUri: Uri,
     val modeName: String,
     val lineId: String,
     val direction: String,
@@ -24,4 +26,5 @@ class TflModel(
     platformName = platformName,
     remainingS = remainingS,
     expectedDateTime = expectedDateTime,
+    detailUri = detailUri,
 )

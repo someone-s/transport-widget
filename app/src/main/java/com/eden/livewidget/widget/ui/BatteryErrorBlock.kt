@@ -1,13 +1,8 @@
 package com.eden.livewidget.widget.ui
 
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -29,6 +24,8 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
+import com.eden.livewidget.widget.util.getResolvedBatterySaverSettingsIntent
+import com.eden.livewidget.widget.util.getResolvedAppSettingsIntent
 
 @Composable
 fun BatteryErrorBlock() {
@@ -73,9 +70,9 @@ fun BatteryErrorBlock() {
 @Composable
 private fun UpdateKeyGroup() {
 
-    val appSettingsIntent = getResolvedNetworkSettingsIntent(LocalContext.current.packageManager, LocalContext.current.packageName)
+    val appSettingsIntent = getResolvedAppSettingsIntent(LocalContext.current.packageManager, LocalContext.current.packageName)
 
-    val batterySaverSettingsIntent = getResolvedMeteredSettingsIntent(LocalContext.current.packageManager)
+    val batterySaverSettingsIntent = getResolvedBatterySaverSettingsIntent(LocalContext.current.packageManager)
 
     Row(
         modifier = GlanceModifier
@@ -108,44 +105,5 @@ private fun UpdateKeyGroup() {
             maxLines = 2,
             onClick = actionStartActivity(batterySaverSettingsIntent),
         )
-    }
-}
-
-private fun getResolvedNetworkSettingsIntent(packageManager: PackageManager, packageName: String): Intent {
-
-    val applicationSettingsIntent = Intent().apply {
-        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-    }
-
-    // Settings app should be visible by default
-    @SuppressLint("QueryPermissionsNeeded")
-    val applicationSettingsComponentName =
-        applicationSettingsIntent.resolveActivity(packageManager)
-
-    return Intent().apply {
-        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-        component = applicationSettingsComponentName
-        data = "package:$packageName".toUri()
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-    }
-}
-
-private fun getResolvedMeteredSettingsIntent(packageManager: PackageManager): Intent {
-    val batterySaverSettingsIntent = Intent().apply {
-        action = Settings.ACTION_BATTERY_SAVER_SETTINGS
-    }
-
-    // Settings app should be visible by default
-    @SuppressLint("QueryPermissionsNeeded")
-    val batterySaverComponentName =
-        batterySaverSettingsIntent.resolveActivity(packageManager)
-
-    return batterySaverSettingsIntent.apply {
-        component = batterySaverComponentName
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
     }
 }

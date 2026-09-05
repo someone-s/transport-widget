@@ -1,14 +1,8 @@
 package com.eden.livewidget.widget.ui
 
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
-import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -30,6 +24,8 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
+import com.eden.livewidget.widget.util.getResolvedMeteredSettingsIntent
+import com.eden.livewidget.widget.util.getResolvedNetworkSettingsIntent
 
 @Composable
 fun MeteredErrorBlock() {
@@ -109,49 +105,5 @@ private fun UpdateKeyGroup() {
             maxLines = 2,
             onClick = actionStartActivity(meteredSettingsIntent),
         )
-    }
-}
-
-private fun getResolvedNetworkSettingsIntent(packageManager: PackageManager): Intent {
-
-    val networkSettingsIntent = Intent().apply {
-
-            action =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                    Settings.ACTION_DATA_USAGE_SETTINGS
-                else
-                    Settings.ACTION_SETTINGS
-
-    }
-
-    // Settings app should be visible by default
-    @SuppressLint("QueryPermissionsNeeded")
-    val networkSettingsComponentName =
-        networkSettingsIntent.resolveActivity(packageManager)
-
-    return networkSettingsIntent.apply {
-        component = networkSettingsComponentName
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-    }
-}
-
-private fun getResolvedMeteredSettingsIntent(packageManager: PackageManager, packageName: String): Intent {
-    val meteredSettingsIntent = Intent().apply {
-        action = Settings.ACTION_IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS
-        data = "package:$packageName".toUri()
-    }
-
-    // Settings app should be visible by default
-    @SuppressLint("QueryPermissionsNeeded")
-    val meteredSettingsComponentName =
-        meteredSettingsIntent.resolveActivity(packageManager)
-
-    return meteredSettingsIntent.apply {
-        component = meteredSettingsComponentName
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
     }
 }

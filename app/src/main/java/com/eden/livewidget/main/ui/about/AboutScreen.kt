@@ -1,7 +1,6 @@
 package com.eden.livewidget.main.ui.about
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.livewidget.R
 import com.eden.livewidget.main.ui.Providers
+import com.eden.livewidget.main.util.getOpenUriIntent
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 
 
@@ -80,7 +80,7 @@ fun AboutScreen(context: Context?) {
             if (context == null) return@AboutPanel
 
             val uri = context.getString(R.string.about_data_source_url).toUri()
-            val intent = Intent(Intent.ACTION_VIEW, uri)
+            val intent = getOpenUriIntent(uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
@@ -92,7 +92,7 @@ fun AboutScreen(context: Context?) {
             if (context == null) return@AboutPanel
 
             val uri = context.getString(R.string.about_user_interface_url).toUri()
-            val intent = Intent(Intent.ACTION_VIEW, uri)
+            val intent = getOpenUriIntent(uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
@@ -104,7 +104,7 @@ fun AboutScreen(context: Context?) {
             if (context == null) return@AboutPanel
 
             val uri = context.getString(R.string.about_caching_url).toUri()
-            val intent = Intent(Intent.ACTION_VIEW, uri)
+            val intent = getOpenUriIntent(uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
@@ -116,7 +116,7 @@ fun AboutScreen(context: Context?) {
             if (context == null) return@AboutPanel
 
             val uri = context.getString(R.string.about_source_code_url).toUri()
-            val intent = Intent(Intent.ACTION_VIEW, uri)
+            val intent = getOpenUriIntent(uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))

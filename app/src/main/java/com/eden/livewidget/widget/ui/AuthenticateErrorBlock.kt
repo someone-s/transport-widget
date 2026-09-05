@@ -1,10 +1,6 @@
 package com.eden.livewidget.widget.ui
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,7 +26,8 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.Agency
 import com.eden.livewidget.R
-import com.eden.livewidget.main.MainActivity
+import com.eden.livewidget.widget.util.getExplicitKeySettingsIntent
+import com.eden.livewidget.widget.util.getResolvedOpenUriIntent
 
 @Composable
 fun AuthenticateErrorBlock(
@@ -77,7 +74,7 @@ fun AuthenticateErrorBlock(
 @Composable
 private fun UpdateKeyGroup(agency: Agency?) {
 
-    val getResolvedOpenUriIntent =
+    val resolvedOpenUriIntent =
         if (agency != null)
             getResolvedOpenUriIntent(LocalContext.current.packageManager, agency.agencyHelp)
         else
@@ -98,7 +95,7 @@ private fun UpdateKeyGroup(agency: Agency?) {
         FilledButton(
             icon = ImageProvider(R.drawable.ic_shared_filled_corporate_fare),
             text = LocalContext.current.getString(R.string.widget_retry_authenticate_go_to_service_text),
-            onClick = actionStartActivity(getResolvedOpenUriIntent),
+            onClick = actionStartActivity(resolvedOpenUriIntent),
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .defaultWeight()
@@ -120,32 +117,5 @@ private fun UpdateKeyGroup(agency: Agency?) {
                 .fillMaxHeight(),
             maxLines = 2
         )
-    }
-}
-
-private fun getResolvedOpenUriIntent(packageManager: PackageManager, uri: Uri): Intent {
-
-    val openUrlIntent = Intent().apply {
-        action = Intent.ACTION_VIEW
-        data = uri
-    }
-
-    // Settings app should be visible by default
-    @SuppressLint("QueryPermissionsNeeded")
-    val openUriComponentName =
-        openUrlIntent.resolveActivity(packageManager)
-
-    return openUrlIntent.apply {
-        component = openUriComponentName
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-    }
-}
-
-private fun getExplicitKeySettingsIntent(context: Context, agency: Agency): Intent {
-
-    return Intent(context, MainActivity::class.java).apply {
-        putExtra(MainActivity.AGENCY_EXTRA_NAME, agency)
     }
 }

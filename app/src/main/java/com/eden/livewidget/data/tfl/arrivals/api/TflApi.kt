@@ -2,6 +2,7 @@ package com.eden.livewidget.data.tfl.arrivals.api
 
 import android.content.Context
 import android.util.Log
+import androidx.core.net.toUri
 import com.eden.livewidget.data.common.arrivals.LocationVia
 import com.eden.livewidget.data.common.arrivals.Model
 import com.eden.livewidget.data.common.arrivals.api.Api
@@ -24,6 +25,8 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
 private data class TflEntry(
+    @SerializedName("naptanId")
+    val sourceNaptanId: String?,
     @SerializedName("lineId")
     val lineId: String?,
     @SerializedName("lineName")
@@ -46,6 +49,7 @@ private data class TflEntry(
     val modeName: String?,
 ) {
     fun isValid() =
+        sourceNaptanId != null &&
         lineId != null &&
         lineName != null &&
         platformName != null &&
@@ -131,7 +135,11 @@ class TflApi: Api {
                         serviceName = processServiceName(entry.lineName!!),
                         destinationName = entry.destinationName,
                         locationSupplement =
-                            if (entry.towards != "null" && entry.towards != entry.destinationName)
+                            if (
+                                entry.towards != "" &&
+                                entry.towards != "null" &&
+                                entry.towards != entry.destinationName
+                            )
                                 LocationVia(
                                     viaText = entry.towards
                                 )
@@ -145,6 +153,8 @@ class TflApi: Api {
                                 .atOffset(ZoneOffset.UTC)
                                 .atZoneSameInstant(ZoneId.systemDefault())
                                 .toLocalDateTime(),
+                        detailUri =
+                            "https://tfl.gov.uk/${entry.modeName}/stop/${entry.sourceNaptanId}/".toUri(),
                         modeName = entry.modeName!!,
                         lineId = entry.lineId!!,
                         direction = entry.direction!!,
