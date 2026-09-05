@@ -203,13 +203,13 @@ class RdgApi : Api {
                         operatorName = processOperatorName(service.operator),
                         serviceName = service.trainId,
                         destinationName = firstDestination.locationName,
-                        locationSupplement = LocationVia(
-                            viaText =
-                                if (firstDestination.viaText != null)
-                                    processViaText(firstDestination.viaText)
-                                else
-                                    ""
-                        ),
+                        locationSupplement =
+                            if (firstDestination.viaText != null)
+                                LocationVia(
+                                    viaText = processViaText(firstDestination.viaText)
+                                )
+                            else
+                                null,
                         platformName = service.platform ?: "",
                         remainingS = max(0, secondsToDeparture - 60),
                         expectedDateTime = expectDateTime,
