@@ -1,1 +1,1 @@
-Live arrival times widget.
+Live bus, metro, trains and more widget.
