@@ -2,11 +2,17 @@
 
 # Transport Widget
 
-An app that provides home screen widgets displaying live arrival times of public transit services, supports multiple data source.
+Keep track of departures or arrivals that matters to you, on your home screen. Transport Widget is a open source widget app that display live departure and arrival times of public transit services, utilizing various public open data source.
 
-Utilize [Transitous](https://transitous.org/) as global data source, data feed directly from [Transport for London](https://api-portal.tfl.gov.uk/) and [Rail Delivery Group](https://raildata.org.uk/) also provided.
+Big thanks to [Transitous](https://transitous.org/) for acting as a global data source, the app also support gathering data directly from [Transport for London](https://api-portal.tfl.gov.uk/) and [Rail Delivery Group](https://raildata.org.uk/).
 
 Supports Android 7 to 16.
+
+## Screenshots
+
+|                                             |                                   |                                     |                                  |
+|--------------------------------------------------:|:----------------------------------------------:|:----------------------------------------------:|:---------------------------------------------|:---------------------------------------------|
+| ![1](fastlane/metadata/android/en-US/images/phoneScreenshots/1.png) | ![2](fastlane/metadata/android/en-US/images/phoneScreenshots/2.png) | ![3](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png) | ![4](/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png) | ![5](/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png) |
 
 ## Getting the App
 Android (F-Droid)                            |	Android (Play Store)                            |	Android (Release Page)
@@ -22,13 +28,6 @@ Join the [Google Group](https://groups.google.com/g/transport-widget-closed-test
 ## How do I...?
 Refer to the individual help page on the [Wiki](https://someone-s.github.io/transport-widget/)
 
-
-## Screenshots
-
-
-|                                            Widget |                 Config Screen                  |                  Home Screen                   | About Screen                                 |
-|--------------------------------------------------:|:----------------------------------------------:|:----------------------------------------------:|:---------------------------------------------|
-| ![Provider Screen](fastlane/metadata/android/en-US/images/phoneScreenshots/1.png) | ![Config Screen](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png) | ![Home Screen](fastlane/metadata/android/en-US/images/phoneScreenshots/2.png) | ![About Screen](/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png) |
 
 ## Building From Source
 Android Studio is the environment used for development, however, the app can also be built from the command line.
