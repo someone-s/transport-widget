@@ -2,6 +2,7 @@ package com.eden.livewidget.data.transitous.arrivals.api
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.core.net.toUri
 import com.eden.livewidget.data.common.arrivals.LocationBoard
@@ -25,6 +26,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 private data class TransitousUnfilteredResponse(
     @SerializedName("stopTimes")
@@ -196,6 +199,13 @@ val validFilterModes = setOf(
 
 val commaSeparatedValidFilterModes = validFilterModes.joinToString(",")
 
+private fun String.encodeUTF8(): String {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        URLEncoder.encode(this, StandardCharsets.UTF_8)
+    else
+        URLEncoder.encode(this, StandardCharsets.UTF_8.toString())
+}
+
 class TransitousApi: Api {
 
     private val service: TransitousApiService by lazy {
@@ -304,7 +314,7 @@ class TransitousApi: Api {
                     toPlace = it.tripTo!!,
                     agencyName = it.agencyName!!,
                     routeName = it.routeName!!,
-                    detailUri = "https://api.transitous.org/?tripId=${it.tripId}".toUri(),
+                    detailUri = "https://api.transitous.org/?tripId=${it.tripId!!.encodeUTF8()}".toUri(),
                 )
             }
     }
@@ -356,7 +366,7 @@ class TransitousApi: Api {
                     toPlace = leg.tripTo!!,
                     agencyName = leg.agencyName!!,
                     routeName = leg.routeName!!,
-                    detailUri = "https://api.transitous.org/?itineraryId=${it.itineraryId}".toUri(),
+                    detailUri = "https://api.transitous.org/?itineraryId=${it.itineraryId!!.encodeUTF8()}".toUri(),
                 )
             }
             .toList()
