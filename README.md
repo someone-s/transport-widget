@@ -17,7 +17,7 @@ Supports Android 7 to 16.
 ## Getting the App
 Android (F-Droid)                            |	Android (Play Store)                            |	Android (Release Page)
 -------------------------------------------------------:|:-------------------------------------------------------:|:-------------------------------------------------------
-[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.eden.livewidget/) | [Closed Testing Google Group](https://groups.google.com/g/transport-widget-closed-testing) | [Release Page](https://github.com/someone-s/transport-widget/releases)
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.eden.livewidget/) | [<img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play Store">](https://play.google.com/store/apps/details?id=com.eden.livewidget) | [Release Page](https://github.com/someone-s/transport-widget/releases)
 
 I'm in the process of getting the app published on Play Store.
 
