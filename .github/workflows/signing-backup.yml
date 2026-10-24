@@ -1,4 +1,4 @@
-name: ADI Registration
+name: Signing Backup
 
 on:
   workflow_dispatch:
