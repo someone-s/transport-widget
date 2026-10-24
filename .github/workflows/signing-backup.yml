@@ -1,0 +1,25 @@
+name: ADI Registration
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write
+
+    steps:
+    - name: Create signing-backup.txt
+      run: touch signing-backup.txt
+
+    - name: Write adi identifier
+      run: echo "${{ secrets.SIGNING_KEY }}" > signing-backup.txt
+    
+    - uses: actions/upload-artifact@v4
+      with:
+        name: signing-backup.txt
+        path: signing-backup.txt
