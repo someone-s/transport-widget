@@ -5,21 +5,32 @@ on:
 
 jobs:
 
-  build:
+  bakup:
 
     runs-on: ubuntu-latest
     environment: production
     permissions:
       contents: write
+    strategy:
+      matrix:
+        secret: [
+          "ALIAS", 
+          "KEY_PASSWORD",
+          "KEY_STORE_PASSWORD",
+          "SIGNING_KEY"
+        ]
 
     steps:
-    - name: Create signing-backup.txt
-      run: touch signing-backup.txt
 
-    - name: Write adi identifier
-      run: echo "${{ secrets.SIGNING_KEY }}" > signing-backup.txt
-    
+    - id: create_backup_of_secret
+      name: Create backup of secret
+      run: |
+        OUT_FILE=${{ github.event.repository.name }}_${{ matrix.secret }}.txt
+        touch $OUT_FILE
+        echo "${{ secrets[matrix.secret] }}" > $OUT_FILE
+        echo "OUT_FILE=$OUT_FILE" >> $GITHUB_OUTPUT
+
     - uses: actions/upload-artifact@v4
       with:
-        name: signing-backup.txt
-        path: signing-backup.txt
+        name: ${{ steps.create_backup_of_secret.outputs.OUT_FILE }}
+        path: ${{ steps.create_backup_of_secret.outputs.OUT_FILE }}
