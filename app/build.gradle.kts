@@ -1,6 +1,3 @@
-import com.android.build.api.dsl.ApplicationExtension
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -10,29 +7,12 @@ plugins {
     alias(libs.plugins.jaredsburrows.license)
 }
 
-// https://developer.android.com/training/data-storage/room/migrating-db-versions#set_schema_location_using_room_gradle_plugin
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
-java {
-    toolchain {
-    }
-}
-
-kotlin {
-    jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_21
-    }
-}
-
-extensions.configure<ApplicationExtension> {
+android {
 
     namespace = "com.eden.livewidget"
-    compileSdk = 37
+    compileSdk {
+        version = release(37)
+    }
 
     defaultConfig {
         applicationId = "com.eden.livewidget"
@@ -44,22 +24,28 @@ extensions.configure<ApplicationExtension> {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(project.property("RELEASE_STORE_FILE").toString())
+            storePassword = project.property("RELEASE_STORE_PASSWORD").toString()
+            keyAlias = project.property("RELEASE_KEY_ALIAS").toString()
+            keyPassword = project.property("RELEASE_KEY_PASSWORD").toString()
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
             optimization {
-                enable = true // Enables code and resource optimizations.
+                enable = true
             }
             ndk {
-                debugSymbolLevel = "SYMBOL_TABLE"
+                debugSymbolLevel = "FULL"
             }
-        }
-        debug {
-
         }
     }
     compileOptions {
@@ -78,6 +64,11 @@ extensions.configure<ApplicationExtension> {
     packaging {
         jniLibs.keepDebugSymbols.add("**/*.so")
     }
+}
+
+// https://developer.android.com/training/data-storage/room/migrating-db-versions#set_schema_location_using_room_gradle_plugin
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 
