@@ -1,4 +1,4 @@
-package com.eden.livewidget.main.util
+package com.eden.livewidget.ui.util
 
 import android.content.Intent
 import android.net.Uri
