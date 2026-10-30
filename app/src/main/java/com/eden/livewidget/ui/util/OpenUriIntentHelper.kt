@@ -6,7 +6,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 
 fun getOpenUriIntent(uri: Uri): Intent {
     return CustomTabsIntent.Builder()
-        .addDefaultShareMenuItem()
+        .setShareState(CustomTabsIntent.SHARE_STATE_ON)
         .build()
         .intent
         .apply {
