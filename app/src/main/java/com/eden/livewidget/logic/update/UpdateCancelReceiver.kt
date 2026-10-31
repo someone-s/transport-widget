@@ -3,20 +3,17 @@ package com.eden.livewidget.logic.update
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
+import com.eden.livewidget.LiveWidgetApplication
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class UpdateCancelReceiver: BroadcastReceiver() {
-    override fun onReceive(context: Context?, intent: Intent?) {
-        if (context == null) {
-            Log.e(this.javaClass.name, "Context is null")
-            return
-        }
+    override fun onReceive(context: Context, intent: Intent) {
 
-        val appWidgetId = intent?.getIntExtra(UpdateScheduler.APP_WIDGET_ID, -1) ?: -1
+        val appContainer = (context.applicationContext as LiveWidgetApplication).container
+        val appWidgetId = intent.getIntExtra(UpdateScheduler.APP_WIDGET_ID, -1)
 
         UpdateScheduler.cancelCurrentRequest(context, appWidgetId)
 
@@ -24,7 +21,7 @@ class UpdateCancelReceiver: BroadcastReceiver() {
         @OptIn(DelicateCoroutinesApi::class)
         GlobalScope.launch(Dispatchers.Default) {
             try {
-                updateWidget(context, appWidgetId, -1)
+                updateWidget(context, appContainer, appWidgetId, -1)
             }
             finally {
                 pendingResult.finish()

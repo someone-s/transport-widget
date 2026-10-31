@@ -5,6 +5,7 @@ import com.eden.livewidget.data.buffered.BufferedPointsRepository
 import com.eden.livewidget.data.keys.KeyProvider
 import com.eden.livewidget.data.keys.ObscuredKeyProvider
 import com.eden.livewidget.data.common.ArrivalsRepository
+import com.eden.livewidget.data.common.DestinationCompiler
 import com.eden.livewidget.data.common.PointsRepository
 import com.eden.livewidget.data.common.Provider
 
@@ -32,4 +33,8 @@ class RdgProvider(
             api = RdgArrivalsApi(context, arrivalsKeyProvider),
         )
     }
+    override val destinationCompiler: DestinationCompiler by lazy {
+        RdgDestinationCompiler()
+    }
+
 }

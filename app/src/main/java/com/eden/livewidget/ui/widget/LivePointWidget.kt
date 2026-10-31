@@ -14,13 +14,10 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
-import com.eden.livewidget.ui.Agency
-import com.eden.livewidget.ui.agencyFromString
-import com.eden.livewidget.data.common.arrivals.ArrivalsState
-import com.eden.livewidget.data.common.arrivals.Repository
-import com.eden.livewidget.data.common.DataPoint
-import com.eden.livewidget.data.format
-import com.eden.livewidget.data.common.arrivals.filter.emptyState as emptyFilterState
+import com.eden.livewidget.LiveWidgetApplication
+import com.eden.livewidget.data.common.ArrivalsState
+import com.eden.livewidget.data.formatter
+import com.eden.livewidget.logic.emptyFilterState
 import com.eden.livewidget.logic.update.UpdateScheduler
 
 class LivePointWidget : GlanceAppWidget() {
@@ -49,6 +46,10 @@ class LivePointWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
+        val appContainer = (context.applicationContext as LiveWidgetApplication).container
+        val appWidgetManager = GlanceAppWidgetManager(context)
+        val appWidgetId = appWidgetManager.getAppWidgetId(id)
+
         // In this method, load data needed to render the AppWidget.
         // Use `withContext` to switch to another thread for long-running
         // operations.
@@ -57,22 +58,15 @@ class LivePointWidget : GlanceAppWidget() {
             GlanceTheme {
                 Log.i(javaClass.name, "Restart")
 
-                val agencyString = currentState(AGENCY_KEY)
-                if (agencyString == null) {
+                val agencyId = currentState(AGENCY_KEY)
+                if (agencyId == null) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
                 }
                 val agency = try {
-                    agencyFromString(agencyString) as Agency
-                } catch (_: Exception) {
-                    PlaceholderContent(context, id)
-                    return@GlanceTheme
-                }
-
-                val valuesString = currentState(VALUES_KEY)
-                val values: List<DataPoint> = try {
-                    checkNotNull(valuesString)
-                    format.decodeFromString(valuesString)
+                    val retrieved = appContainer.agencyFromId(agencyId)
+                    checkNotNull(retrieved)
+                    retrieved
                 } catch (_: Exception) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
@@ -84,30 +78,19 @@ class LivePointWidget : GlanceAppWidget() {
                     return@GlanceTheme
                 }
 
-
                 val filterStateString = currentState(FILTER_STATE_KEY)
                 val filterState = try {
                     if (filterStateString == null)
                         emptyFilterState()
                     else
-                        format.decodeFromString(filterStateString)
+                        formatter.decodeFromString(filterStateString)
                 } catch (_: Exception) {
                     emptyFilterState()
                 }
 
                 val fetchResultOptions = currentState(FETCH_STATE_KEY)
 
-                val repository = Repository.getInstance(
-                    key = Repository.Companion.Key(
-                        agencyString = agencyString,
-                        valuesString = valuesString,
-                        filterStateString = filterStateString ?: "",
-                    ),
-                    provider = agency.apiProvider,
-                    values = values,
-                    filterState = filterState
-                )
-                val arrivalsData by repository.arrivalsData.collectAsState()
+                val arrivalsData by agency.provider.arrivalsRepository.getOrCreateFlow(appWidgetId).collectAsState()
 
                 val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
                 val flow = UpdateScheduler.getIsActiveFlow(widgetId)
@@ -148,7 +131,7 @@ class LivePointWidget : GlanceAppWidget() {
 
                 val updateTime = if (fetchResultOptions != FETCH_PENDING) arrivalsData.lastUpdate else null
 
-                val destinationNames = filterState.destinationFilters.map { filter -> filter.toPoint.name }
+                val destinationNames = filterState.destinations.map { it.config.toPoint.name }
 
                 MyContent(
                     mode = mode,

@@ -1,6 +1,6 @@
 package com.eden.livewidget.data.trasitous
 
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationFilter
+import com.eden.livewidget.data.common.DestinationFilter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

@@ -3,12 +3,12 @@ package com.eden.livewidget.ui.config.destination
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxDefaults
-import androidx.compose.material3.SwipeToDismissBoxState
-import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedListItem
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,40 +17,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
-import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.arrivals.filter.Status
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
+import com.eden.livewidget.data.common.DestinationConfig
 import com.eden.livewidget.data.common.LogicalPoint
-import com.eden.livewidget.data.common.points.Repository
+import com.eden.livewidget.data.common.Provider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun Item(
+fun AddSection(
     currentProvider: Provider?,
     currentPoint: LogicalPoint?,
-    filter: DestinationConfig,
-    onFilterChange: (DestinationConfig?) -> Unit,
+    onAddFilter: (DestinationConfig) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
-
     val context = LocalContext.current
-
-    // Avoid standard rememberSwipeToDismissBoxState as that does not have key option
-    // Also do not need to survive recomposition
-    val positionThreshold = SwipeToDismissBoxDefaults.positionalThreshold
-    val dismissBoxState = remember(filter) {
-        SwipeToDismissBoxState(
-            SwipeToDismissBoxValue.Settled,
-            positionThreshold,
-        )
-    }
 
     val searchBarState = rememberSearchBarState()
     val textFieldState = rememberTextFieldState()
@@ -74,7 +60,7 @@ fun Item(
         SearchGroup(
             searchBarState = searchBarState,
             textFieldState = textFieldState,
-            placeholder = stringResource(R.string.config_ui_destination_item_input_placeholder),
+            placeholder = stringResource(R.string.config_ui_destination_addbutton_input_placeholder),
             options = matchingPoints
                 .take(25)
                 .map { point ->
@@ -85,7 +71,7 @@ fun Item(
                 },
             onOptionClick = { index, _ ->
                 if (index >= 0 && index < matchingPoints.size && currentPoint != null)
-                    onFilterChange(
+                    onAddFilter(
                         DestinationConfig.createPending(
                             fromPoint = currentPoint,
                             toPoint = matchingPoints[index].logicalPoint,
@@ -93,33 +79,30 @@ fun Item(
                     )
             }
         )
-        SwipeToDismissBox(
-            state = dismissBoxState,
-            backgroundContent = {
-                when (dismissBoxState.dismissDirection) {
-                    SwipeToDismissBoxValue.StartToEnd ->
-                        ItemDeleteBackground(Alignment.CenterStart, shapes)
-                    SwipeToDismissBoxValue.EndToStart ->
-                        ItemDeleteBackground(Alignment.CenterEnd, shapes)
-                    SwipeToDismissBoxValue.Settled -> {}
-                }
-            },
-            onDismiss = {
-                onFilterChange(null)
-            }, content = {
-                ItemContent(
-                    filter = filter,
-                    onClick = {
-                        if (filter.status == Status.APPLIED)
-                            coroutineScope.launch {
-                                textFieldState.setTextAndPlaceCursorAtEnd(filter.toPoint.name)
-                                searchBarState.animateToExpanded()
-                            }
-                    },
-                    shapes
+
+        SegmentedListItem(
+            shapes = shapes,
+            colors = ListItemDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+            leadingContent = {
+                Icon(
+                    painter = painterResource(R.drawable.add),
+                    contentDescription = null,
                 )
+            },
+            content = {
+                Text(
+                    text = stringResource(R.string.config_ui_destination_addbutton_action)
+                )
+            },
+            onClick = {
+                coroutineScope.launch {
+                    textFieldState.setTextAndPlaceCursorAtEnd("")
+                    searchBarState.animateToExpanded()
+                }
             }
         )
     }
 }
-

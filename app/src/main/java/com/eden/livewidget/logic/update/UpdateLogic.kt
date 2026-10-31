@@ -4,16 +4,16 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.os.PowerManager
 import android.util.Log
-import androidx.glance.GlanceId
+import androidx.datastore.preferences.core.Preferences
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.eden.livewidget.ui.agencyFromString
-import com.eden.livewidget.data.common.arrivals.Repository
+import com.eden.livewidget.data.AppContainer
+import com.eden.livewidget.data.common.ArrivalsRepository
 import com.eden.livewidget.data.common.DataPoint
-import com.eden.livewidget.data.format
-import com.eden.livewidget.data.common.arrivals.filter.emptyState as emptyFilterState
+import com.eden.livewidget.logic.emptyFilterState
+import com.eden.livewidget.data.formatter
 import com.eden.livewidget.ui.widget.LivePointWidget
 
 enum class UpdateResult(val widgetValue: String) {
@@ -28,6 +28,7 @@ enum class UpdateResult(val widgetValue: String) {
 }
 suspend fun updateWidget(
     context: Context,
+    appContainer: AppContainer,
     appWidgetId: Int,
     remainingTimes: Int
 ): Boolean {
@@ -43,7 +44,22 @@ suspend fun updateWidget(
         if (remainingTimes < 0)
             UpdateResult.RAN_SKIPPED
         else
-            updateData(context, glanceId)
+            updateData(
+                appContainer = appContainer,
+                // PreferencesGlanceStateDefinition is the default state definition used
+                appWidgetState = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId),
+                appWidgetId = appWidgetId
+            ).let {
+                when (it) {
+                    UpdateResult.ERROR_UNKNOWN,
+                    UpdateResult.ERROR_UNREACHABLE,
+                    UpdateResult.ERROR_UNRESOLVED -> identityIssue(
+                        context = context,
+                        currentResult = it
+                    )
+                    else -> it
+                }
+            }
 
     updateAppWidgetState(context, glanceId) { preferences ->
         preferences[LivePointWidget.FETCH_STATE_KEY] = result.widgetValue
@@ -59,70 +75,53 @@ suspend fun updateWidget(
 }
 
 private suspend fun updateData(
-    context: Context,
-    glanceId: GlanceId
+    appContainer: AppContainer,
+    appWidgetState: Preferences,
+    appWidgetId: Int,
 ): UpdateResult {
 
-    // PreferencesGlanceStateDefinition is the default state definition used
-    val preferences = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
-
-    val agencyString = preferences[LivePointWidget.AGENCY_KEY]
+    val agencyId = appWidgetState[LivePointWidget.AGENCY_KEY]
     val agency = try {
-        checkNotNull(agencyString)
-        agencyFromString(agencyString)!!
+        checkNotNull(agencyId)
+        appContainer.agencyFromId(agencyId)!!
     } catch (_: Exception) {
         return UpdateResult.ERROR_UNKNOWN
     }
+    val provider = agency.provider
 
-    val valuesString = preferences[LivePointWidget.VALUES_KEY]
+    val valuesString = appWidgetState[LivePointWidget.VALUES_KEY]
     val values: List<DataPoint> = try {
         checkNotNull(valuesString)
-        format.decodeFromString(valuesString)
+        formatter.decodeFromString(valuesString)
     } catch (_: Exception) {
         return UpdateResult.ERROR_UNKNOWN
     }
 
-    val filterStateString = preferences[LivePointWidget.FILTER_STATE_KEY]
+    val filterStateString = appWidgetState[LivePointWidget.FILTER_STATE_KEY]
     val filterState =
         if (filterStateString == null)
             emptyFilterState()
         else
-            format.decodeFromString(filterStateString)
+            formatter.decodeFromString(filterStateString)
 
     try {
         // Update data source
-        val repository = Repository.getInstance(
-            key = Repository.Companion.Key(
-                agencyString = agencyString,
-                valuesString = valuesString,
-                filterStateString = filterStateString ?: "",
-            ),
-            provider = agency.apiProvider,
-            values = values,
-            filterState = filterState
+        val result = provider.arrivalsRepository.updateState(
+            key = appWidgetId,
+            dataPoints = values,
+            destinationFilters = filterState.destinations.mapNotNull { it.filters }.flatten()
         )
-        val result = repository.fetchLatestArrival(context)
 
         return when (result) {
-            Repository.FetchResult.SUCCESS -> UpdateResult.RAN_COMPLETED
-            Repository.FetchResult.ERROR_AUTHENTICATION -> UpdateResult.ERROR_AUTHENTICATION
-            Repository.FetchResult.ERROR_UNREACHABLE -> identityIssue(
-                context = context,
-                currentResult = UpdateResult.ERROR_UNREACHABLE
-            )
-            Repository.FetchResult.ERROR_UNRESOLVED -> identityIssue(
-                context = context,
-                currentResult = UpdateResult.ERROR_UNRESOLVED
-            )
+            ArrivalsRepository.FetchResult.SUCCESS -> UpdateResult.RAN_COMPLETED
+            ArrivalsRepository.FetchResult.ERROR_AUTHENTICATION -> UpdateResult.ERROR_AUTHENTICATION
+            ArrivalsRepository.FetchResult.ERROR_UNREACHABLE -> UpdateResult.ERROR_UNREACHABLE
+            ArrivalsRepository.FetchResult.ERROR_UNRESOLVED -> UpdateResult.ERROR_UNRESOLVED
         }
 
     } catch (e: Exception) {
-        Log.e(context.packageName, e.message ?: "Failed with no message", e)
-
-        return identityIssue(
-            context = context,
-            currentResult = UpdateResult.ERROR_UNKNOWN
-        )
+        Log.e("${e.javaClass}", e.message ?: "Failed with no message", e)
+        return UpdateResult.ERROR_UNKNOWN
     }
 }
 

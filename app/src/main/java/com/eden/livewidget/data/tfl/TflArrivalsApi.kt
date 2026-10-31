@@ -3,8 +3,7 @@ package com.eden.livewidget.data.tfl
 import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
-import com.eden.livewidget.data.common.arrivals.LocationVia
-import com.eden.livewidget.data.common.arrivals.api.Api
+import com.eden.livewidget.data.common.LocationVia
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -20,63 +19,62 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
-private data class TflEntry(
-    @SerializedName("naptanId")
-    val sourceNaptanId: String?,
-    @SerializedName("lineId")
-    val lineId: String?,
-    @SerializedName("lineName")
-    val lineName: String?,
-    @SerializedName("platformName")
-    val platformName: String?,
-    @SerializedName("destinationNaptanId")
-    val finalNaptanId: String?,
-    @SerializedName("destinationName")
-    val destinationName: String?,
-    @SerializedName("direction")
-    val direction: String?,
-    @SerializedName("towards")
-    val towards: String?,
-    @SerializedName("timeToStation")
-    val timeToStation: Int?,
-    @SerializedName("expectedArrival")
-    val expectedArrivalString: String?,
-    @SerializedName("modeName")
-    val modeName: String?,
-) {
-    fun isValid() =
-        sourceNaptanId != null &&
-        lineId != null &&
-        lineName != null &&
-        platformName != null &&
-        finalNaptanId != null &&
-        destinationName != null &&
-        direction != null &&
-        towards != null &&
-        timeToStation != null &&
-        expectedArrivalString != null &&
-        modeName != null
-}
-
-private const val BASE_URL = "https://api.tfl.gov.uk"
-
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(GsonConverterFactory.create())
-    .baseUrl(BASE_URL)
-    .build()
-
-private interface TflArrivalsApiService {
-    @GET("StopPoint/{id}/Arrivals")
-    fun getStopPointArrivals(
-        @Path("id")
-        stopPointId: String,
-    ): Call<List<TflEntry>>
-}
 
 
 class TflArrivalsApi(
     private val context: Context,
 ) {
+    private data class TflEntry(
+        @SerializedName("naptanId")
+        val sourceNaptanId: String?,
+        @SerializedName("lineId")
+        val lineId: String?,
+        @SerializedName("lineName")
+        val lineName: String?,
+        @SerializedName("platformName")
+        val platformName: String?,
+        @SerializedName("destinationNaptanId")
+        val finalNaptanId: String?,
+        @SerializedName("destinationName")
+        val destinationName: String?,
+        @SerializedName("direction")
+        val direction: String?,
+        @SerializedName("towards")
+        val towards: String?,
+        @SerializedName("timeToStation")
+        val timeToStation: Int?,
+        @SerializedName("expectedArrival")
+        val expectedArrivalString: String?,
+        @SerializedName("modeName")
+        val modeName: String?,
+    ) {
+        fun isValid() =
+            sourceNaptanId != null &&
+                    lineId != null &&
+                    lineName != null &&
+                    platformName != null &&
+                    finalNaptanId != null &&
+                    destinationName != null &&
+                    direction != null &&
+                    towards != null &&
+                    timeToStation != null &&
+                    expectedArrivalString != null &&
+                    modeName != null
+    }
+
+    private val retrofit = Retrofit.Builder()
+        .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl("https://api.tfl.gov.uk")
+        .build()
+
+    private interface TflArrivalsApiService {
+        @GET("StopPoint/{id}/Arrivals")
+        fun getStopPointArrivals(
+            @Path("id")
+            stopPointId: String,
+        ): Call<List<TflEntry>>
+    }
+
     private val service: TflArrivalsApiService by lazy {
         retrofit.create(TflArrivalsApiService::class.java)
     }
@@ -93,11 +91,11 @@ class TflArrivalsApi(
 
                     val response = try { request.execute() } catch (e: IOException) {
                         Log.w(this.javaClass.name, e.message ?: "mo error message")
-                        throw Api.UnresolvedException("Unable to reach server")
+                        throw UnresolvedException("Unable to reach server")
                     }
                     if (response == null) {
                         Log.w(this.javaClass.name, "no response")
-                        throw Api.UnreachableException("Response empty")
+                        throw UnreachableException("Response empty")
                     }
 
                     val body = response.body()
@@ -176,4 +174,6 @@ class TflArrivalsApi(
             return stripServiceNameRegex.replace(input, "").take(5)
     }
 
+    class UnresolvedException(message: String?) : RuntimeException(message)
+    class UnreachableException(message: String?) : RuntimeException(message)
 }

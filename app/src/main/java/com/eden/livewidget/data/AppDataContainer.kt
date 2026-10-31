@@ -14,6 +14,7 @@ class AppDataContainer(context: Context): AppContainer {
 
     override val agencies: List<Agency> = listOf(
         Agency(
+            id = "T00",
             agencyName = R.string.agency_t00_title,
             agencyShortDescription = R.string.agency_t00_about_short,
             agencyDescription = R.string.agency_t00_about_full,
@@ -21,6 +22,7 @@ class AppDataContainer(context: Context): AppContainer {
             apiProviderConstructor = { TransitousProvider(context) },
         ),
         Agency(
+            id = "TFL",
             agencyName = R.string.agency_tfl_title,
             agencyShortDescription = R.string.agency_tfl_about_short,
             agencyDescription = R.string.agency_tfl_about_full,
@@ -28,6 +30,7 @@ class AppDataContainer(context: Context): AppContainer {
             apiProviderConstructor = { TflProvider(context) },
         ),
         Agency(
+            id = "RDG",
             agencyName = R.string.agency_rdg_title,
             agencyShortDescription = R.string.agency_rdg_about_short,
             agencyDescription = R.string.agency_rdg_about_full,
@@ -36,5 +39,7 @@ class AppDataContainer(context: Context): AppContainer {
         ),
     )
 
-
+    override fun agencyFromId(id: String): Agency? {
+        return agencies.firstOrNull { it.id == id }
+    }
 }

@@ -3,9 +3,8 @@ package com.eden.livewidget.data.rdg
 import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
-import com.eden.livewidget.data.common.arrivals.LocationVia
-import com.eden.livewidget.data.common.arrivals.ArrivalEntry
-import com.eden.livewidget.data.common.arrivals.api.Api
+import com.eden.livewidget.data.common.ArrivalEntry
+import com.eden.livewidget.data.common.LocationVia
 import com.eden.livewidget.data.keys.KeyProvider
 import com.google.gson.annotations.SerializedName
 import retrofit2.Call
@@ -23,73 +22,71 @@ import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import kotlin.math.max
 
-private data class RdgDepartureResponse(
-    @SerializedName("trainServices")
-    val services: List<RdgService>?
-)
-private data class RdgService(
-    @SerializedName("operator")
-    val operator: String,
-    @SerializedName("trainid")
-    val trainId: String,
-    @SerializedName("destination")
-    val destinations: List<RdgDestination>?,
-    @SerializedName("rid")
-    val retailId: String?,
-    @SerializedName("platform")
-    val platform: String?,
-    @SerializedName("atdSpecified")
-    val hasActualTime: Boolean,
-    @SerializedName("atd")
-    val actualTimeText: String,
-    @SerializedName("etdSpecified")
-    val hasEstimatedTime: Boolean,
-    @SerializedName("etd")
-    val estimatedTimeText: String,
-    @SerializedName("stdSpecified")
-    val hasScheduledTime: Boolean,
-    @SerializedName("std")
-    val scheduledTimeText: String,
-)
-
-private data class RdgDestination(
-    @SerializedName("locationName")
-    val locationName: String,
-    @SerializedName("via")
-    val viaText: String?,
-)
-
-private const val BASE_URL = "https://api1.raildata.org.uk"
-
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(GsonConverterFactory.create())
-    .baseUrl(BASE_URL)
-    .build()
-
-private interface RdgApiService {
-    @GET("1010-live-departure-board---staff-version1_0/LDBSVWS/api/20220120/GetDepBoardWithDetails/{crsCode}/{time}")
-    fun getDepartureBoardWithDetails(
-        @HeaderMap
-        headers: Map<String, String>,
-        @Path("crsCode")
-        crsCode: String,
-        @Path("time")
-        timeText: String,
-        @Query("numRows")
-        maxCount: Int,
-        @Query("timeWindow")
-        timeWindowMinutes: Int,
-        @Query("filterCRS")
-        filterCrsCode: String? = null,
-        @Query("filterType")
-        filterMode: String? = null,
-    ): Call<RdgDepartureResponse>
-}
-
 class RdgArrivalsApi(
     private val context: Context,
     private val keyProvider: KeyProvider,
 ) {
+
+    private data class RdgDepartureResponse(
+        @SerializedName("trainServices")
+        val services: List<RdgService>?
+    )
+    private data class RdgService(
+        @SerializedName("operator")
+        val operator: String,
+        @SerializedName("trainid")
+        val trainId: String,
+        @SerializedName("destination")
+        val destinations: List<RdgDestination>?,
+        @SerializedName("rid")
+        val retailId: String?,
+        @SerializedName("platform")
+        val platform: String?,
+        @SerializedName("atdSpecified")
+        val hasActualTime: Boolean,
+        @SerializedName("atd")
+        val actualTimeText: String,
+        @SerializedName("etdSpecified")
+        val hasEstimatedTime: Boolean,
+        @SerializedName("etd")
+        val estimatedTimeText: String,
+        @SerializedName("stdSpecified")
+        val hasScheduledTime: Boolean,
+        @SerializedName("std")
+        val scheduledTimeText: String,
+    )
+
+    private data class RdgDestination(
+        @SerializedName("locationName")
+        val locationName: String,
+        @SerializedName("via")
+        val viaText: String?,
+    )
+
+    private val retrofit = Retrofit.Builder()
+        .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl("https://api1.raildata.org.uk")
+        .build()
+
+    private interface RdgApiService {
+        @GET("1010-live-departure-board---staff-version1_0/LDBSVWS/api/20220120/GetDepBoardWithDetails/{crsCode}/{time}")
+        fun getDepartureBoardWithDetails(
+            @HeaderMap
+            headers: Map<String, String>,
+            @Path("crsCode")
+            crsCode: String,
+            @Path("time")
+            timeText: String,
+            @Query("numRows")
+            maxCount: Int,
+            @Query("timeWindow")
+            timeWindowMinutes: Int,
+            @Query("filterCRS")
+            filterCrsCode: String? = null,
+            @Query("filterType")
+            filterMode: String? = null,
+        ): Call<RdgDepartureResponse>
+    }
 
     private val service: RdgApiService by lazy {
         retrofit.create(RdgApiService::class.java)
@@ -141,17 +138,17 @@ class RdgArrivalsApi(
             request.execute()
         } catch (e: IOException) {
             Log.w(this.javaClass.name, e.message ?: "mo error message")
-            throw Api.UnresolvedException("Unable to reach server")
+            throw UnresolvedException("Unable to reach server")
         }
         if (response == null) {
             Log.w(this.javaClass.name, "no response")
-            throw Api.UnreachableException("Response empty")
+            throw UnreachableException("Response empty")
         }
 
         val unauthorizedCode = 401
         if (response.code() == unauthorizedCode) {
             Log.w(this.javaClass.name, "unauthorized")
-            throw Api.AuthenticationException("Unable to authenticate")
+            throw AuthenticationException("Unable to authenticate")
         }
 
         val body = response.body()
@@ -235,4 +232,8 @@ class RdgArrivalsApi(
         else
             stripOperatorNameRegex.replace(input, "").take(5)
     }
+
+    class UnresolvedException(message: String?) : RuntimeException(message)
+    class UnreachableException(message: String?) : RuntimeException(message)
+    class AuthenticationException(message: String?) : RuntimeException(message)
 }

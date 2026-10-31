@@ -1,8 +1,8 @@
 package com.eden.livewidget.data.tfl
 
 import android.net.Uri
-import com.eden.livewidget.data.common.arrivals.LocationSupplement
-import com.eden.livewidget.data.common.arrivals.ArrivalEntry
+import com.eden.livewidget.data.common.ArrivalEntry
+import com.eden.livewidget.data.common.LocationSupplement
 import java.time.LocalDateTime
 
 class TflArrivalEntry(

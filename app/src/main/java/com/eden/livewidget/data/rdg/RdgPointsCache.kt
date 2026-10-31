@@ -4,7 +4,7 @@ import android.content.Context
 import com.eden.livewidget.data.buffered.BufferedPointOption
 import com.eden.livewidget.data.buffered.BufferedPointsCache
 import com.eden.livewidget.data.common.LogicalPoint
-import com.eden.livewidget.data.format
+import com.eden.livewidget.data.formatter
 
 class RdgPointsCache(
     private val context: Context,
@@ -17,7 +17,7 @@ class RdgPointsCache(
         pointsDao.getAllFuzzyMatches(search)
             .map { native ->
                 BufferedPointOption(
-                    logicalPoint = LogicalPoint(name = native.name, dataPoints = format.decodeFromString(native.values))
+                    logicalPoint = LogicalPoint(name = native.name, dataPoints = formatter.decodeFromString(native.values))
                 )
             }
 
@@ -25,7 +25,7 @@ class RdgPointsCache(
         pointsDao.insert(
             RdgPointsEntity(
                 name = option.logicalPoint.name,
-                values = format.encodeToString(option.logicalPoint.dataPoints)
+                values = formatter.encodeToString(option.logicalPoint.dataPoints)
             )
         )
 

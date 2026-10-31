@@ -5,9 +5,8 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.net.toUri
-import com.eden.livewidget.data.common.arrivals.LocationBoard
-import com.eden.livewidget.data.common.arrivals.ArrivalEntry
-import com.eden.livewidget.data.common.arrivals.api.Api
+import com.eden.livewidget.data.common.ArrivalEntry
+import com.eden.livewidget.data.common.LocationBoard
 import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -26,187 +25,185 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-
-private data class TransitousUnfilteredResponse(
-    @SerializedName("stopTimes")
-    val stopTimes: List<TransitousStopTime>?,
-) {
-    fun isValid() =
-        stopTimes != null
-}
-
-private data class TransitousStopTime(
-    @SerializedName("place")
-    val place: TransitousPlaceSelf?,
-    @SerializedName("tripTo")
-    val tripTo: TransitousPlaceTo?,
-    @SerializedName("agencyName")
-    val agencyName: String?,
-    @SerializedName("tripId")
-    val tripId: String?,
-    @SerializedName("routeShortName")
-    val routeName: String?,
-) {
-    fun isValid() =
-        place != null && place.isValid() &&
-        tripTo != null && tripTo.isValid() &&
-        agencyName != null &&
-        tripId != null &&
-        routeName != null
-}
-
-private data class TransitousFilteredResponse(
-    @SerializedName("itineraries")
-    val itineraries: List<TransitousItinerary>?,
-) {
-    fun isValid() =
-        itineraries != null
-}
-
-private data class TransitousItinerary(
-    @SerializedName("id")
-    val itineraryId: String?,
-    @SerializedName("legs")
-    val legs: List<TransitousLeg>?,
-) {
-    fun isValid() =
-        itineraryId != null &&
-        legs != null
-}
-
-private data class TransitousLeg(
-    @SerializedName("mode")
-    val mode: String?,
-    @SerializedName("from")
-    val from: TransitousPlaceSelf?,
-    @SerializedName("tripTo")
-    val tripTo: TransitousPlaceTo?,
-    @SerializedName("agencyName")
-    val agencyName: String?,
-    @SerializedName("routeShortName")
-    val routeName: String?,
-) {
-    fun isValid() =
-        mode != null &&
-        from != null && from.isValid() &&
-        tripTo != null && tripTo.isValid() &&
-        agencyName != null &&
-        routeName != null
-}
-
-private data class TransitousPlaceSelf(
-    @SerializedName("name")
-    val name: String?,
-    @SerializedName("track")
-    val trackNullable: String?,
-    @SerializedName("departure")
-    val departure: String?,
-) {
-    fun isValid() =
-        name != null &&
-        departure != null
-}
-
-private data class TransitousPlaceTo(
-    @SerializedName("name")
-    val name: String?,
-) {
-    fun isValid() =
-        name != null
-}
-
-private data class InterpretedTransitousEntry(
-    val fromPlace: TransitousPlaceSelf,
-    val toPlace: TransitousPlaceTo,
-    val agencyName: String,
-    val routeName: String,
-    val detailUri: Uri,
-)
-
-private const val BASE_URL = "https://api.transitous.org"
-
-private val okHttpClient = OkHttpClient.Builder()
-    .readTimeout(30, TimeUnit.SECONDS)
-    .connectTimeout(30, TimeUnit.SECONDS)
-    .writeTimeout(30, TimeUnit.SECONDS)
-    .build()
-
-private val retrofit = Retrofit.Builder()
-    .client(okHttpClient)
-    .addConverterFactory(GsonConverterFactory.create())
-    .baseUrl(BASE_URL)
-    .build()
-
-private interface TransitousApiService {
-
-    @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
-    @GET("api/v6/stoptimes")
-    fun getStopTimes(
-        @Query("stopId")
-        id: String,
-        @Query("radius")
-        radius: Int,
-        @Query("n")
-        count: Int,
-        @Query("window")
-        window: Int,
-    ): Call<TransitousUnfilteredResponse>
-
-    @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
-    @GET("api/v6/plan")
-    fun getItineraries(
-        @Query("fromPlace")
-        fromId: String,
-        @Query("toPlace")
-        toId: String,
-        @Query("maxTransfers")
-        maxTransfers: Int,
-        @Query("searchWindow")
-        window: Int,
-        @Query("transitModes")
-        commaSeparatedTransitModes: String = "",
-        @Query("preTransitModes")
-        commaSeparatedPreTransitModes: String = "",
-        @Query("postTransitModes")
-        commaSeparatedPostTransitModes: String = "",
-        @Query("directModes")
-        commaSeparatedDirectModes: String = "",
-    ): Call<TransitousFilteredResponse>
-}
-
-val validFilterModes = setOf(
-    "FLEX",
-    "TRAM",
-    "SUBWAY",
-    "FERRY",
-    "BUS",
-    "COACH",
-    "RAIL",
-    "HIGHSPEED_RAIL",
-    "LONG_DISTANCE",
-    "NIGHT_RAIL",
-    "REGIONAL_FAST_RAIL",
-    "REGIONAL_RAIL",
-    "SUBURBAN",
-    "FUNICULAR",
-    "AERIAL_LIFT",
-    "AREAL_LIFT",
-    "METRO",
-    "CABLE_CAR",
-)
-
-val commaSeparatedValidFilterModes = validFilterModes.joinToString(",")
-
-private fun String.encodeUTF8(): String {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        URLEncoder.encode(this, StandardCharsets.UTF_8)
-    else
-        URLEncoder.encode(this, StandardCharsets.UTF_8.toString())
-}
-
 class TransitousArrivalsApi(
     private val context: Context
 ) {
+
+    private data class TransitousUnfilteredResponse(
+        @SerializedName("stopTimes")
+        val stopTimes: List<TransitousStopTime>?,
+    ) {
+        fun isValid() =
+            stopTimes != null
+    }
+
+    private data class TransitousStopTime(
+        @SerializedName("place")
+        val place: TransitousPlaceSelf?,
+        @SerializedName("tripTo")
+        val tripTo: TransitousPlaceTo?,
+        @SerializedName("agencyName")
+        val agencyName: String?,
+        @SerializedName("tripId")
+        val tripId: String?,
+        @SerializedName("routeShortName")
+        val routeName: String?,
+    ) {
+        fun isValid() =
+            place != null && place.isValid() &&
+                    tripTo != null && tripTo.isValid() &&
+                    agencyName != null &&
+                    tripId != null &&
+                    routeName != null
+    }
+
+    private data class TransitousFilteredResponse(
+        @SerializedName("itineraries")
+        val itineraries: List<TransitousItinerary>?,
+    ) {
+        fun isValid() =
+            itineraries != null
+    }
+
+    private data class TransitousItinerary(
+        @SerializedName("id")
+        val itineraryId: String?,
+        @SerializedName("legs")
+        val legs: List<TransitousLeg>?,
+    ) {
+        fun isValid() =
+            itineraryId != null &&
+                    legs != null
+    }
+
+    private data class TransitousLeg(
+        @SerializedName("mode")
+        val mode: String?,
+        @SerializedName("from")
+        val from: TransitousPlaceSelf?,
+        @SerializedName("tripTo")
+        val tripTo: TransitousPlaceTo?,
+        @SerializedName("agencyName")
+        val agencyName: String?,
+        @SerializedName("routeShortName")
+        val routeName: String?,
+    ) {
+        fun isValid() =
+            mode != null &&
+                    from != null && from.isValid() &&
+                    tripTo != null && tripTo.isValid() &&
+                    agencyName != null &&
+                    routeName != null
+    }
+
+    private data class TransitousPlaceSelf(
+        @SerializedName("name")
+        val name: String?,
+        @SerializedName("track")
+        val trackNullable: String?,
+        @SerializedName("departure")
+        val departure: String?,
+    ) {
+        fun isValid() =
+            name != null &&
+                    departure != null
+    }
+
+    private data class TransitousPlaceTo(
+        @SerializedName("name")
+        val name: String?,
+    ) {
+        fun isValid() =
+            name != null
+    }
+
+    private data class InterpretedTransitousEntry(
+        val fromPlace: TransitousPlaceSelf,
+        val toPlace: TransitousPlaceTo,
+        val agencyName: String,
+        val routeName: String,
+        val detailUri: Uri,
+    )
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .readTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    private val retrofit = Retrofit.Builder()
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl("https://api.transitous.org")
+        .build()
+
+    private interface TransitousApiService {
+
+        @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
+        @GET("api/v6/stoptimes")
+        fun getStopTimes(
+            @Query("stopId")
+            id: String,
+            @Query("radius")
+            radius: Int,
+            @Query("n")
+            count: Int,
+            @Query("window")
+            window: Int,
+        ): Call<TransitousUnfilteredResponse>
+
+        @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
+        @GET("api/v6/plan")
+        fun getItineraries(
+            @Query("fromPlace")
+            fromId: String,
+            @Query("toPlace")
+            toId: String,
+            @Query("maxTransfers")
+            maxTransfers: Int,
+            @Query("searchWindow")
+            window: Int,
+            @Query("transitModes")
+            commaSeparatedTransitModes: String = "",
+            @Query("preTransitModes")
+            commaSeparatedPreTransitModes: String = "",
+            @Query("postTransitModes")
+            commaSeparatedPostTransitModes: String = "",
+            @Query("directModes")
+            commaSeparatedDirectModes: String = "",
+        ): Call<TransitousFilteredResponse>
+    }
+
+    val validFilterModes = setOf(
+        "FLEX",
+        "TRAM",
+        "SUBWAY",
+        "FERRY",
+        "BUS",
+        "COACH",
+        "RAIL",
+        "HIGHSPEED_RAIL",
+        "LONG_DISTANCE",
+        "NIGHT_RAIL",
+        "REGIONAL_FAST_RAIL",
+        "REGIONAL_RAIL",
+        "SUBURBAN",
+        "FUNICULAR",
+        "AERIAL_LIFT",
+        "AREAL_LIFT",
+        "METRO",
+        "CABLE_CAR",
+    )
+
+    val commaSeparatedValidFilterModes = validFilterModes.joinToString(",")
+
+    private fun String.encodeUTF8(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+            URLEncoder.encode(this, StandardCharsets.UTF_8)
+        else
+            URLEncoder.encode(this, StandardCharsets.UTF_8.toString())
+    }
+
 
     private val service: TransitousApiService by lazy {
         retrofit.create(TransitousApiService::class.java)
@@ -284,11 +281,11 @@ class TransitousArrivalsApi(
             request.execute()
         } catch (e: IOException) {
             Log.w(this.javaClass.name, e.message ?: "mo error message")
-            throw Api.UnresolvedException("Unable to reach server")
+            throw UnresolvedException("Unable to reach server")
         }
         if (response == null) {
             Log.w(this.javaClass.name, "no response")
-            throw Api.UnreachableException("Response empty")
+            throw UnreachableException("Response empty")
         }
 
         val body = response.body()
@@ -332,11 +329,11 @@ class TransitousArrivalsApi(
             request.execute()
         } catch (e: IOException) {
             Log.w(this.javaClass.name, e.message ?: "mo error message")
-            throw Api.UnresolvedException("Unable to reach server")
+            throw UnresolvedException("Unable to reach server")
         }
         if (response == null) {
             Log.w(this.javaClass.name, "no response")
-            throw Api.UnreachableException("Response empty")
+            throw UnreachableException("Response empty")
         }
 
         val body = response.body()
@@ -367,4 +364,7 @@ class TransitousArrivalsApi(
             }
             .toList()
     }
+
+    class UnresolvedException(message: String?) : RuntimeException(message)
+    class UnreachableException(message: String?) : RuntimeException(message)
 }
