@@ -30,16 +30,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
-import com.eden.livewidget.Agency
+import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.agency.Item
 import com.eden.livewidget.ui.config.common.LabelItem
 import com.eden.livewidget.ui.config.destination.Group
 import com.eden.livewidget.ui.config.point.Item
-import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
+import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
 import com.eden.livewidget.data.common.arrivals.filter.Status
-import com.eden.livewidget.data.common.points.Model
-import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.common.LogicalPoint
+import com.eden.livewidget.data.common.DataPoint
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlin.uuid.Uuid
 
@@ -48,11 +48,11 @@ import kotlin.uuid.Uuid
 fun ConfigScreen(
     currentAgency: Agency?,
     setCurrentAgency: (Agency?) -> Unit,
-    currentPoint: Model?,
-    setCurrentPoint: (Model?) -> Unit,
-    destinationFilters: Map<Uuid, Filter>?,
-    addDestinationFilter: (Filter) -> Unit,
-    updateDestinationFilter: (Uuid, Filter) -> Unit,
+    currentPoint: LogicalPoint?,
+    setCurrentPoint: (LogicalPoint?) -> Unit,
+    destinationFilters: Map<Uuid, DestinationConfig>?,
+    addDestinationFilter: (DestinationConfig) -> Unit,
+    updateDestinationFilter: (Uuid, DestinationConfig) -> Unit,
     removeDestinationFilter: (Uuid) -> Unit,
     anyChanges: Boolean,
     onSaveChanges: () -> Unit,
@@ -185,7 +185,7 @@ fun ConfigScreen(
 @Composable
 fun PreviewConfigScreen() {
 
-    class MockValue: Value {
+    class MockValue: DataPoint {
         override val displayString: String = ""
     }
 
@@ -197,15 +197,15 @@ fun PreviewConfigScreen() {
             currentPoint = null,
             setCurrentPoint = { _ -> },
             destinationFilters = mapOf(
-                Uuid.random() to Filter(
-                    Model("", MockValue()),
-                    Model("dest", MockValue()),
+                Uuid.random() to DestinationConfig(
+                    LogicalPoint("", MockValue()),
+                    LogicalPoint("dest", MockValue()),
                     null,
                     Status.PENDING
                 ),
-                Uuid.random() to Filter(
-                    Model("", MockValue()),
-                    Model("dest", MockValue()),
+                Uuid.random() to DestinationConfig(
+                    LogicalPoint("", MockValue()),
+                    LogicalPoint("dest", MockValue()),
                     null,
                     Status.APPLIED
                 ),

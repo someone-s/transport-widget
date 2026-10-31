@@ -34,13 +34,13 @@ import com.eden.livewidget.R
 import com.eden.livewidget.data.common.arrivals.LocationBoard
 import com.eden.livewidget.data.common.arrivals.LocationFrom
 import com.eden.livewidget.data.common.arrivals.LocationVia
-import com.eden.livewidget.data.common.arrivals.Model
+import com.eden.livewidget.data.common.arrivals.ArrivalEntry
 import com.eden.livewidget.ui.util.getResolvedOpenUriIntent
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun ArrivalsItem(
-    arrival: Model,
+    arrival: ArrivalEntry,
     timeFormatter: DateTimeFormatter,
 ) {
         val resolvedOpenUriIntent =
@@ -109,7 +109,7 @@ fun ArrivalsItem(
 
 @Composable
 private fun TimeColumn(
-    arrival: Model,
+    arrival: ArrivalEntry,
     timeFormatter: DateTimeFormatter
 ) {
     Column {
@@ -185,7 +185,7 @@ private fun DirectionModes.hasTop() = (this.mask and DirectionModes.TOP.mask) > 
 private fun DirectionModes.hasBottom() = (this.mask and DirectionModes.BOTTOM.mask) > 0
 
 @Composable
-private fun DirectionBlock(arrival: Model) {
+private fun DirectionBlock(arrival: ArrivalEntry) {
 
     val mode =
         if (arrival.locationPretext != null && arrival.locationSupplement != null)
@@ -285,7 +285,7 @@ private fun DirectionBlock(arrival: Model) {
 }
 
 @Composable
-private fun IdentifierColumn(arrival: Model) {
+private fun IdentifierColumn(arrival: ArrivalEntry) {
     Column(
         modifier = GlanceModifier
             .fillMaxSize()

@@ -6,17 +6,17 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
-import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
+import com.eden.livewidget.data.common.LogicalPoint
 import kotlin.uuid.Uuid
 
 @Composable
 fun Group(
     currentProvider: Provider?,
-    currentPoint: Model?,
-    filters: Map<Uuid, Filter>?,
-    addFilter: (Filter) -> Unit,
-    updateFilter: (Uuid, Filter) -> Unit,
+    currentPoint: LogicalPoint?,
+    filters: Map<Uuid, DestinationConfig>?,
+    addFilter: (DestinationConfig) -> Unit,
+    updateFilter: (Uuid, DestinationConfig) -> Unit,
     removeFilter: (Uuid) -> Unit,
 ) {
     Column(

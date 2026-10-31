@@ -23,7 +23,7 @@ import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.LogicalPoint
 import com.eden.livewidget.data.common.points.Repository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -31,8 +31,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun Item(
     currentProvider: Provider?,
-    currentPoint: Model?,
-    onPointSelected: (Model?) -> Unit,
+    currentPoint: LogicalPoint?,
+    onPointSelected: (LogicalPoint?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -61,11 +61,11 @@ fun Item(
         textFieldState = textFieldState,
         placeholder = stringResource(R.string.config_ui_pointitem_input_placeholder),
         options = matchingPoints.take(25)
-            .map { SearchOption(queryText = it.model.name, supportText = it.annotation) },
+            .map { SearchOption(queryText = it.logicalPoint.name, supportText = it.annotation) },
         onOptionClick = { index, _ ->
             onPointSelected(
                 if (index >= 0 && index < matchingPoints.size)
-                    matchingPoints[index].model
+                    matchingPoints[index].logicalPoint
                 else
                     null
             )
@@ -95,7 +95,7 @@ fun Item(
         },
         supportingContent = {
             Text(
-                text = currentPoint?.values?.joinToString(",") { it.displayString }
+                text = currentPoint?.dataPoints?.joinToString(",") { it.displayString }
                     ?: stringResource(R.string.config_ui_pointitem_description_placeholder),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

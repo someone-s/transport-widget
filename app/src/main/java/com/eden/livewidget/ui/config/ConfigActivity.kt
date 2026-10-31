@@ -20,12 +20,12 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.eden.livewidget.Agency
-import com.eden.livewidget.agencyFromString
-import com.eden.livewidget.agencyToString
+import com.eden.livewidget.ui.Agency
+import com.eden.livewidget.ui.agencyFromString
+import com.eden.livewidget.ui.agencyToString
 import com.eden.livewidget.data.common.arrivals.filter.State
-import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
-import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
+import com.eden.livewidget.data.common.LogicalPoint
 import com.eden.livewidget.data.format
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.ui.widget.LivePointWidget
@@ -62,8 +62,8 @@ class ConfigActivity: ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize()) {
 
                     val (currentAgency, setCurrentAgency) = remember { mutableStateOf<Agency?>(null) }
-                    val (currentPoint, setCurrentPoint) = remember { mutableStateOf<Model?>(null) }
-                    val destinationFilters = remember { mutableStateMapOf<Uuid, Filter>() }
+                    val (currentPoint, setCurrentPoint) = remember { mutableStateOf<LogicalPoint?>(null) }
+                    val destinationFilters = remember { mutableStateMapOf<Uuid, DestinationConfig>() }
                     val destinationFilterCompiler = remember(currentAgency) { currentAgency?.apiProvider?.arrivalsConstructors?.destinationCompilerConstructor() }
                     val (anyChanges, setAnyChanges) = remember { mutableStateOf(false) }
 
@@ -82,9 +82,9 @@ class ConfigActivity: ComponentActivity() {
                         if (currentPoint == null)
                             setCurrentPoint(
                                 if (fetchedName != null && fetchedValues != null)
-                                    Model(
+                                    LogicalPoint(
                                         name = fetchedName,
-                                        values = format.decodeFromString(fetchedValues)
+                                        dataPoints = format.decodeFromString(fetchedValues)
                                     )
                                 else
                                     null
@@ -182,7 +182,7 @@ class ConfigActivity: ComponentActivity() {
         appWidgetId: Int,
         glanceId: GlanceId,
         agency: Agency,
-        point: Model,
+        point: LogicalPoint,
         filterState: State,
     ) {
 
@@ -196,7 +196,7 @@ class ConfigActivity: ComponentActivity() {
         updateAppWidgetState(context, glanceId) { preferences ->
             preferences[LivePointWidget.AGENCY_KEY] = agencyToString(agency)
             preferences[LivePointWidget.NAME_KEY] = point.name
-            preferences[LivePointWidget.VALUES_KEY] = format.encodeToString(point.values)
+            preferences[LivePointWidget.VALUES_KEY] = format.encodeToString(point.dataPoints)
             preferences[LivePointWidget.FETCH_STATE_KEY] = LivePointWidget.FETCH_RESULT_RAN_SKIPPED
             preferences[LivePointWidget.FILTER_STATE_KEY] = format.encodeToString(filterState)
         }

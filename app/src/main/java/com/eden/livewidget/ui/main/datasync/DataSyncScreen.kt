@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.eden.livewidget.Agency
+import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.main.Providers
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme

@@ -16,8 +16,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.eden.livewidget.Agency
+import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
+import com.eden.livewidget.data.Agency
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
 import kotlinx.coroutines.launch
@@ -34,7 +35,7 @@ fun Item(
     val coroutineScope = rememberCoroutineScope()
 
     val agencyLookup: Map<String, Agency> =
-        Agency.entries.associateBy { option -> stringResource(option.agencyName) }
+        Agency..associateBy { option -> stringResource(option.agencyName) }
 
     val currentAgencyName = stringResource(currentAgency?.agencyName ?: R.string.config_ui_agencyitem_name_placeholder)
     val currentAgencyShortDescription = stringResource(currentAgency?.agencyShortDescription ?: R.string.config_ui_agencyitem_description_placeholder)

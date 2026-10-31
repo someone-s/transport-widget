@@ -16,11 +16,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.R
 import com.eden.livewidget.data.common.arrivals.filter.Status
-import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
+import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
 
 @Composable
 fun ItemContent(
-    filter: Filter,
+    filter: DestinationConfig,
     onClick: () -> Unit,
     shapes: ListItemShapes,
 ) {
@@ -54,7 +54,7 @@ fun ItemContent(
                 )
             } else {
                 Text(
-                    text = filter.toPoint.values.joinToString(",") { it.displayString },
+                    text = filter.toPoint.dataPoints.joinToString(",") { it.displayString },
                     maxLines = 1,
                 )
             }
