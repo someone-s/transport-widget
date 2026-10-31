@@ -27,7 +27,6 @@ import java.util.UUID
 
 class DataSyncWorker(
     val context: Context,
-    val repository: PointsRepository,
     params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
 
