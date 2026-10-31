@@ -17,17 +17,17 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.eden.livewidget.LiveWidgetApplication
 import com.eden.livewidget.R
-import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.points.datasource.DataSource
-import com.eden.livewidget.data.providerFromString
-import com.eden.livewidget.data.providerToString
+import com.eden.livewidget.data.Agency
+import com.eden.livewidget.data.common.PointsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
 class DataSyncWorker(
     val context: Context,
+    val repository: PointsRepository,
     params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
 
@@ -35,17 +35,17 @@ class DataSyncWorker(
         const val KEY_PROVIDER = "provider"
         const val NOTIFICATION_ID = 50002
 
-        private fun getUniqueWorkName(apiProvider: Provider) =
-            "Data Sync Worker ${providerToString(apiProvider)}"
+        private fun getUniqueWorkName(agency: Agency) =
+            "Data Sync Worker ${agency.id}"
 
-        fun getWorkInfoFlow(context: Context, provider: Provider): Flow<List<WorkInfo>> {
+        fun getWorkInfoFlow(context: Context, agency: Agency): Flow<List<WorkInfo>> {
 
             return WorkManager.getInstance(context)
-                .getWorkInfosForUniqueWorkFlow(getUniqueWorkName(provider))
+                .getWorkInfosForUniqueWorkFlow(getUniqueWorkName(agency))
         }
 
-        fun getIsActiveFlow(context: Context, provider: Provider): Flow<Boolean>  {
-            return getWorkInfoFlow(context, provider)
+        fun getIsActiveFlow(context: Context, agency: Agency): Flow<Boolean>  {
+            return getWorkInfoFlow(context, agency)
                 .map { workInfos ->
                     if (workInfos.isEmpty()) return@map false
 
@@ -57,16 +57,16 @@ class DataSyncWorker(
                 }
         }
 
-        fun cancelCurrentRequest(context: Context, provider: Provider) {
+        fun cancelCurrentRequest(context: Context, agency: Agency) {
             WorkManager.getInstance(context).cancelUniqueWork(
-                getUniqueWorkName(provider)
+                getUniqueWorkName(agency)
             )
         }
 
-        fun schedule(context: Context, provider: Provider): UUID {
+        fun schedule(context: Context, agency: Agency): UUID {
 
             val inputData = Data.Builder()
-                .putString(KEY_PROVIDER, providerToString(provider))
+                .putString(KEY_PROVIDER, agency.id)
                 .build()
 
             val builder = OneTimeWorkRequestBuilder<DataSyncWorker>()
@@ -75,7 +75,7 @@ class DataSyncWorker(
             val workerRequest = builder.build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(
-                getUniqueWorkName(provider),
+                getUniqueWorkName(agency),
                 ExistingWorkPolicy.REPLACE,
                 workerRequest
             )
@@ -87,28 +87,21 @@ class DataSyncWorker(
 
     override suspend fun doWork(): Result {
 
-        val provider = providerFromString(inputData.getString(KEY_PROVIDER))
-            ?: return Result.failure()
+        val agencyName = inputData.getString(KEY_PROVIDER)
+
+        val application = applicationContext as LiveWidgetApplication
+        val agency = agencyName?.let { application.container.agencyFromId(agencyName) } ?: return Result.failure()
+        val refreshablePointsRepository = agency.provider.pointsRepository.asRefreshable ?: return Result.failure()
 
         // Mark the Worker as important
         val progress = context.getString(R.string.data_sync_worker_begin_progress_text)
         setForeground(createForegroundInfo(progress))
 
-        download(provider)
-
-        return Result.success()
-    }
-
-    private suspend fun download(provider: Provider) {
-        // Downloads a file and updates bytes read
-        // Calls setForeground() periodically when it needs to update
-        // the ongoing Notification
-        val source = DataSource.getInstance(context, provider)
-        assert(source is DataSource.Refreshable)
-        (source as DataSource.Refreshable).refresh(context) { status ->
+        refreshablePointsRepository.refresh { status ->
             setForegroundAsync(createForegroundInfo(status))
         }
 
+        return Result.success()
     }
 
     // Creates an instance of ForegroundInfo which can be used to update the

@@ -1,13 +1,14 @@
 package com.eden.livewidget.data.common
 
-import com.eden.livewidget.data.common.arrivals.ArrivalsState
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationFilter
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface ArrivalsRepository {
-    val arrivalsData: Flow<ArrivalsState>
+    fun getOrCreateFlow(key: Any): StateFlow<ArrivalsState>
 
-    suspend fun fetchLatestArrival(
+    fun deleteState(key: Any)
+
+    suspend fun updateState(
+        key: Any,
         dataPoints: List<DataPoint>,
         destinationFilters: List<DestinationFilter> = emptyList(),
     ): FetchResult

@@ -1,9 +1,9 @@
 package com.eden.livewidget.data.tfl
 
 import android.util.Log
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationCompiler
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationFilter
+import com.eden.livewidget.data.common.DestinationCompiler
+import com.eden.livewidget.data.common.DestinationConfig
+import com.eden.livewidget.data.common.DestinationFilter
 import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -13,55 +13,54 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import java.net.SocketTimeoutException
 
-private data class TflLine(
-    @SerializedName("orderedLineRoutes")
-    val routes: List<TflRoute>?,
-) {
-    fun isValid() =
-        routes != null
-}
-
-private data class TflRoute(
-    @SerializedName("naptanIds")
-    val naptanIds: List<String>?,
-) {
-    fun isValid() =
-        naptanIds != null
-}
-
-private const val BASE_URL = "https://api.tfl.gov.uk"
-
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(GsonConverterFactory.create())
-    .baseUrl(BASE_URL)
-    .build()
-
-private interface TflDestinationFilterApiService {
-
-    /**
-     * The return value is a JSON string, i.e. "inbound",
-     * Gson converter automatically remove the JSON double quotes
-     */
-    @GET("StopPoint/{fromId}/DirectionTo/{toId}")
-    fun getDirection(
-        @Path("fromId")
-        fromNaptanId: String,
-        @Path("toId")
-        toNaptanId: String,
-        @Query("lineid")
-        lineId: String,
-    ): Call<String>
-
-    @GET("Line/{lineId}/Route/Sequence/{direction}")
-    fun getLine(
-        @Path("lineId")
-        lineId: String,
-        @Path("direction")
-        direction: String,
-    ): Call<TflLine>
-}
 
 class TflDestinationCompiler: DestinationCompiler {
+
+    private data class TflLine(
+        @SerializedName("orderedLineRoutes")
+        val routes: List<TflRoute>?,
+    ) {
+        fun isValid() =
+            routes != null
+    }
+
+    private data class TflRoute(
+        @SerializedName("naptanIds")
+        val naptanIds: List<String>?,
+    ) {
+        fun isValid() =
+            naptanIds != null
+    }
+
+    private val retrofit = Retrofit.Builder()
+        .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl("https://api.tfl.gov.uk")
+        .build()
+
+    private interface TflDestinationFilterApiService {
+
+        /**
+         * The return value is a JSON string, i.e. "inbound",
+         * Gson converter automatically remove the JSON double quotes
+         */
+        @GET("StopPoint/{fromId}/DirectionTo/{toId}")
+        fun getDirection(
+            @Path("fromId")
+            fromNaptanId: String,
+            @Path("toId")
+            toNaptanId: String,
+            @Query("lineid")
+            lineId: String,
+        ): Call<String>
+
+        @GET("Line/{lineId}/Route/Sequence/{direction}")
+        fun getLine(
+            @Path("lineId")
+            lineId: String,
+            @Path("direction")
+            direction: String,
+        ): Call<TflLine>
+    }
 
     private val service: TflDestinationFilterApiService by lazy {
         retrofit.create(TflDestinationFilterApiService::class.java)

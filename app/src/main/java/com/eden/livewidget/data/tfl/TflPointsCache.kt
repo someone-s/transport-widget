@@ -4,7 +4,7 @@ import android.content.Context
 import com.eden.livewidget.data.buffered.BufferedPointOption
 import com.eden.livewidget.data.buffered.BufferedPointsCache
 import com.eden.livewidget.data.common.LogicalPoint
-import com.eden.livewidget.data.format
+import com.eden.livewidget.data.formatter
 
 class TflPointsCache(
     private val context: Context,
@@ -17,13 +17,13 @@ class TflPointsCache(
         pointsDao.getAllFuzzyMatches(search)
             .map { native ->
                 BufferedPointOption(
-                    logicalPoint = LogicalPoint(name = native.name, dataPoints = format.decodeFromString(native.value))
+                    logicalPoint = LogicalPoint(name = native.name, dataPoints = formatter.decodeFromString(native.value))
                 )
             }
 
     override suspend fun insert(option: BufferedPointOption) =
         option.logicalPoint.dataPoints.forEach { value ->
-            pointsDao.insert(TflPointsEntity(name = option.logicalPoint.name, value = format.encodeToString(value)))
+            pointsDao.insert(TflPointsEntity(name = option.logicalPoint.name, value = formatter.encodeToString(value)))
         }
 
     override suspend fun deleteAll() =

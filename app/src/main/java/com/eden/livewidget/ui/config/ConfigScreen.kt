@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
@@ -30,27 +29,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
-import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
+import com.eden.livewidget.data.Agency
 import com.eden.livewidget.ui.config.agency.Item
 import com.eden.livewidget.ui.config.common.LabelItem
-import com.eden.livewidget.ui.config.destination.Group
+import com.eden.livewidget.ui.config.destination.DestinationsGroup
 import com.eden.livewidget.ui.config.point.Item
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
-import com.eden.livewidget.data.common.arrivals.filter.Status
 import com.eden.livewidget.data.common.LogicalPoint
 import com.eden.livewidget.data.common.DataPoint
+import com.eden.livewidget.data.common.DestinationConfig
+import com.eden.livewidget.logic.DestinationState
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ConfigScreen(
+    agencies: List<Agency>,
     currentAgency: Agency?,
     setCurrentAgency: (Agency?) -> Unit,
     currentPoint: LogicalPoint?,
     setCurrentPoint: (LogicalPoint?) -> Unit,
-    destinationFilters: Map<Uuid, DestinationConfig>?,
+    destinationFilters: Map<Uuid, DestinationState>?,
     addDestinationFilter: (DestinationConfig) -> Unit,
     updateDestinationFilter: (Uuid, DestinationConfig) -> Unit,
     removeDestinationFilter: (Uuid) -> Unit,
@@ -117,6 +116,7 @@ fun ConfigScreen(
                         LabelItem(stringResource(R.string.config_ui_configscreen_label_agency))
                         Spacer(modifier = Modifier.height(8.dp))
                         Item(
+                            agencies = agencies,
                             currentAgency = currentAgency,
                             onAgencySelected = setCurrentAgency,
                         )
@@ -139,7 +139,7 @@ fun ConfigScreen(
                         LabelItem(stringResource(R.string.config_ui_configscreen_label_point))
                         Spacer(modifier = Modifier.height(8.dp))
                         Item(
-                            currentProvider = currentAgency?.apiProvider,
+                            currentProvider = currentAgency?.provider,
                             currentPoint = currentPoint,
                             onPointSelected = setCurrentPoint,
                         )
@@ -161,8 +161,8 @@ fun ConfigScreen(
                         Spacer(modifier = Modifier.height(24.dp))
                         LabelItem(stringResource(R.string.config_ui_configscreen_label_destination))
                         Spacer(modifier = Modifier.height(8.dp))
-                        Group(
-                            currentProvider = currentAgency?.apiProvider,
+                        DestinationsGroup(
+                            currentProvider = currentAgency?.provider,
                             currentPoint = currentPoint,
                             filters = destinationFilters,
                             addFilter = addDestinationFilter,
@@ -192,22 +192,24 @@ fun PreviewConfigScreen() {
     TransportWidgetsTheme {
 
         ConfigScreen(
+            agencies = emptyList(),
             currentAgency = null,
             setCurrentAgency = {},
             currentPoint = null,
             setCurrentPoint = { _ -> },
             destinationFilters = mapOf(
-                Uuid.random() to DestinationConfig(
-                    LogicalPoint("", MockValue()),
-                    LogicalPoint("dest", MockValue()),
-                    null,
-                    Status.PENDING
+                Uuid.random() to DestinationState(
+                    config = DestinationConfig(
+                        LogicalPoint("", MockValue()),
+                        LogicalPoint("dest", MockValue()),
+                    ),
                 ),
-                Uuid.random() to DestinationConfig(
-                    LogicalPoint("", MockValue()),
-                    LogicalPoint("dest", MockValue()),
-                    null,
-                    Status.APPLIED
+                Uuid.random() to DestinationState(
+                    config = DestinationConfig(
+                        LogicalPoint("", MockValue()),
+                        LogicalPoint("dest", MockValue()),
+                    ),
+                    filters = emptyList()
                 ),
             ),
             addDestinationFilter = { _ -> },

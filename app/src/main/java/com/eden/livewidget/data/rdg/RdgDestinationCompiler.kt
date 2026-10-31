@@ -1,8 +1,8 @@
 package com.eden.livewidget.data.rdg
 
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationCompiler
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationFilter
+import com.eden.livewidget.data.common.DestinationCompiler
+import com.eden.livewidget.data.common.DestinationConfig
+import com.eden.livewidget.data.common.DestinationFilter
 
 class RdgDestinationCompiler: DestinationCompiler {
     override suspend fun compileFilter(filter: DestinationConfig): List<DestinationFilter> {

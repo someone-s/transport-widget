@@ -3,6 +3,7 @@ package com.eden.livewidget.data.tfl
 import android.content.Context
 import com.eden.livewidget.data.buffered.BufferedPointsRepository
 import com.eden.livewidget.data.common.ArrivalsRepository
+import com.eden.livewidget.data.common.DestinationCompiler
 import com.eden.livewidget.data.common.PointsRepository
 import com.eden.livewidget.data.common.Provider
 
@@ -19,5 +20,8 @@ class TflProvider(
         TflArrivalsRepository(
             api = TflArrivalsApi(context),
         )
+    }
+    override val destinationCompiler: DestinationCompiler by lazy {
+        TflDestinationCompiler()
     }
 }

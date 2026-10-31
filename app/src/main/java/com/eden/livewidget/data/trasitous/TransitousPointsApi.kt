@@ -3,7 +3,6 @@ package com.eden.livewidget.data.trasitous
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.common.LogicalPoint
-import com.eden.livewidget.data.transitous.points.TransitousDataPoint
 import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
 import retrofit2.Call

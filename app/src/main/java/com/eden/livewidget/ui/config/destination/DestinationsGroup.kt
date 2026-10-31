@@ -5,13 +5,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.eden.livewidget.data.common.DestinationConfig
 import com.eden.livewidget.data.common.LogicalPoint
+import com.eden.livewidget.data.common.Provider
 import kotlin.uuid.Uuid
 
 @Composable
-fun Group(
+fun DestinationsGroup(
+    agencyId: String,
+    viewModel: DestinationsViewModel by viewModels { DestinationsViewModelFactory(agencyId) }
     currentProvider: Provider?,
     currentPoint: LogicalPoint?,
     filters: Map<Uuid, DestinationConfig>?,
@@ -40,7 +43,7 @@ fun Group(
             )
         }
 
-        AddButton(
+        AddSection(
             currentProvider = currentProvider,
             currentPoint = currentPoint,
             onAddFilter = addFilter,
