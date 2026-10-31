@@ -14,11 +14,11 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
-import com.eden.livewidget.Agency
-import com.eden.livewidget.agencyFromString
-import com.eden.livewidget.data.common.arrivals.Data
+import com.eden.livewidget.ui.Agency
+import com.eden.livewidget.ui.agencyFromString
+import com.eden.livewidget.data.common.arrivals.ArrivalsState
 import com.eden.livewidget.data.common.arrivals.Repository
-import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.common.DataPoint
 import com.eden.livewidget.data.format
 import com.eden.livewidget.data.common.arrivals.filter.emptyState as emptyFilterState
 import com.eden.livewidget.logic.update.UpdateScheduler
@@ -70,7 +70,7 @@ class LivePointWidget : GlanceAppWidget() {
                 }
 
                 val valuesString = currentState(VALUES_KEY)
-                val values: List<Value> = try {
+                val values: List<DataPoint> = try {
                     checkNotNull(valuesString)
                     format.decodeFromString(valuesString)
                 } catch (_: Exception) {
@@ -122,9 +122,9 @@ class LivePointWidget : GlanceAppWidget() {
                             FETCH_RESULT_RAN_SKIPPED,
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
-                                    Data.Validity.VALID -> MyContentMode.ACTIVE_VALID
-                                    Data.Validity.INVALID,
-                                    Data.Validity.UNINITIALIZED -> MyContentMode.ACTIVE_UNINITIALIZED
+                                    ArrivalsState.Validity.VALID -> MyContentMode.ACTIVE_VALID
+                                    ArrivalsState.Validity.INVALID,
+                                    ArrivalsState.Validity.UNINITIALIZED -> MyContentMode.ACTIVE_UNINITIALIZED
                                 }
                             else -> MyContentMode.ACTIVE_RETRY
                         }
@@ -133,9 +133,9 @@ class LivePointWidget : GlanceAppWidget() {
                             FETCH_RESULT_RAN_SKIPPED,
                             FETCH_RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
-                                    Data.Validity.UNINITIALIZED,
-                                    Data.Validity.VALID -> MyContentMode.PAUSED_OK_READY
-                                    Data.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                                    ArrivalsState.Validity.UNINITIALIZED,
+                                    ArrivalsState.Validity.VALID -> MyContentMode.PAUSED_OK_READY
+                                    ArrivalsState.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
                                 }
                             FETCH_RESULT_ERROR_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
                             FETCH_RESULT_ERROR_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE

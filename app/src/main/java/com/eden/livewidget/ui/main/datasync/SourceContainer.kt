@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.eden.livewidget.Agency
+import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.data.common.points.datasource.DataSource
 
 @Composable

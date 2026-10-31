@@ -21,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.eden.livewidget.Agency
+import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
 
 @Composable

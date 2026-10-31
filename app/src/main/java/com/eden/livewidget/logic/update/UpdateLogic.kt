@@ -9,9 +9,9 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.eden.livewidget.agencyFromString
+import com.eden.livewidget.ui.agencyFromString
 import com.eden.livewidget.data.common.arrivals.Repository
-import com.eden.livewidget.data.common.points.Value
+import com.eden.livewidget.data.common.DataPoint
 import com.eden.livewidget.data.format
 import com.eden.livewidget.data.common.arrivals.filter.emptyState as emptyFilterState
 import com.eden.livewidget.ui.widget.LivePointWidget
@@ -75,7 +75,7 @@ private suspend fun updateData(
     }
 
     val valuesString = preferences[LivePointWidget.VALUES_KEY]
-    val values: List<Value> = try {
+    val values: List<DataPoint> = try {
         checkNotNull(valuesString)
         format.decodeFromString(valuesString)
     } catch (_: Exception) {

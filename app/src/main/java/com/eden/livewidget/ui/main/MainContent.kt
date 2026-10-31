@@ -21,7 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.eden.livewidget.Agency
+import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.main.about.AboutScreen
 import com.eden.livewidget.ui.main.datasync.DataSyncScreen

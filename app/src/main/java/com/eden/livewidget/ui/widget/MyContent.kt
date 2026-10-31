@@ -25,13 +25,13 @@ import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.eden.livewidget.Agency
+import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.ConfigActivity
 import com.eden.livewidget.data.common.arrivals.LocationBoard
 import com.eden.livewidget.data.common.arrivals.LocationFrom
 import com.eden.livewidget.data.common.arrivals.LocationVia
-import com.eden.livewidget.data.common.arrivals.Model
+import com.eden.livewidget.data.common.arrivals.ArrivalEntry
 import com.eden.livewidget.ui.widget.active.fetching.ActiveRetryBlock
 import com.eden.livewidget.ui.widget.active.fetching.ActiveUnInitializedBlock
 import com.eden.livewidget.ui.widget.active.valid.ActiveValidBlock
@@ -65,7 +65,7 @@ fun MyContent(
     toNames: List<String>,
     agency: Agency?,
     lastUpdate: LocalDateTime?,
-    lastValidData: List<Model>,
+    lastValidData: List<ArrivalEntry>,
 ) {
 
     val context = LocalContext.current
@@ -187,7 +187,7 @@ fun MyContentPreview() {
             agency = null,
             lastUpdate = null,
             lastValidData = listOf(
-                Model(
+                ArrivalEntry(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really long destination name to display name to display",
@@ -197,7 +197,7 @@ fun MyContentPreview() {
                     remainingS = 30,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
                 ),
-                Model(
+                ArrivalEntry(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really short",
@@ -207,7 +207,7 @@ fun MyContentPreview() {
                     remainingS = 30,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
                 ),
-                Model(
+                ArrivalEntry(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really long destination name to display name to display",
@@ -215,7 +215,7 @@ fun MyContentPreview() {
                     remainingS = 30,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
                 ),
-                Model(
+                ArrivalEntry(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really short",
@@ -223,7 +223,7 @@ fun MyContentPreview() {
                     remainingS = 30,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 3, 39)
                 ),
-                Model(
+                ArrivalEntry(
                     operatorName = "Operator 1",
                     serviceName = "SRV2A",
                     destinationName = "Really long destination name to display name to display",
@@ -232,7 +232,7 @@ fun MyContentPreview() {
                     remainingS = 240,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 23, 42)
                 ),
-                Model(
+                ArrivalEntry(
                     operatorName = "Operator 1",
                     serviceName = "SRV2A",
                     destinationName = "Really short",
@@ -241,7 +241,7 @@ fun MyContentPreview() {
                     remainingS = 240,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 23, 42)
                 ),
-                Model(
+                ArrivalEntry(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really long destination name to display name to display",
@@ -250,7 +250,7 @@ fun MyContentPreview() {
                     remainingS = 4096,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 54)
                 ),
-                Model(
+                ArrivalEntry(
                     operatorName = "Operator 1",
                     serviceName = "Service 1",
                     destinationName = "Really short",

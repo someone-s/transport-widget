@@ -24,8 +24,8 @@ import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
 import com.eden.livewidget.data.Provider
-import com.eden.livewidget.data.common.arrivals.filter.destination.Filter
-import com.eden.livewidget.data.common.points.Model
+import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
+import com.eden.livewidget.data.common.LogicalPoint
 import com.eden.livewidget.data.common.points.Repository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -33,8 +33,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddButton(
     currentProvider: Provider?,
-    currentPoint: Model?,
-    onAddFilter: (Filter) -> Unit,
+    currentPoint: LogicalPoint?,
+    onAddFilter: (DestinationConfig) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
     val context = LocalContext.current
@@ -66,16 +66,16 @@ fun AddButton(
                 .take(25)
                 .map { point ->
                     SearchOption(
-                        queryText = point.model.name,
+                        queryText = point.logicalPoint.name,
                         supportText = point.annotation
                     )
                 },
             onOptionClick = { index, _ ->
                 if (index >= 0 && index < matchingPoints.size && currentPoint != null)
                     onAddFilter(
-                        Filter.createPending(
+                        DestinationConfig.createPending(
                             fromPoint = currentPoint,
-                            toPoint = matchingPoints[index].model,
+                            toPoint = matchingPoints[index].logicalPoint,
                         )
                     )
             }
