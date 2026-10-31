@@ -19,6 +19,10 @@ class DestinationsViewModel(
             initialValue = DestinationsUiState()
         )
 
+    suspend fun fetchMatching(input: String) {
+        pointsRepository.fetchMatching(input)
+    }
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }

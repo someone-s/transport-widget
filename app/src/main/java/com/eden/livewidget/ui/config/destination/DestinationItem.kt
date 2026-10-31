@@ -16,34 +16,41 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
 import com.eden.livewidget.data.common.DestinationConfig
 import com.eden.livewidget.data.common.LogicalPoint
 import com.eden.livewidget.data.common.Provider
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.eden.livewidget.logic.DestinationState
 import kotlinx.coroutines.launch
 
 @Composable
-fun Item(
-    currentProvider: Provider?,
-    currentPoint: LogicalPoint?,
-    filter: DestinationConfig,
-    onFilterChange: (DestinationConfig?) -> Unit,
+fun DestinationItem(
+    provider: Provider,
+    point: LogicalPoint,
+    destination: DestinationState,
+    updateDestination: (DestinationConfig) -> Unit,
+    removeDestination: () -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
+    viewModel: DestinationsViewModel =
+        if (LocalInspectionMode.current) mockDestinationsViewModel
+        else viewModel(
+            key = provider::class.qualifiedName,
+            factory = DestinationsViewModelFactory(provider)
+        ),
 ) {
-
-    val context = LocalContext.current
+    val destinationsUiState by viewModel.destinationsUiState.collectAsState()
+    val matchingPoints = destinationsUiState.matchingPoints
 
     // Avoid standard rememberSwipeToDismissBoxState as that does not have key option
     // Also do not need to survive recomposition
     val positionThreshold = SwipeToDismissBoxDefaults.positionalThreshold
-    val dismissBoxState = remember(filter) {
+    val dismissBoxState = remember(destination) {
         SwipeToDismissBoxState(
             SwipeToDismissBoxValue.Settled,
             positionThreshold,
@@ -54,19 +61,12 @@ fun Item(
     val textFieldState = rememberTextFieldState()
     val coroutineScope = rememberCoroutineScope()
 
-    val repository = remember(key1 = currentProvider) {
-        if (currentProvider != null) Repository.create(context, currentProvider)
-        else null
+    LaunchedEffect(provider, textFieldState.text) {
+        coroutineScope.launch {
+            viewModel.fetchMatching(textFieldState.text.toString())
+        }
     }
-    val matchingPointsFlow = repository?.matchingPoints ?: MutableStateFlow(emptyList())
-    val matchingPoints by matchingPointsFlow.collectAsState()
 
-    LaunchedEffect(repository, textFieldState) {
-        snapshotFlow { Pair(repository, textFieldState.text) }
-            .collect { (repository, query) ->
-                repository?.fetchMatching(context, query.toString())
-            }
-    }
 
     Box {
         SearchGroup(
@@ -82,10 +82,10 @@ fun Item(
                     )
                 },
             onOptionClick = { index, _ ->
-                if (index >= 0 && index < matchingPoints.size && currentPoint != null)
-                    onFilterChange(
-                        DestinationConfig.createPending(
-                            fromPoint = currentPoint,
+                if (index >= 0 && index < matchingPoints.size)
+                    updateDestination(
+                        DestinationConfig(
+                            fromPoint = point,
                             toPoint = matchingPoints[index].logicalPoint,
                         )
                     )
@@ -96,21 +96,21 @@ fun Item(
             backgroundContent = {
                 when (dismissBoxState.dismissDirection) {
                     SwipeToDismissBoxValue.StartToEnd ->
-                        ItemDeleteBackground(Alignment.CenterStart, shapes)
+                        DestinationItemDeleteBackground(Alignment.CenterStart, shapes)
                     SwipeToDismissBoxValue.EndToStart ->
-                        ItemDeleteBackground(Alignment.CenterEnd, shapes)
+                        DestinationItemDeleteBackground(Alignment.CenterEnd, shapes)
                     SwipeToDismissBoxValue.Settled -> {}
                 }
             },
             onDismiss = {
-                onFilterChange(null)
+                removeDestination()
             }, content = {
-                ItemContent(
-                    filter = filter,
+                DestinationItemContent(
+                    destination = destination,
                     onClick = {
-                        if (filter.status == Status.APPLIED)
+                        if (destination.filters != null)
                             coroutineScope.launch {
-                                textFieldState.setTextAndPlaceCursorAtEnd(filter.toPoint.name)
+                                textFieldState.setTextAndPlaceCursorAtEnd(destination.config.toPoint.name)
                                 searchBarState.animateToExpanded()
                             }
                     },

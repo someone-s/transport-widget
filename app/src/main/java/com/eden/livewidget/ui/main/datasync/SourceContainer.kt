@@ -22,8 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.eden.livewidget.ui.Agency
-import com.eden.livewidget.data.common.points.datasource.DataSource
+import com.eden.livewidget.data.Agency
 
 @Composable
 fun SourceContainer(
@@ -75,12 +74,12 @@ fun SourceContainer(
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Justify
             )
-            val showKeyConfig = agency.apiProvider.keyProviders.isNotEmpty()
+
+            val showKeyConfig = agency.provider.keys.isNotEmpty()
 
             val context = LocalContext.current
-            val source = DataSource.getInstance(context, agency.apiProvider)
-            val showDownload = source is DataSource.Refreshable
-            val showReset = source is DataSource.Resettable
+            val showDownload = agency.provider.pointsRepository.asRefreshable != null
+            val showReset = agency.provider.pointsRepository.asResettable != null
 
             val showAny = showKeyConfig || showDownload || showReset
 
@@ -94,7 +93,6 @@ fun SourceContainer(
 
                     if (showKeyConfig) {
                         SourceKeyConfigItems(
-                            context,
                             agency,
                             setCurrentInputKeyAction,
                             setCurrentKeyValueAction,
@@ -104,7 +102,6 @@ fun SourceContainer(
                     }
                     if (showDownload)
                         SourceDownloadItems(
-                            context,
                             agency,
                             setCurrentDownloadAction,
                             setDownloadWarningState,
@@ -115,7 +112,6 @@ fun SourceContainer(
                         )
                     if (showReset)
                         SourceResetItem(
-                            context,
                             agency,
                             setCurrentResetAction,
                             setResetWarningState,

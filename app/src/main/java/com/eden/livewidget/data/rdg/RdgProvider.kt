@@ -2,35 +2,43 @@ package com.eden.livewidget.data.rdg
 
 import android.content.Context
 import com.eden.livewidget.data.buffered.BufferedPointsRepository
-import com.eden.livewidget.data.keys.KeyProvider
 import com.eden.livewidget.data.keys.ObscuredKeyProvider
 import com.eden.livewidget.data.common.ArrivalsRepository
 import com.eden.livewidget.data.common.DestinationCompiler
 import com.eden.livewidget.data.common.PointsRepository
 import com.eden.livewidget.data.common.Provider
+import com.eden.livewidget.data.keys.Key
+import com.eden.livewidget.data.keys.KeyPurpose
+import java.util.EnumSet
 
 class RdgProvider(
     context: Context
 ) : Provider {
 
-    private val pointsKeyProvider: KeyProvider by lazy {
-        ObscuredKeyProvider($"RDG-POINTS")
+    override val keys: List<Key> by lazy {
+        listOf(
+            Key(
+                purposes = EnumSet.of(KeyPurpose.POINTS),
+                provider = ObscuredKeyProvider("RDG-POINTS"),
+            ),
+            Key(
+                purposes = EnumSet.of(KeyPurpose.ARRIVALS),
+                provider = ObscuredKeyProvider("RDG-ARRIVALS"),
+            )
+        )
     }
 
     override val pointsRepository: PointsRepository by lazy {
         BufferedPointsRepository(
-            api = RdgPointsApi(context, pointsKeyProvider),
+            api = RdgPointsApi(context, keys.first { it.purposes.contains(KeyPurpose.POINTS) }.provider),
             cache = RdgPointsCache(context),
         )
     }
 
-    private val arrivalsKeyProvider: KeyProvider by lazy {
-        ObscuredKeyProvider($"RDG-ARRIVALS")
-    }
 
     override val arrivalsRepository: ArrivalsRepository by lazy {
         RdgArrivalsRepository(
-            api = RdgArrivalsApi(context, arrivalsKeyProvider),
+            api = RdgArrivalsApi(context, keys.first { it.purposes.contains(KeyPurpose.ARRIVALS) }.provider),
         )
     }
     override val destinationCompiler: DestinationCompiler by lazy {

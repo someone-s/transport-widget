@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.R
 
 @Composable
-fun ItemDeleteBackground(
+fun DestinationItemDeleteBackground(
     alignment: Alignment,
     shapes: ListItemShapes,
 ) {

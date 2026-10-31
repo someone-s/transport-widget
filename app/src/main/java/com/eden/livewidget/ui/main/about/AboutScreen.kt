@@ -1,6 +1,5 @@
 package com.eden.livewidget.ui.main.about
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
@@ -26,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,11 +40,10 @@ import com.eden.livewidget.ui.util.getOpenUriIntent
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 
 
-// context nullable for preview only
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen(context: Context?) {
+fun AboutScreen() {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
     Column(
         Modifier.verticalScroll(scrollState)
     ) {
@@ -73,49 +71,45 @@ fun AboutScreen(context: Context?) {
         }
         Spacer(Modifier.height(32.dp))
 
+        val aboutDataSourceUriString = stringResource(R.string.about_data_source_url)
         AboutPanel(
             stringResource(R.string.about_data_source_title),
             stringResource(R.string.about_data_source_body)
         ) {
-            if (context == null) return@AboutPanel
-
-            val uri = context.getString(R.string.about_data_source_url).toUri()
+            val uri = aboutDataSourceUriString.toUri()
             val intent = getOpenUriIntent(uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
 
+        val aboutInterfaceUriString = stringResource(R.string.about_user_interface_url)
         AboutPanel(
             stringResource(R.string.about_user_interface_title),
             stringResource(R.string.about_user_interface_body)
         ) {
-            if (context == null) return@AboutPanel
-
-            val uri = context.getString(R.string.about_user_interface_url).toUri()
+            val uri = aboutInterfaceUriString.toUri()
             val intent = getOpenUriIntent(uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
 
+        val aboutCachingUriString = stringResource(R.string.about_caching_url)
         AboutPanel(
             stringResource(R.string.about_caching_title),
             stringResource(R.string.about_caching_body)
         ) {
-            if (context == null) return@AboutPanel
-
-            val uri = context.getString(R.string.about_caching_url).toUri()
+            val uri = aboutCachingUriString.toUri()
             val intent = getOpenUriIntent(uri)
             context.startActivity(intent)
         }
         Spacer(Modifier.height(8.dp))
 
+        val aboutSourceCodeUriString = stringResource(R.string.about_source_code_url)
         AboutPanel(
             stringResource(R.string.about_source_code_title),
             stringResource(R.string.about_source_code_body)
         ) {
-            if (context == null) return@AboutPanel
-
-            val uri = context.getString(R.string.about_source_code_url).toUri()
+            val uri = aboutSourceCodeUriString.toUri()
             val intent = getOpenUriIntent(uri)
             context.startActivity(intent)
         }
@@ -163,7 +157,7 @@ fun AboutScreenPreview() {
             }
         ) { innerPadding ->
             NavHost(navController, startDestination = Providers, Modifier.padding(innerPadding)) {
-                composable<Providers> { AboutScreen(null) }
+                composable<Providers> { AboutScreen() }
             }
         }
     }

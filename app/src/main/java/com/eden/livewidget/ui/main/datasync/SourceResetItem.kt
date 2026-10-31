@@ -1,6 +1,5 @@
 package com.eden.livewidget.ui.main.datasync
 
-import android.content.Context
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
@@ -9,24 +8,23 @@ import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
-import com.eden.livewidget.data.common.points.datasource.DataSource
+import com.eden.livewidget.data.Agency
 import com.eden.livewidget.logic.sync.DataSyncWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun SourceResetItem(
-    context: Context?,
     agency: Agency,
     setCurrentResetAction: ((() -> Unit)?) -> Unit,
     setResetWarningState: (Boolean) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
-    
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     SegmentedListItem(
@@ -49,14 +47,13 @@ fun SourceResetItem(
         },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         onClick = {
-            if (context == null) return@SegmentedListItem
             setCurrentResetAction {
-                DataSyncWorker.cancelCurrentRequest(context, agency.apiProvider)
+                DataSyncWorker.cancelCurrentRequest(context, agency)
 
                 coroutineScope.launch(Dispatchers.IO) {
-                    val source = DataSource.getInstance(context, agency.apiProvider)
-                    assert(source is DataSource.Resettable)
-                    (source as DataSource.Resettable).reset(context)
+                    val resettablePointsRepository = agency.provider.pointsRepository.asResettable
+                    checkNotNull(resettablePointsRepository)
+                    resettablePointsRepository.reset(context)
                 }
             }
             setResetWarningState(true)

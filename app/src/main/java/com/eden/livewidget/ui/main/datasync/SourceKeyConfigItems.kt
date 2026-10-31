@@ -1,6 +1,5 @@
 package com.eden.livewidget.ui.main.datasync
 
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -19,20 +18,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
+import com.eden.livewidget.data.Agency
 
 @Composable
 fun SourceKeyConfigItems(
-    context: Context?,
     agency: Agency,
     setCurrentInputKeyAction: (((String) -> Unit)?) -> Unit,
     setCurrentKeyValue: (String) -> Unit,
     setInputKeyState: (Boolean) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
+    val context = LocalContext.current
     var isConfigureExpanded by remember { mutableStateOf(false) }
 
     ListItem(
@@ -89,7 +89,7 @@ fun SourceKeyConfigItems(
         SourceKeyHelpItem(agency)
     }
 
-        agency.apiProvider.keyProviders.forEach { (purpose, constructor) ->
+        agency.provider.keys.forEach { (purpose, provider) ->
             AnimatedVisibility(
                 visible = isConfigureExpanded,
                 enter =
@@ -104,20 +104,12 @@ fun SourceKeyConfigItems(
                 SourceKeyOpenItem(
                     purpose,
                     keyText =
-                        if (context != null)
-                            constructor().getKey(context)
-                                .ifBlank { stringResource(R.string.data_sync_screen_key_configure_value_empty_text) }
-                        else
-                            stringResource(R.string.data_sync_screen_key_configure_value_empty_text),
+                        provider.getKey(context).ifBlank { stringResource(R.string.data_sync_screen_key_configure_value_empty_text) },
                     onClick = {
-                        if (context == null) return@SourceKeyOpenItem
-                        setCurrentInputKeyAction({ newKey ->
-                            constructor().setKey(
-                                context,
-                                newKey
-                            )
-                        })
-                        setCurrentKeyValue(constructor().getKey(context))
+                        setCurrentInputKeyAction { newKey ->
+                            provider.setKey(context, newKey)
+                        }
+                        setCurrentKeyValue(provider.getKey(context))
                         setInputKeyState(true)
                     }
                 )

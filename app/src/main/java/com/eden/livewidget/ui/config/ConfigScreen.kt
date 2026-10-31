@@ -34,7 +34,7 @@ import com.eden.livewidget.data.Agency
 import com.eden.livewidget.ui.config.agency.Item
 import com.eden.livewidget.ui.config.common.LabelItem
 import com.eden.livewidget.ui.config.destination.DestinationsGroup
-import com.eden.livewidget.ui.config.point.Item
+import com.eden.livewidget.ui.config.point.PointItem
 import com.eden.livewidget.data.common.LogicalPoint
 import com.eden.livewidget.data.common.DataPoint
 import com.eden.livewidget.data.common.DestinationConfig
@@ -49,14 +49,13 @@ fun ConfigScreen(
     setCurrentAgency: (Agency?) -> Unit,
     currentPoint: LogicalPoint?,
     setCurrentPoint: (LogicalPoint?) -> Unit,
-    destinationFilters: Map<Uuid, DestinationState>?,
+    destinationFilters: Map<Uuid, DestinationState>,
     addDestinationFilter: (DestinationConfig) -> Unit,
     updateDestinationFilter: (Uuid, DestinationConfig) -> Unit,
     removeDestinationFilter: (Uuid) -> Unit,
     anyChanges: Boolean,
     onSaveChanges: () -> Unit,
     onDiscardChanges: () -> Unit,
-    forceAllVisible: Boolean = false,
 ) {
 
     val scrollState = rememberScrollState()
@@ -123,8 +122,9 @@ fun ConfigScreen(
                     }
                 }
 
+                val pointItemVisible = currentAgency != null
                 AnimatedVisibility(
-                    visible = forceAllVisible || currentAgency != null,
+                    visible = pointItemVisible,
                     enter =
                         slideInVertically() +
                                 expandVertically() +
@@ -134,20 +134,22 @@ fun ConfigScreen(
                                 shrinkVertically() +
                                 fadeOut(),
                 ) {
-                    Column {
-                        Spacer(modifier = Modifier.height(24.dp))
-                        LabelItem(stringResource(R.string.config_ui_configscreen_label_point))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Item(
-                            currentProvider = currentAgency?.provider,
-                            currentPoint = currentPoint,
-                            onPointSelected = setCurrentPoint,
-                        )
-                    }
+                    if (pointItemVisible)
+                        Column {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            LabelItem(stringResource(R.string.config_ui_configscreen_label_point))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            PointItem(
+                                provider = currentAgency.provider,
+                                point = currentPoint,
+                                onPointSelected = setCurrentPoint,
+                            )
+                        }
                 }
 
+                val destinationsGroupVisible = currentAgency != null && currentPoint != null
                 AnimatedVisibility(
-                    visible = forceAllVisible || (currentAgency != null && currentPoint != null),
+                    visible = destinationsGroupVisible,
                     enter =
                         slideInVertically() +
                                 expandVertically() +
@@ -157,23 +159,24 @@ fun ConfigScreen(
                                 shrinkVertically() +
                                 fadeOut(),
                 ) {
-                    Column {
-                        Spacer(modifier = Modifier.height(24.dp))
-                        LabelItem(stringResource(R.string.config_ui_configscreen_label_destination))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        DestinationsGroup(
-                            currentProvider = currentAgency?.provider,
-                            currentPoint = currentPoint,
-                            filters = destinationFilters,
-                            addFilter = addDestinationFilter,
-                            updateFilter = updateDestinationFilter,
-                            removeFilter = removeDestinationFilter,
-                        )
-                    }
+                    if (destinationsGroupVisible)
+                        Column {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            LabelItem(stringResource(R.string.config_ui_configscreen_label_destination))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            DestinationsGroup(
+                                provider = currentAgency.provider,
+                                point = currentPoint,
+                                destinations = destinationFilters,
+                                addDestination = addDestinationFilter,
+                                updateDestination = updateDestinationFilter,
+                                removeDestination = removeDestinationFilter,
+                            )
+                        }
                 }
             }
 
-            if (forceAllVisible || (anyChanges && currentAgency != null && currentPoint != null))
+            if (anyChanges && currentAgency != null && currentPoint != null)
                 ApplyButton(
                     onClick = onSaveChanges
                 )
@@ -218,7 +221,6 @@ fun PreviewConfigScreen() {
             anyChanges = false,
             onSaveChanges = {},
             onDiscardChanges = {},
-            forceAllVisible = true,
         )
     }
 }

@@ -12,48 +12,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
-import com.eden.livewidget.data.Provider
 import com.eden.livewidget.data.common.LogicalPoint
-import com.eden.livewidget.data.common.points.Repository
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.eden.livewidget.data.common.Provider
 import kotlinx.coroutines.launch
 
 @Composable
-fun Item(
-    currentProvider: Provider?,
-    currentPoint: LogicalPoint?,
+fun PointItem(
+    provider: Provider,
+    point: LogicalPoint?,
     onPointSelected: (LogicalPoint?) -> Unit,
+    viewModel: PointsViewModel =
+        if (LocalInspectionMode.current) mockPointsViewModel
+        else viewModel(
+            key = provider::class.qualifiedName,
+            factory = PointsViewModelFactory(provider)
+        ),
 ) {
-    val context = LocalContext.current
+    val pointsUiState by viewModel.pointsUiState.collectAsState()
+    val matchingPoints = pointsUiState.matchingPoints
 
     val searchBarState = rememberSearchBarState()
     val textFieldState = rememberTextFieldState()
     val coroutineScope = rememberCoroutineScope()
 
-    val repository = remember(key1 = currentProvider) {
-        if (currentProvider != null)
-            Repository.create(context, currentProvider)
-        else
-            null
-    }
-    val matchingPointsFlow = repository?.matchingPoints ?: MutableStateFlow(emptyList())
-    val matchingPoints by matchingPointsFlow.collectAsState()
-
-    LaunchedEffect(repository, textFieldState) {
-        snapshotFlow { Pair(repository, textFieldState.text) }
-            .collect { (repository, query) ->
-                repository?.fetchMatching(context, query.toString())
-            }
+    LaunchedEffect(provider, textFieldState.text) {
+        coroutineScope.launch {
+            viewModel.fetchMatching(textFieldState.text.toString())
+        }
     }
 
     SearchGroup(
@@ -88,14 +82,14 @@ fun Item(
         },
         content = {
             Text(
-                text = currentPoint?.name ?: stringResource(R.string.config_ui_pointitem_name_placeholder),
+                text = point?.name ?: stringResource(R.string.config_ui_pointitem_name_placeholder),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         },
         supportingContent = {
             Text(
-                text = currentPoint?.dataPoints?.joinToString(",") { it.displayString }
+                text = point?.dataPoints?.joinToString(",") { it.displayString }
                     ?: stringResource(R.string.config_ui_pointitem_description_placeholder),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -109,7 +103,7 @@ fun Item(
         },
         onClick = {
             coroutineScope.launch {
-                textFieldState.setTextAndPlaceCursorAtEnd(currentPoint?.name ?: "")
+                textFieldState.setTextAndPlaceCursorAtEnd(point?.name ?: "")
                 searchBarState.animateToExpanded()
             }
         }

@@ -10,10 +10,10 @@ import androidx.collection.intSetOf
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.core.content.IntentCompat
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.lifecycleScope
-import com.eden.livewidget.ui.Agency
+import com.eden.livewidget.LiveWidgetApplication
+import com.eden.livewidget.data.Agency
 import com.eden.livewidget.ui.main.notification.PermissionLogic
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.ui.widget.LivePointWidgetReceiver
@@ -28,7 +28,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val agency: Agency? = IntentCompat.getSerializableExtra(intent, AGENCY_EXTRA_NAME, Agency::class.java)
+        val appContainer = (application as LiveWidgetApplication).container
+        val agencies: List<Agency> = appContainer.agencies
+        val targetAgency: Agency? = intent.getStringExtra(AGENCY_EXTRA_NAME)?.let { appContainer.agencyFromId(it) }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             val context = this
@@ -45,7 +47,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TransportWidgetsTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    MainContent(this.application, this, agency)
+                    MainContent(agencies, targetAgency)
 
                     PermissionLogic()
                 }

@@ -15,12 +15,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.R
-import com.eden.livewidget.data.common.arrivals.filter.Status
-import com.eden.livewidget.data.common.arrivals.filter.destination.DestinationConfig
+import com.eden.livewidget.logic.DestinationState
 
 @Composable
-fun ItemContent(
-    filter: DestinationConfig,
+fun DestinationItemContent(
+    destination: DestinationState,
     onClick: () -> Unit,
     shapes: ListItemShapes,
 ) {
@@ -39,12 +38,12 @@ fun ItemContent(
         },
         content = {
             Text(
-                text = filter.toPoint.name,
+                text = destination.config.toPoint.name,
                 maxLines = 1,
             )
         },
         supportingContent = {
-            if (filter.status != Status.APPLIED) {
+            if (destination.filters == null) {
                 LinearProgressIndicator(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
@@ -54,7 +53,7 @@ fun ItemContent(
                 )
             } else {
                 Text(
-                    text = filter.toPoint.dataPoints.joinToString(",") { it.displayString },
+                    text = destination.config.toPoint.dataPoints.joinToString(",") { it.displayString },
                     maxLines = 1,
                 )
             }

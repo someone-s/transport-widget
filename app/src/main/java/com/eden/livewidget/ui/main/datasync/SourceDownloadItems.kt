@@ -1,6 +1,5 @@
 package com.eden.livewidget.ui.main.datasync
 
-import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -14,26 +13,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
+import com.eden.livewidget.data.Agency
 import com.eden.livewidget.logic.sync.DataSyncWorker
 import kotlinx.coroutines.flow.flow
 
 @Composable
 fun SourceDownloadItems(
-    context: Context?,
     agency: Agency,
     setCurrentDownloadAction: ((() -> Unit)?) -> Unit,
     setDownloadWarningState: (Boolean) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
-    val flow = if (context != null) DataSyncWorker.getIsActiveFlow(
-        context,
-        agency.apiProvider
-    ) else flow { }
+    val context = LocalContext.current
+    val flow =
+        if (LocalInspectionMode.current) flow {  }
+        else DataSyncWorker.getIsActiveFlow(context, agency)
     val fetching by flow.collectAsState(true)
 
     ListItem(
@@ -67,10 +67,9 @@ fun SourceDownloadItems(
         },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         onClick = {
-            if (context == null) return@ListItem
             if (fetching) return@ListItem
             setCurrentDownloadAction {
-                DataSyncWorker.schedule(context, agency.apiProvider)
+                DataSyncWorker.schedule(context, agency)
             }
             setDownloadWarningState(true)
         }

@@ -1,6 +1,5 @@
 package com.eden.livewidget.ui.main
 
-import android.content.Context
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -21,8 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
+import com.eden.livewidget.data.Agency
 import com.eden.livewidget.ui.main.about.AboutScreen
 import com.eden.livewidget.ui.main.datasync.DataSyncScreen
 import kotlinx.serialization.Serializable
@@ -43,9 +42,8 @@ object About
 
 @Composable
 fun MainContent(
-    applicationContext: Context,
-    activityContext: Context,
-    agency: Agency? = null
+    agencies: List<Agency>,
+    targetAgency: Agency? = null
 ) {
     val topLevelRoutes = listOf(
         TopLevelRoute(
@@ -105,12 +103,12 @@ fun MainContent(
         }
     ) { innerPadding ->
         NavHost(navController, startDestination = Providers, Modifier.padding(innerPadding)) {
-            composable<Providers> { DataSyncScreen(applicationContext, agency) }
-            composable<About> { AboutScreen(activityContext) }
+            composable<Providers> { DataSyncScreen(agencies, targetAgency) }
+            composable<About> { AboutScreen() }
         }
 
         if (
-            agency != null &&
+            targetAgency != null &&
             navController.currentBackStackEntry?.destination?.hasRoute(Providers::class) == false
         )
             navController.navigate(route = Providers)

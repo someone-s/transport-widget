@@ -26,20 +26,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.eden.livewidget.ui.Agency
 import com.eden.livewidget.R
+import com.eden.livewidget.data.Agency
 import kotlinx.coroutines.launch
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
 @Composable
-fun InplaceSearch(lazyListState: LazyListState) {
+fun InplaceSearch(
+    agencies: List<Agency>,
+    lazyListState: LazyListState,
+) {
     // Controls expansion state of the search bar
     val textFieldState = rememberTextFieldState()
     val searchBarState = rememberSearchBarState()
     val resultScrollState = rememberScrollState()
 
     val agencyLookup: Map<String, Agency> =
-        Agency.entries.associateBy { agency -> stringResource(agency.agencyName) }
+        agencies.associateBy { agency -> stringResource(agency.agencyName) }
 
     val coroutineScope = rememberCoroutineScope()
 

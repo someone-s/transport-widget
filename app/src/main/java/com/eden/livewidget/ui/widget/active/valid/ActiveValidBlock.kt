@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.glance.GlanceModifier
 import androidx.glance.layout.Box
 import androidx.glance.layout.fillMaxSize
-import com.eden.livewidget.data.common.arrivals.ArrivalEntry
+import com.eden.livewidget.data.common.ArrivalEntry
 
 @Composable
 fun ActiveValidBlock(arrivals: List<ArrivalEntry>) {
