@@ -1,0 +1,226 @@
+package com.eden.livewidget.ui.config
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.dp
+import com.eden.livewidget.R
+import com.eden.livewidget.data.Agency
+import com.eden.livewidget.ui.config.agency.Item
+import com.eden.livewidget.ui.config.common.LabelItem
+import com.eden.livewidget.ui.config.destination.DestinationsGroup
+import com.eden.livewidget.ui.config.point.PointItem
+import com.eden.livewidget.data.common.LogicalPoint
+import com.eden.livewidget.data.common.DataPoint
+import com.eden.livewidget.data.common.DestinationConfig
+import com.eden.livewidget.logic.DestinationState
+import com.eden.livewidget.ui.theme.TransportWidgetsTheme
+import kotlin.uuid.Uuid
+
+@Composable
+fun ConfigScreen(
+    agencies: List<Agency>,
+    currentAgency: Agency?,
+    setCurrentAgency: (Agency?) -> Unit,
+    currentPoint: LogicalPoint?,
+    setCurrentPoint: (LogicalPoint?) -> Unit,
+    destinationFilters: Map<Uuid, DestinationState>,
+    addDestinationFilter: (DestinationConfig) -> Unit,
+    updateDestinationFilter: (Uuid, DestinationConfig) -> Unit,
+    removeDestinationFilter: (Uuid) -> Unit,
+    anyChanges: Boolean,
+    onSaveChanges: () -> Unit,
+    onDiscardChanges: () -> Unit,
+) {
+
+    val scrollState = rememberScrollState()
+
+    Scaffold(
+        topBar = {
+            LargeFlexibleTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.config_ui_configscreen_title),
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onDiscardChanges,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.arrow_back),
+                            contentDescription = stringResource(R.string.config_ui_configscreen_action),
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Column(
+                modifier = Modifier
+                    .width(480.dp)
+                    .fillMaxHeight()
+                    .verticalScroll(scrollState)
+                    .padding(
+                        top = 0.dp,
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 8.dp
+                    ),
+            ) {
+                AnimatedVisibility(
+                    visible = true,
+                    enter =
+                        slideInVertically() +
+                                expandVertically() +
+                                fadeIn(),
+                    exit =
+                        slideOutVertically() +
+                                shrinkVertically() +
+                                fadeOut(),
+                ) {
+                    Column {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        LabelItem(stringResource(R.string.config_ui_configscreen_label_agency))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Item(
+                            agencies = agencies,
+                            currentAgency = currentAgency,
+                            onAgencySelected = setCurrentAgency,
+                        )
+                    }
+                }
+
+                val pointItemVisible = currentAgency != null
+                AnimatedVisibility(
+                    visible = pointItemVisible,
+                    enter =
+                        slideInVertically() +
+                                expandVertically() +
+                                fadeIn(),
+                    exit =
+                        slideOutVertically() +
+                                shrinkVertically() +
+                                fadeOut(),
+                ) {
+                    if (pointItemVisible)
+                        Column {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            LabelItem(stringResource(R.string.config_ui_configscreen_label_point))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            PointItem(
+                                provider = currentAgency.provider,
+                                point = currentPoint,
+                                onPointSelected = setCurrentPoint,
+                            )
+                        }
+                }
+
+                val destinationsGroupVisible = currentAgency != null && currentPoint != null
+                AnimatedVisibility(
+                    visible = destinationsGroupVisible,
+                    enter =
+                        slideInVertically() +
+                                expandVertically() +
+                                fadeIn(),
+                    exit =
+                        slideOutVertically() +
+                                shrinkVertically() +
+                                fadeOut(),
+                ) {
+                    if (destinationsGroupVisible)
+                        Column {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            LabelItem(stringResource(R.string.config_ui_configscreen_label_destination))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            DestinationsGroup(
+                                provider = currentAgency.provider,
+                                point = currentPoint,
+                                destinations = destinationFilters,
+                                addDestination = addDestinationFilter,
+                                updateDestination = updateDestinationFilter,
+                                removeDestination = removeDestinationFilter,
+                            )
+                        }
+                }
+            }
+
+            if (anyChanges && currentAgency != null && currentPoint != null)
+                ApplyButton(
+                    onClick = onSaveChanges
+                )
+        }
+    }
+}
+
+@PreviewScreenSizes
+@Composable
+fun PreviewConfigScreen() {
+
+    class MockValue: DataPoint {
+        override val displayString: String = ""
+    }
+
+    TransportWidgetsTheme {
+
+        ConfigScreen(
+            agencies = emptyList(),
+            currentAgency = null,
+            setCurrentAgency = {},
+            currentPoint = null,
+            setCurrentPoint = { _ -> },
+            destinationFilters = mapOf(
+                Uuid.random() to DestinationState(
+                    config = DestinationConfig(
+                        LogicalPoint("", MockValue()),
+                        LogicalPoint("dest", MockValue()),
+                    ),
+                ),
+                Uuid.random() to DestinationState(
+                    config = DestinationConfig(
+                        LogicalPoint("", MockValue()),
+                        LogicalPoint("dest", MockValue()),
+                    ),
+                    filters = emptyList()
+                ),
+            ),
+            addDestinationFilter = { _ -> },
+            updateDestinationFilter = { _, _ -> },
+            removeDestinationFilter = { _ -> },
+            anyChanges = false,
+            onSaveChanges = {},
+            onDiscardChanges = {},
+        )
+    }
+}

@@ -19,7 +19,7 @@ class ObscuredKeyProviderUnitTest {
     fun noFile_isEmpty() {
         val provider = ObscuredKeyProvider("testId")
 
-        val noFile = provider.getKey(mockContext)
+        val noFile = provider.refreshKey(mockContext)
         println(noFile)
     }
 
@@ -29,7 +29,7 @@ class ObscuredKeyProviderUnitTest {
 
         val testKey = "abcdefg12345!!!!!"
         provider.setKey(mockContext, testKey)
-        val resultKey = provider.getKey(mockContext)
+        val resultKey = provider.refreshKey(mockContext)
 
         assertEquals(testKey, resultKey)
     }
