@@ -93,12 +93,10 @@ fun SourceKeyConfigItems(
     }
 
     agency.provider.keys.forEach { (purpose, provider) ->
-        var shouldReloadKey by remember { mutableStateOf(false) }
-        val keyTextFlow = remember { MutableStateFlow<String?>(null) }
-        val keyText by keyTextFlow.collectAsState()
 
-        LaunchedEffect(shouldReloadKey) {
-            keyTextFlow.emit(provider.getKey(context))
+        val key by provider.key.collectAsState(null)
+        LaunchedEffect(Unit) {
+            provider.refreshKey()
         }
 
         AnimatedVisibility(
@@ -114,13 +112,12 @@ fun SourceKeyConfigItems(
         ) {
             SourceKeyOpenItem(
                 purpose,
-                keyText = keyText?.ifBlank { null } ?: stringResource(R.string.data_sync_screen_key_configure_value_empty_text),
+                keyText = key?.ifBlank { null } ?: stringResource(R.string.data_sync_screen_key_configure_value_empty_text),
                 onClick = {
                     setCurrentInputKeyAction { newKey ->
-                        provider.setKey(context, newKey)
-                        shouldReloadKey = !shouldReloadKey
+                        provider.setKey(newKey)
                     }
-                    setCurrentKeyValue(provider.getKey(context))
+                    setCurrentKeyValue(provider.refreshKey())
                     setInputKeyState(true)
                 }
             )

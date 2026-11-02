@@ -2,6 +2,10 @@ package com.eden.livewidget.data.keys
 
 import android.content.Context
 import android.provider.Settings.Secure
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -13,13 +17,14 @@ import javax.crypto.spec.SecretKeySpec
 
 
 class ObscuredKeyProvider(
+    private val context: Context,
     private val id: String,
 ): KeyProvider {
 
     private val keyDirName = "keys"
 
     // Get the file for this key, file may not exist
-    private fun getFile(context: Context): File {
+    private fun getFile(): File {
 
         // Context create directory if not found
         val keyDir = context.getDir(keyDirName, Context.MODE_PRIVATE)
@@ -43,8 +48,11 @@ class ObscuredKeyProvider(
         return cryptKey
     }
 
-    override fun getKey(context: Context): String {
-        val keyFile = getFile(context)
+    private val _key by lazy { MutableStateFlow(getKey()) }
+    override val key: SharedFlow<String> by lazy { _key }
+
+    private fun getKey(): String {
+        val keyFile = getFile()
         if (!keyFile.exists())
             return ""
 
@@ -64,13 +72,19 @@ class ObscuredKeyProvider(
 
         val cipher = Cipher.getInstance(cryptTransform)
         cipher.init(Cipher.DECRYPT_MODE, getCryptKey(), gcmSpec)
-        val key = String(cipher.doFinal(cryptMessage))
+        val fetchedKey = String(cipher.doFinal(cryptMessage))
 
-        return key
+        return fetchedKey
     }
 
-    override fun setKey(context: Context, key: String) {
-        val keyFile = getFile(context)
+    override fun refreshKey(): String {
+        val fetchedKey = getKey()
+        _key.tryEmit(fetchedKey)
+        return fetchedKey
+    }
+
+    override fun setKey(newKey: String) {
+        val keyFile = getFile()
 
         val secureRandom = SecureRandom()
         val initVector = ByteArray(cryptInitVectorSize)
@@ -79,12 +93,14 @@ class ObscuredKeyProvider(
 
         val cipher = Cipher.getInstance(cryptTransform)
         cipher.init(Cipher.ENCRYPT_MODE, getCryptKey(), gcmSpec)
-        val cryptMessage = cipher.doFinal(key.toByteArray())
+        val cryptMessage = cipher.doFinal(newKey.toByteArray())
 
         // AES-GCM IV must be of length cryptInitVectorSize which is 12
         assert(initVector.size == cryptInitVectorSize)
 
         // Concat the byte arrays and write
         keyFile.writeBytes(initVector + cryptMessage)
+
+        _key.tryEmit(newKey)
     }
 }

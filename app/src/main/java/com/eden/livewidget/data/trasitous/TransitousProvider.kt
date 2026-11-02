@@ -21,7 +21,7 @@ class TransitousProvider(
     }
     override val arrivalsRepository: ArrivalsRepository by lazy {
         TransitousArrivalsRepository(
-            api = TransitousArrivalsApi(context),
+            api = TransitousArrivalsApi(),
         )
     }
     override val destinationCompiler: DestinationCompiler by lazy {

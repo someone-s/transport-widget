@@ -23,7 +23,6 @@ import java.time.temporal.ChronoUnit
 import kotlin.math.max
 
 class RdgArrivalsApi(
-    private val context: Context,
     private val keyProvider: KeyProvider,
 ) {
 
@@ -104,25 +103,24 @@ class RdgArrivalsApi(
         Log.i(this.javaClass.name, "Data fetching")
 
         return if (toCrsCodes.isEmpty())
-            fetchIteration(context, crsCode, currentTimeText, currentTime)
+            fetchIteration(crsCode, currentTimeText, currentTime)
         else
             toCrsCodes
                 .flatMap { toCrsCode ->
-                    fetchIteration(context, crsCode, currentTimeText, currentTime, toCrsCode)
+                    fetchIteration(crsCode, currentTimeText, currentTime, toCrsCode)
                 }
                 .sortedBy { model -> model.remainingS }
                 .distinct()
     }
 
     private fun fetchIteration(
-        context: Context,
         crsCode: String,
         currentTimeText: String,
         currentTime: LocalDateTime?,
         toCrsCode: String? = null,
     ): List<ArrivalEntry> {
         val headers = mapOf(
-            "x-apikey" to keyProvider.getKey(context)
+            "x-apikey" to keyProvider.refreshKey()
         )
         val request = service.getDepartureBoardWithDetails(
             headers = headers,

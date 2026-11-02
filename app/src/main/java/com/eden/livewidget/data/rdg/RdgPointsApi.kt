@@ -75,7 +75,7 @@ class RdgPointsApi(
         Log.i(this.javaClass.name, "request data")
 
         val headers = mapOf(
-            "x-apikey" to keyProvider.getKey(context)
+            "x-apikey" to keyProvider.refreshKey()
         )
         val pageRequest = service.getStationList(headers)
         pageRequest.request()

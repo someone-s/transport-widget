@@ -1,6 +1,5 @@
 package com.eden.livewidget.data.tfl
 
-import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
 import com.eden.livewidget.data.common.LocationVia
@@ -21,9 +20,7 @@ import kotlin.math.max
 
 
 
-class TflArrivalsApi(
-    private val context: Context,
-) {
+class TflArrivalsApi {
     private data class TflEntry(
         @SerializedName("naptanId")
         val sourceNaptanId: String?,

@@ -1,6 +1,5 @@
 package com.eden.livewidget.data.trasitous
 
-import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -25,9 +24,7 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-class TransitousArrivalsApi(
-    private val context: Context
-) {
+class TransitousArrivalsApi {
 
     private data class TransitousUnfilteredResponse(
         @SerializedName("stopTimes")

@@ -19,11 +19,11 @@ class RdgProvider(
         listOf(
             Key(
                 purposes = EnumSet.of(KeyPurpose.POINTS),
-                provider = ObscuredKeyProvider("RDG-POINTS"),
+                provider = ObscuredKeyProvider(context, "RDG-POINTS"),
             ),
             Key(
                 purposes = EnumSet.of(KeyPurpose.ARRIVALS),
-                provider = ObscuredKeyProvider("RDG-ARRIVALS"),
+                provider = ObscuredKeyProvider(context, "RDG-ARRIVALS"),
             )
         )
     }
@@ -38,7 +38,7 @@ class RdgProvider(
 
     override val arrivalsRepository: ArrivalsRepository by lazy {
         RdgArrivalsRepository(
-            api = RdgArrivalsApi(context, keys.first { it.purposes.contains(KeyPurpose.ARRIVALS) }.provider),
+            api = RdgArrivalsApi(keys.first { it.purposes.contains(KeyPurpose.ARRIVALS) }.provider),
         )
     }
     override val destinationCompiler: DestinationCompiler by lazy {

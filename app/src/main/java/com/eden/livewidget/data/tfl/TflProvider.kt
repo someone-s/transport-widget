@@ -21,7 +21,7 @@ class TflProvider(
     }
     override val arrivalsRepository: ArrivalsRepository by lazy {
         TflArrivalsRepository(
-            api = TflArrivalsApi(context),
+            api = TflArrivalsApi(),
         )
     }
     override val destinationCompiler: DestinationCompiler by lazy {

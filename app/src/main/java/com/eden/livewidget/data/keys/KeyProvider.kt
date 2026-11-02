@@ -1,9 +1,11 @@
 package com.eden.livewidget.data.keys
 
-import android.content.Context
+import kotlinx.coroutines.flow.SharedFlow
 
 interface KeyProvider {
-    fun getKey(context: Context): String
+    val key: SharedFlow<String?>
 
-    fun setKey(context: Context, key: String)
+    fun refreshKey(): String
+
+    fun setKey(newKey: String)
 }
