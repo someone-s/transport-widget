@@ -14,6 +14,8 @@ import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.R
 import com.eden.livewidget.data.Agency
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun SourceKeyConfigItems(
@@ -89,30 +92,38 @@ fun SourceKeyConfigItems(
         SourceKeyHelpItem(agency)
     }
 
-        agency.provider.keys.forEach { (purpose, provider) ->
-            AnimatedVisibility(
-                visible = isConfigureExpanded,
-                enter =
-                    slideInVertically() +
-                            expandVertically() +
-                            fadeIn(),
-                exit =
-                    slideOutVertically() +
-                            shrinkVertically() +
-                            fadeOut()
-            ) {
-                SourceKeyOpenItem(
-                    purpose,
-                    keyText =
-                        provider.getKey(context).ifBlank { stringResource(R.string.data_sync_screen_key_configure_value_empty_text) },
-                    onClick = {
-                        setCurrentInputKeyAction { newKey ->
-                            provider.setKey(context, newKey)
-                        }
-                        setCurrentKeyValue(provider.getKey(context))
-                        setInputKeyState(true)
+    agency.provider.keys.forEach { (purpose, provider) ->
+        var shouldReloadKey by remember { mutableStateOf(false) }
+        val keyTextFlow = remember { MutableStateFlow<String?>(null) }
+        val keyText by keyTextFlow.collectAsState()
+
+        LaunchedEffect(shouldReloadKey) {
+            keyTextFlow.emit(provider.getKey(context))
+        }
+
+        AnimatedVisibility(
+            visible = isConfigureExpanded,
+            enter =
+                slideInVertically() +
+                        expandVertically() +
+                        fadeIn(),
+            exit =
+                slideOutVertically() +
+                        shrinkVertically() +
+                        fadeOut()
+        ) {
+            SourceKeyOpenItem(
+                purpose,
+                keyText = keyText?.ifBlank { null } ?: stringResource(R.string.data_sync_screen_key_configure_value_empty_text),
+                onClick = {
+                    setCurrentInputKeyAction { newKey ->
+                        provider.setKey(context, newKey)
+                        shouldReloadKey = !shouldReloadKey
                     }
-                )
-            }
+                    setCurrentKeyValue(provider.getKey(context))
+                    setInputKeyState(true)
+                }
+            )
+        }
     }
 }

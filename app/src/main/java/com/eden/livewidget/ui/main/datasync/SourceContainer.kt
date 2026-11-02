@@ -77,7 +77,6 @@ fun SourceContainer(
 
             val showKeyConfig = agency.provider.keys.isNotEmpty()
 
-            val context = LocalContext.current
             val showDownload = agency.provider.pointsRepository.asRefreshable != null
             val showReset = agency.provider.pointsRepository.asResettable != null
 
