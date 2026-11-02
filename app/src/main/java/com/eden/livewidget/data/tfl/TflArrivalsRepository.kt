@@ -6,10 +6,8 @@ import com.eden.livewidget.data.common.ArrivalsState
 import com.eden.livewidget.data.common.DestinationFilter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -20,6 +18,23 @@ class TflArrivalsRepository(
     private val api: TflArrivalsApi,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ): ArrivalsRepository {
+
+//    private val states: MutableMap<Any, ArrivalsState> = mutableMapOf()
+//
+//    private fun setOrReplaceState(key: Any, block: (ArrivalsState?) -> ArrivalsState) {
+//        val previousState = states[key]
+//        val newState = block(previousState)
+//        states[key] = newState
+//    }
+//
+//    override fun getOrCreateState(key: Any): ArrivalsState = states.getOrPut(
+//        key = key,
+//        defaultValue = { ArrivalsState() }
+//    )
+//
+//    override fun deleteState(key: Any) {
+//        states.remove(key)
+//    }
     private val states: MutableMap<Any, MutableStateFlow<ArrivalsState>> = mutableMapOf()
 
     private fun getOrCreateMutableState(key: Any): MutableStateFlow<ArrivalsState> = states.getOrPut(
@@ -40,10 +55,14 @@ class TflArrivalsRepository(
 
         val naptanIds = dataPoints
             .map { it as TflDataPoint }
-            .filter { point ->
-                tflDestinationFilters
-                    .map { filter -> filter.fromNaptanId }
-                    .contains(point.naptanId)
+            .let {
+                if (tflDestinationFilters.isNotEmpty())
+                    it.filter { point ->
+                        tflDestinationFilters
+                            .map { filter -> filter.fromNaptanId }
+                            .contains(point.naptanId)
+                    }
+                else it
             }
             .map { it.naptanId }
 
@@ -51,19 +70,23 @@ class TflArrivalsRepository(
             try {
                 val tflArrivalEntries = api.fetchLatestArrivals(naptanIds)
 
-                val lineDirectionPairs = tflDestinationFilters.map { filter ->
-                    Pair(filter.lineId, filter.direction)
-                }
-                val lineFinalPairs = tflDestinationFilters.flatMap { filter ->
-                    filter.finalNaptanIds.map { finalNaptanId -> Pair(filter.lineId, finalNaptanId) }
-                }
-                val data = tflArrivalEntries
-                    .filter { arrivalsEntry ->
-                        if (arrivalsEntry.finalNaptanId != "")
-                            lineFinalPairs.contains(Pair(arrivalsEntry.lineId, arrivalsEntry.finalNaptanId))
-                        else
-                            lineDirectionPairs.contains(Pair(arrivalsEntry.lineId, arrivalsEntry.direction))
+                val data = tflArrivalEntries.let {
+                    if (tflDestinationFilters.isNotEmpty()) {
+                        val lineDirectionPairs = tflDestinationFilters.map { filter ->
+                            Pair(filter.lineId, filter.direction)
+                        }
+                        val lineFinalPairs = tflDestinationFilters.flatMap { filter ->
+                            filter.finalNaptanIds.map { finalNaptanId -> Pair(filter.lineId, finalNaptanId) }
+                        }
+                        it.filter { arrivalsEntry ->
+                            if (arrivalsEntry.finalNaptanId != "")
+                                lineFinalPairs.contains(Pair(arrivalsEntry.lineId, arrivalsEntry.finalNaptanId))
+                            else
+                                lineDirectionPairs.contains(Pair(arrivalsEntry.lineId, arrivalsEntry.direction))
+                        }
                     }
+                    else it
+                }
                 Pair(ArrivalsRepository.FetchResult.SUCCESS, data)
             } catch (_: TflArrivalsApi.UnresolvedException) {
                 Pair(ArrivalsRepository.FetchResult.ERROR_UNRESOLVED, null)

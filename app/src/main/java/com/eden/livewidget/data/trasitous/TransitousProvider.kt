@@ -20,8 +20,8 @@ class TransitousProvider(
         )
     }
     override val arrivalsRepository: ArrivalsRepository by lazy {
-        TflArrivalsRepository(
-            api = TflArrivalsApi(context),
+        TransitousArrivalsRepository(
+            api = TransitousArrivalsApi(context),
         )
     }
     override val destinationCompiler: DestinationCompiler by lazy {
