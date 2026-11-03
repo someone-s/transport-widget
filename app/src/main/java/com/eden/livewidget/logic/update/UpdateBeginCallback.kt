@@ -5,7 +5,9 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.state.updateAppWidgetState
+import com.eden.livewidget.LiveWidgetApplication
+import com.eden.livewidget.data.widget.structure.FetchState
+import com.eden.livewidget.data.widget.structure.WidgetState
 import com.eden.livewidget.ui.widget.LivePointWidget
 import kotlin.time.Duration
 
@@ -16,13 +18,14 @@ class UpdateBeginCallback : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters,
     ) {
-        val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
+        val appContainer = (context.applicationContext as LiveWidgetApplication).container
+        val widgetRepository = appContainer.widgetRepository
 
-        updateAppWidgetState(context, glanceId) { preferences ->
-            preferences[LivePointWidget.FETCH_STATE_KEY] = LivePointWidget.FETCH_PENDING
-        }
+        val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
 
-        UpdateScheduler.replaceCurrentRequest(context, widgetId, 3, Duration.ZERO)
+        widgetRepository.setState(appWidgetId, WidgetState(FetchState.PENDING))
+
+        UpdateScheduler.replaceCurrentRequest(context, appWidgetId, 3, Duration.ZERO)
 
         // Update glance widget immediately
         val updater = LivePointWidget()

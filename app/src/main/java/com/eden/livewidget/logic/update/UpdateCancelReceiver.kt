@@ -10,9 +10,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class UpdateCancelReceiver: BroadcastReceiver() {
+
     override fun onReceive(context: Context, intent: Intent) {
 
         val appContainer = (context.applicationContext as LiveWidgetApplication).container
+        val updateLogic = UpdateLogic(appContainer.widgetRepository)
+
         val appWidgetId = intent.getIntExtra(UpdateScheduler.APP_WIDGET_ID, -1)
 
         UpdateScheduler.cancelCurrentRequest(context, appWidgetId)
@@ -21,7 +24,7 @@ class UpdateCancelReceiver: BroadcastReceiver() {
         @OptIn(DelicateCoroutinesApi::class)
         GlobalScope.launch(Dispatchers.Default) {
             try {
-                updateWidget(context, appContainer, appWidgetId, -1)
+                updateLogic.updateWidget(context, appContainer, appWidgetId, -1)
             }
             finally {
                 pendingResult.finish()

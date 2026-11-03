@@ -15,6 +15,8 @@ class UpdateExecuteReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val appContainer = (context.applicationContext as LiveWidgetApplication).container
+        val updateLogic = UpdateLogic(appContainer.widgetRepository)
+
         val appWidgetId = intent.getIntExtra(UpdateScheduler.APP_WIDGET_ID, -1)
 
         val remainingTimes = intent.getIntExtra(UpdateScheduler.REMAINING_TIMES, -1)
@@ -24,7 +26,7 @@ class UpdateExecuteReceiver: BroadcastReceiver() {
         GlobalScope.launch(Dispatchers.Default) {
             try {
                 val updateSuccess = try {
-                    updateWidget(context, appContainer, appWidgetId, remainingTimes)
+                    updateLogic.updateWidget(context, appContainer, appWidgetId, remainingTimes)
                 } catch (e: Exception) {
                     Log.e(e.javaClass.name, e.message.toString())
                     false

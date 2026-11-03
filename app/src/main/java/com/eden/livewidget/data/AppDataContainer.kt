@@ -7,8 +7,11 @@ import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.data.agency.rdg.RdgProvider
 import com.eden.livewidget.data.agency.tfl.TflProvider
 import com.eden.livewidget.data.agency.trasitous.TransitousProvider
+import com.eden.livewidget.data.widget.database.WidgetDatabase
+import com.eden.livewidget.data.widget.repository.OfflineWidgetRepository
+import com.eden.livewidget.data.widget.repository.WidgetRepository
 
-class AppDataContainer(context: Context): AppContainer {
+class AppDataContainer(private val context: Context): AppContainer {
 
     override val agencies: List<Agency> = listOf(
         Agency(
@@ -39,5 +42,9 @@ class AppDataContainer(context: Context): AppContainer {
 
     override fun agencyFromId(id: String): Agency? {
         return agencies.firstOrNull { it.id == id }
+    }
+
+    override val widgetRepository: WidgetRepository by lazy {
+        OfflineWidgetRepository(WidgetDatabase.getDatabase(context).widgetDao())
     }
 }

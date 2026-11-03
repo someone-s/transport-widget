@@ -3,6 +3,7 @@ package com.eden.livewidget.data.agency.tfl.arrivals
 import com.eden.livewidget.data.agency.common.point.DataPoint
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsState
+import com.eden.livewidget.data.agency.common.arrivals.FetchResult
 import com.eden.livewidget.data.agency.common.destination.DestinationFilter
 import com.eden.livewidget.data.agency.tfl.point.TflDataPoint
 import com.eden.livewidget.data.agency.tfl.destination.TflDestinationFilter
@@ -35,7 +36,7 @@ class TflArrivalsRepository(
         key: Any,
         dataPoints: List<DataPoint>,
         destinationFilters: List<DestinationFilter>
-    ): ArrivalsRepository.FetchResult {
+    ): FetchResult {
 
         val tflDestinationFilters = destinationFilters.map { it as TflDestinationFilter }
 
@@ -73,19 +74,23 @@ class TflArrivalsRepository(
                     }
                     else it
                 }
-                Pair(ArrivalsRepository.FetchResult.SUCCESS, data)
+                Pair(FetchResult.SUCCESS, data)
             } catch (_: TflArrivalsApi.UnresolvedException) {
-                Pair(ArrivalsRepository.FetchResult.ERROR_UNRESOLVED, null)
+                Pair(FetchResult.ERROR_UNRESOLVED, null)
             } catch (_: TflArrivalsApi.UnreachableException) {
-                Pair(ArrivalsRepository.FetchResult.ERROR_UNREACHABLE, null)
+                Pair(FetchResult.ERROR_UNREACHABLE, null)
             }
         }
 
         getOrCreateMutableState(key).getAndUpdate { previousData ->
-            if (latestData != null)
-                ArrivalsState(LocalDateTime.now(), ArrivalsState.Validity.VALID, latestData)
-            else
-                ArrivalsState(LocalDateTime.now(), ArrivalsState.Validity.INVALID, previousData.lastValidData)
+            ArrivalsState(
+                lastUpdate = LocalDateTime.now(),
+                lastResult = result,
+                validity =
+                    if (latestData != null) ArrivalsState.Validity.VALID
+                    else ArrivalsState.Validity.INVALID,
+                lastValidData = latestData ?: previousData.lastValidData,
+            )
         }
 
         return result

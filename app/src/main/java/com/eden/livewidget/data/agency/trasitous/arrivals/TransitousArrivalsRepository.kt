@@ -2,6 +2,7 @@ package com.eden.livewidget.data.agency.trasitous.arrivals
 
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsState
+import com.eden.livewidget.data.agency.common.arrivals.FetchResult
 import com.eden.livewidget.data.agency.common.point.DataPoint
 import com.eden.livewidget.data.agency.common.destination.DestinationFilter
 import com.eden.livewidget.data.agency.trasitous.point.TransitousDataPoint
@@ -33,7 +34,7 @@ class TransitousArrivalsRepository(
         key: Any,
         dataPoints: List<DataPoint>,
         destinationFilters: List<DestinationFilter>
-    ): ArrivalsRepository.FetchResult {
+    ): FetchResult {
 
         assert(dataPoints.size == 1) { "Must have exactly one data point" }
         val transitousPoint = dataPoints[0] as TransitousDataPoint
@@ -45,19 +46,23 @@ class TransitousArrivalsRepository(
                     transitousPoint.id,
                     transitousDestinationFilters.map { it.toId },
                 )
-                Pair(ArrivalsRepository.FetchResult.SUCCESS, data)
+                Pair(FetchResult.SUCCESS, data)
             } catch (_: TransitousArrivalsApi.UnresolvedException) {
-                Pair(ArrivalsRepository.FetchResult.ERROR_UNRESOLVED, null)
+                Pair(FetchResult.ERROR_UNRESOLVED, null)
             } catch (_: TransitousArrivalsApi.UnreachableException) {
-                Pair(ArrivalsRepository.FetchResult.ERROR_UNREACHABLE, null)
+                Pair(FetchResult.ERROR_UNREACHABLE, null)
             }
         }
 
         getOrCreateMutableState(key).getAndUpdate { previousData ->
-            if (latestData != null)
-                ArrivalsState(LocalDateTime.now(), ArrivalsState.Validity.VALID, latestData)
-            else
-                ArrivalsState(LocalDateTime.now(), ArrivalsState.Validity.INVALID, previousData.lastValidData)
+            ArrivalsState(
+                lastUpdate = LocalDateTime.now(),
+                lastResult = result,
+                validity =
+                    if (latestData != null) ArrivalsState.Validity.VALID
+                    else ArrivalsState.Validity.INVALID,
+                lastValidData = latestData ?: previousData.lastValidData,
+            )
         }
 
         return result

@@ -15,11 +15,4 @@ interface ArrivalsRepository {
         destinationFilters: List<DestinationFilter> = emptyList(),
     ): FetchResult
 
-    enum class FetchResult {
-        SUCCESS,
-        ERROR_UNRESOLVED,
-        ERROR_UNREACHABLE,
-        ERROR_AUTHENTICATION,
-    }
-
 }
