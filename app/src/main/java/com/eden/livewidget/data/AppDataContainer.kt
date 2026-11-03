@@ -1,14 +1,12 @@
 package com.eden.livewidget.data
 
 import android.content.Context
-import android.net.Uri
 import androidx.core.net.toUri
 import com.eden.livewidget.R
-import com.eden.livewidget.data.common.Provider
-import com.eden.livewidget.data.rdg.RdgProvider
-import com.eden.livewidget.data.tfl.TflProvider
-import com.eden.livewidget.data.trasitous.TransitousProvider
-import kotlin.reflect.KClass
+import com.eden.livewidget.data.agency.Agency
+import com.eden.livewidget.data.agency.rdg.RdgProvider
+import com.eden.livewidget.data.agency.tfl.TflProvider
+import com.eden.livewidget.data.agency.trasitous.TransitousProvider
 
 class AppDataContainer(context: Context): AppContainer {
 

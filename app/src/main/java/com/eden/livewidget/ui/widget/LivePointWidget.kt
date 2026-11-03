@@ -15,8 +15,8 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import androidx.glance.currentState
 import com.eden.livewidget.LiveWidgetApplication
-import com.eden.livewidget.data.common.ArrivalsState
-import com.eden.livewidget.data.formatter
+import com.eden.livewidget.data.agency.common.arrivals.ArrivalsState
+import com.eden.livewidget.data.agency.formatter
 import com.eden.livewidget.logic.emptyFilterState
 import com.eden.livewidget.logic.update.UpdateScheduler
 

@@ -25,7 +25,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.data.Agency
+import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.ui.util.getExplicitKeySettingsIntent
 import com.eden.livewidget.ui.util.getResolvedOpenUriIntent
 

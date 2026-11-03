@@ -1,7 +1,7 @@
 package com.eden.livewidget.logic
 
-import com.eden.livewidget.data.common.DestinationConfig
-import com.eden.livewidget.data.common.DestinationFilter
+import com.eden.livewidget.data.agency.common.destination.DestinationConfig
+import com.eden.livewidget.data.agency.common.destination.DestinationFilter
 import kotlinx.serialization.Serializable
 
 @Serializable

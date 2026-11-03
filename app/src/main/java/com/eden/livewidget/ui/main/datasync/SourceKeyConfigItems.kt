@@ -24,8 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.livewidget.R
-import com.eden.livewidget.data.Agency
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.eden.livewidget.data.agency.Agency
 
 @Composable
 fun SourceKeyConfigItems(

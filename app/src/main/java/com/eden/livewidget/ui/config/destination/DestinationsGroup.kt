@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import com.eden.livewidget.data.common.DestinationConfig
-import com.eden.livewidget.data.common.LogicalPoint
-import com.eden.livewidget.data.common.Provider
+import com.eden.livewidget.data.agency.common.destination.DestinationConfig
+import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.Provider
 import com.eden.livewidget.logic.DestinationState
 import kotlin.uuid.Uuid
 

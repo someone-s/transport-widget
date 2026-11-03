@@ -10,10 +10,10 @@ import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.eden.livewidget.data.AppContainer
-import com.eden.livewidget.data.common.ArrivalsRepository
-import com.eden.livewidget.data.common.DataPoint
+import com.eden.livewidget.data.agency.common.arrivals.ArrivalsRepository
+import com.eden.livewidget.data.agency.common.point.DataPoint
 import com.eden.livewidget.logic.emptyFilterState
-import com.eden.livewidget.data.formatter
+import com.eden.livewidget.data.agency.formatter
 import com.eden.livewidget.ui.widget.LivePointWidget
 
 enum class UpdateResult(val widgetValue: String) {

@@ -1,7 +1,7 @@
 package com.eden.livewidget
 
 import android.content.Context
-import com.eden.livewidget.data.keys.ObscuredKeyProvider
+import com.eden.livewidget.data.agency.common.keys.ObscuredKeyProvider
 import org.junit.Test
 
 import org.junit.Assert.*

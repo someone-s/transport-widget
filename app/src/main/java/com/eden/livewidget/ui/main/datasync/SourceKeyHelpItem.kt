@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.R
-import com.eden.livewidget.data.Agency
+import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.ui.util.getOpenUriIntent
 
 @Composable

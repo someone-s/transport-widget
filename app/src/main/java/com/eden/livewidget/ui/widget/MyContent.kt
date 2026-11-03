@@ -26,11 +26,11 @@ import androidx.glance.preview.Preview
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.data.Agency
-import com.eden.livewidget.data.common.ArrivalEntry
-import com.eden.livewidget.data.common.LocationBoard
-import com.eden.livewidget.data.common.LocationFrom
-import com.eden.livewidget.data.common.LocationVia
+import com.eden.livewidget.data.agency.Agency
+import com.eden.livewidget.data.agency.common.arrivals.ArrivalEntry
+import com.eden.livewidget.data.agency.common.arrivals.LocationBoard
+import com.eden.livewidget.data.agency.common.arrivals.LocationFrom
+import com.eden.livewidget.data.agency.common.arrivals.LocationVia
 import com.eden.livewidget.ui.config.ConfigActivity
 import com.eden.livewidget.ui.widget.active.fetching.ActiveRetryBlock
 import com.eden.livewidget.ui.widget.active.fetching.ActiveUnInitializedBlock

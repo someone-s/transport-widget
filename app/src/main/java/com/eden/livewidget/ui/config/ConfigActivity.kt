@@ -23,10 +23,10 @@ import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.eden.livewidget.LiveWidgetApplication
-import com.eden.livewidget.data.Agency
+import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.logic.FiltersState
-import com.eden.livewidget.data.common.LogicalPoint
-import com.eden.livewidget.data.formatter
+import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.formatter
 import com.eden.livewidget.logic.DestinationState
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.ui.widget.LivePointWidget

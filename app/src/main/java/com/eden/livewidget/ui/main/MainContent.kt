@@ -21,7 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.eden.livewidget.R
-import com.eden.livewidget.data.Agency
+import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.ui.main.about.AboutScreen
 import com.eden.livewidget.ui.main.datasync.DataSyncScreen
 import kotlinx.serialization.Serializable

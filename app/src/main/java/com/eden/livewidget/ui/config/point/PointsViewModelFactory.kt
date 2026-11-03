@@ -3,7 +3,7 @@ package com.eden.livewidget.ui.config.point
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.eden.livewidget.data.common.Provider
+import com.eden.livewidget.data.agency.common.Provider
 
 class PointsViewModelFactory(
     private val provider: Provider,
