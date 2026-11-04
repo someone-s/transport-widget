@@ -20,7 +20,9 @@ data class StateEntity(
     @PrimaryKey
     @ColumnInfo(name = "app_widget_id")
     val appWidgetId: Int,
-    @ColumnInfo(name = "result")
+    @ColumnInfo(name = "is_active")
+    val isActive: Boolean = false,
+    @ColumnInfo(name = "fetch_state")
     val fetchState: String = PENDING,
 ) {
     companion object {

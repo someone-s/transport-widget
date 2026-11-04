@@ -14,7 +14,7 @@ fun MockContent() {
 
     MyContent(
         mode = MyContentMode.ACTIVE_VALID,
-        widgetId = -1,
+        appWidgetId = -1,
         fromName = LocalContext.current.getString(R.string.widget_mock_station_text),
         toNames = listOf(
             LocalContext.current.getString(R.string.widget_ui_mockcontent_destination_0_name)

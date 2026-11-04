@@ -1,6 +1,7 @@
 package com.eden.livewidget.data.widget.repository
 
 import com.eden.livewidget.data.widget.database.WidgetDao
+import com.eden.livewidget.data.widget.structure.FetchState
 import com.eden.livewidget.data.widget.structure.WidgetConfig
 import com.eden.livewidget.data.widget.structure.WidgetState
 import kotlinx.coroutines.flow.Flow
@@ -22,8 +23,12 @@ class OfflineWidgetRepository(private val widgetDao: WidgetDao): WidgetRepositor
     override fun getStateFlow(appWidgetId: Int): Flow<WidgetState?> =
         widgetDao.getStateFlow(appWidgetId).map { it?.toWidgetState() }
 
-    override suspend fun setState(
-        appWidgetId: Int,
-        state: WidgetState
-    ) = widgetDao.setState(state.toStateEntity(appWidgetId))
+    override suspend fun isAnyActive(): Boolean =
+        widgetDao.getActiveCount() > 0
+
+    override suspend fun setIsActive(appWidgetId: Int, isActive: Boolean) =
+        widgetDao.setIsActive(appWidgetId, isActive)
+
+    override suspend fun setFetchState(appWidgetId: Int, fetchState: FetchState) =
+        widgetDao.setFetchState(appWidgetId, fetchState.toSerial())
 }

@@ -48,6 +48,23 @@ interface InternalWidgetDao: WidgetDao {
     """)
     override fun getStateFlow(appWidgetId: Int): Flow<StateEntity?>
 
+    @Query("""
+        SELECT COUNT(*) FROM state
+        WHERE is_active = 1
+    """)
+    override suspend fun getActiveCount(): Int
+
     @Update
-    override suspend fun setState(state: StateEntity)
+    suspend fun setState(state: StateEntity)
+
+    @Transaction
+    override suspend fun setIsActive(appWidgetId: Int, isActive: Boolean) {
+        val state = getState(appWidgetId) ?: StateEntity(appWidgetId)
+        setState(state.copy(isActive = isActive))
+    }
+
+    override suspend fun setFetchState(appWidgetId: Int, fetchState: String) {
+        val state = getState(appWidgetId) ?: StateEntity(appWidgetId)
+        setState(state.copy(fetchState = fetchState))
+    }
 }

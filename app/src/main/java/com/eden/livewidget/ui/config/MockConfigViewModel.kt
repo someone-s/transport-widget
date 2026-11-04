@@ -3,6 +3,7 @@ package com.eden.livewidget.ui.config
 import com.eden.livewidget.data.AppContainer
 import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.data.widget.repository.WidgetRepository
+import com.eden.livewidget.data.widget.structure.FetchState
 import com.eden.livewidget.data.widget.structure.WidgetConfig
 import com.eden.livewidget.data.widget.structure.WidgetState
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,11 @@ val mockConfigViewModel = ConfigViewModel(
 
             override fun getStateFlow(appWidgetId: Int): Flow<WidgetState?> = flowOf(null)
 
-            override suspend fun setState(appWidgetId: Int, state: WidgetState) {}
+            override suspend fun isAnyActive(): Boolean = false
+
+            override suspend fun setIsActive(appWidgetId: Int, isActive: Boolean) {}
+
+            override suspend fun setFetchState(appWidgetId: Int, fetchState: FetchState) {}
         }
     }
 )

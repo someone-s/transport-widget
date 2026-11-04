@@ -1,6 +1,5 @@
 package com.eden.livewidget.ui.widget
 
-import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
@@ -12,8 +11,7 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.appwidget.action.actionSendBroadcast
+import androidx.glance.appwidget.action.actionStartService
 import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
@@ -24,18 +22,17 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.size
 import androidx.glance.layout.width
 import com.eden.livewidget.R
-import com.eden.livewidget.logic.update.UpdateBeginCallback
-import com.eden.livewidget.logic.update.UpdateCancelReceiver
-import com.eden.livewidget.logic.update.UpdateScheduler
+import com.eden.livewidget.logic.update.UpdateService
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun ControlGroup(
     mode: MyContentMode,
-    widgetId: Int,
+    appWidgetId: Int,
     lastUpdate: LocalDateTime?,
 ) {
+    val context = LocalContext.current
 
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     val timeInvalid = "‒‒:‒‒"
@@ -64,7 +61,13 @@ fun ControlGroup(
                         backgroundColor = GlanceTheme.colors.error,
                         contentColor = GlanceTheme.colors.onError
                     ),
-            onClick = actionRunCallback<UpdateBeginCallback>(),
+            onClick = actionStartService(
+                isForegroundService = true,
+                intent = Intent(context, UpdateService::class.java).apply {
+                    action = UpdateService.ACTION_UPDATE
+                    putExtra(UpdateService.EXTRA_APP_WIDGET_ID, appWidgetId)
+                }
+            ),
             maxLines = 1,
         )
 
@@ -74,15 +77,18 @@ fun ControlGroup(
                 modifier = GlanceModifier.width(2.dp)
             )
 
-            val explicitUpdateCancelIntent =
-                    getExplicitUpdateCancelIntent(LocalContext.current, widgetId)
-
             Box(
                 modifier = GlanceModifier
                     .size(40.dp)
                     .cornerRadius(20.dp)
                     .background(GlanceTheme.colors.tertiary)
-                    .clickable(actionSendBroadcast(explicitUpdateCancelIntent)),
+                    .clickable(actionStartService(
+                        isForegroundService = false,
+                        intent = Intent(context, UpdateService::class.java).apply {
+                            action = UpdateService.ACTION_PAUSE
+                            putExtra(UpdateService.EXTRA_APP_WIDGET_ID, appWidgetId)
+                        }
+                    )),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -94,12 +100,4 @@ fun ControlGroup(
             }
         }
     }
-}
-
-private fun getExplicitUpdateCancelIntent(context: Context, appWidgetId: Int): Intent {
-
-    return Intent(context.applicationContext, UpdateCancelReceiver::class.java)
-        .apply {
-            putExtra(UpdateScheduler.APP_WIDGET_ID, appWidgetId)
-        }
 }

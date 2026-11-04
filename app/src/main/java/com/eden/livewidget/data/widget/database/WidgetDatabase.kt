@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [ConfigEntity::class, StateEntity::class], version = 1)
+@Database(entities = [ConfigEntity::class, StateEntity::class], version = 2)
 abstract class WidgetDatabase : RoomDatabase() {
     protected abstract fun internalWidgetDao(): InternalWidgetDao
 

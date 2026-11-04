@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.ui.widget.LivePointWidget
-import com.eden.livewidget.logic.update.UpdateScheduler
+import com.eden.livewidget.logic.update.UpdateService
 import kotlinx.coroutines.launch
 
 class ConfigActivity: ComponentActivity() {
@@ -60,7 +60,10 @@ class ConfigActivity: ComponentActivity() {
 
                                 Log.i("$javaClass", "A!! Exit2")
                                 // Stop any ongoing update
-                                UpdateScheduler.cancelCurrentRequest(context, appWidgetId)
+                                startService(Intent(context, UpdateService::class.java).apply {
+                                    action = UpdateService.ACTION_PAUSE
+                                    putExtra(UpdateService.EXTRA_APP_WIDGET_ID, appWidgetId)
+                                })
 
                                 Log.i("$javaClass", "A!! Exit3")
                                 LivePointWidget().update(context, glanceId)

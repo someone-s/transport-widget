@@ -60,7 +60,7 @@ enum class MyContentMode {
 @Composable
 fun MyContent(
     mode: MyContentMode,
-    widgetId: Int,
+    appWidgetId: Int,
     fromName: String,
     toNames: List<String>,
     agency: Agency?,
@@ -70,7 +70,7 @@ fun MyContent(
 
     val context = LocalContext.current
 
-    val configIntent = getExplicitConfigIntent(widgetId)
+    val configIntent = getExplicitConfigIntent(appWidgetId)
 
     Scaffold(
         backgroundColor = GlanceTheme.colors.widgetBackground,
@@ -110,7 +110,7 @@ fun MyContent(
                         ToGroup(context, toNames)
                 }
                 if (mode != MyContentMode.PAUSED_OK_READY)
-                    ControlGroup(mode, widgetId, lastUpdate)
+                    ControlGroup(mode, appWidgetId, lastUpdate)
                 else
                     Box(
                         modifier = GlanceModifier
@@ -138,13 +138,13 @@ fun MyContent(
                     MyContentMode.ACTIVE_VALID -> ActiveValidBlock(lastValidData)
                     MyContentMode.ACTIVE_UNINITIALIZED -> ActiveUnInitializedBlock()
                     MyContentMode.ACTIVE_RETRY -> ActiveRetryBlock()
-                    MyContentMode.PAUSED_OK_READY -> ReadyBlock()
-                    MyContentMode.PAUSED_ERROR_METERED -> MeteredErrorBlock()
-                    MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock()
-                    MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock()
-                    MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock()
-                    MyContentMode.PAUSED_ERROR_AUTHENTICATE -> AuthenticateErrorBlock(agency)
-                    MyContentMode.PAUSED_ERROR_UNKNOWN -> UnknownErrorBlock()
+                    MyContentMode.PAUSED_OK_READY -> ReadyBlock(appWidgetId)
+                    MyContentMode.PAUSED_ERROR_METERED -> MeteredErrorBlock(appWidgetId)
+                    MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock(appWidgetId)
+                    MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock(appWidgetId)
+                    MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock(appWidgetId)
+                    MyContentMode.PAUSED_ERROR_AUTHENTICATE -> AuthenticateErrorBlock(appWidgetId, agency)
+                    MyContentMode.PAUSED_ERROR_UNKNOWN -> UnknownErrorBlock(appWidgetId)
                 }
             }
 
@@ -178,7 +178,7 @@ fun MyContentPreview() {
     GlanceTheme {
         MyContent(
             mode = MyContentMode.ACTIVE_VALID,
-            widgetId = -1,
+            appWidgetId = -1,
             fromName = "Display name",
             toNames = listOf(
                 "Destination One",

@@ -52,6 +52,7 @@ import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Duration
 import kotlin.uuid.Uuid
 
 @Composable
@@ -248,6 +249,8 @@ fun ConfigScreen(
                                         filters = FiltersState(
                                             destinations = destinations.map { it.value },
                                         ),
+                                        fetchDuration = Duration.ofSeconds(90),
+                                        fetchInterval = Duration.ofSeconds(30),
                                     )
                                 )
                             }

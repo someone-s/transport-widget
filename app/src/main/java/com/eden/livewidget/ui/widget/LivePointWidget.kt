@@ -2,12 +2,8 @@ package com.eden.livewidget.ui.widget
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -16,14 +12,10 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
-import androidx.glance.currentState
 import com.eden.livewidget.LiveWidgetApplication
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsState
 import com.eden.livewidget.data.widget.structure.FetchState
-import com.eden.livewidget.data.widget.structure.WidgetConfig
-import com.eden.livewidget.data.widget.structure.WidgetState
 import com.eden.livewidget.logic.emptyFilterState
-import com.eden.livewidget.logic.update.UpdateScheduler
 
 class LivePointWidget : GlanceAppWidget() {
 
@@ -52,10 +44,9 @@ class LivePointWidget : GlanceAppWidget() {
 
             val widgetState by widgetRepository.getStateFlow(appWidgetId).collectAsState(null)
             val fetchState = widgetState?.fetchState ?: FetchState.PENDING
+            val isActive = widgetState?.isActive ?: false
 
             GlanceTheme {
-                Log.i(javaClass.name, "A!! Restart, ${agency?.id} ${point?.name}")
-
                 if (agency == null || point == null) {
                     PlaceholderContent(context, id)
                     return@GlanceTheme
@@ -63,17 +54,10 @@ class LivePointWidget : GlanceAppWidget() {
 
                 val arrivalsData by agency.provider.arrivalsRepository.getOrCreateFlow(appWidgetId).collectAsState()
 
-                val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
-                val flow = UpdateScheduler.getIsActiveFlow(widgetId)
-                val isActive by flow.collectAsState(false)
-
-                Log.i(this.javaClass.name, "Status: ${arrivalsData.validity} $fetchState $isActive")
-
                 val mode =
                     if (isActive)
                         when(fetchState) {
                             FetchState.PENDING -> MyContentMode.ACTIVE_UNINITIALIZED
-                            FetchState.RESULT_RAN_SKIPPED,
                             FetchState.RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
                                     ArrivalsState.Validity.VALID -> MyContentMode.ACTIVE_VALID
@@ -84,7 +68,6 @@ class LivePointWidget : GlanceAppWidget() {
                         }
                     else
                         when(fetchState) {
-                            FetchState.RESULT_RAN_SKIPPED,
                             FetchState.RESULT_RAN_COMPLETED ->
                                 when(arrivalsData.validity) {
                                     ArrivalsState.Validity.UNINITIALIZED,
@@ -106,7 +89,7 @@ class LivePointWidget : GlanceAppWidget() {
 
                 MyContent(
                     mode = mode,
-                    widgetId = widgetId,
+                    appWidgetId = appWidgetId,
                     fromName = point.name,
                     toNames = destinationNames,
                     agency = agency,

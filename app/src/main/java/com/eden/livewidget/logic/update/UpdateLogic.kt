@@ -10,19 +10,54 @@ import com.eden.livewidget.data.agency.common.arrivals.FetchResult
 import com.eden.livewidget.logic.emptyFilterState
 import com.eden.livewidget.data.widget.repository.WidgetRepository
 import com.eden.livewidget.data.widget.structure.FetchState
-import com.eden.livewidget.data.widget.structure.WidgetState
 import com.eden.livewidget.ui.widget.LivePointWidget
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlin.time.toKotlinDuration
 
 class UpdateLogic(
+    private val context: Context,
+    private val appContainer: AppContainer,
     private val widgetRepository: WidgetRepository,
 ) {
+    private class ExitEarlyException: RuntimeException()
 
-    suspend fun updateWidget(
-        context: Context,
-        appContainer: AppContainer,
-        appWidgetId: Int,
-        remainingTimes: Int
-    ): Boolean {
+    /**
+     * Call [end] afterward to update widget one more time with reset state
+     */
+    suspend fun update(appWidgetId: Int) {
+
+        widgetRepository.setIsActive(appWidgetId, true)
+
+        val config = widgetRepository.getConfig(appWidgetId)
+        try {
+            if (config == null) throw ExitEarlyException()
+
+            var remainingDuration = config.fetchDuration
+
+            while (remainingDuration.isPositive) {
+                val stateSuccess = refreshWidgetState(appWidgetId)
+                if (!stateSuccess) throw ExitEarlyException()
+                refreshWidgetUi(appWidgetId)
+
+                delay(config.fetchInterval.toKotlinDuration())
+
+                remainingDuration -= config.fetchInterval
+            }
+        }
+        catch (_: ExitEarlyException) {
+            Log.i("$javaClass", "$appWidgetId update exited early.")
+        }
+    }
+
+    suspend fun end(appWidgetId: Int) {
+        widgetRepository.setIsActive(appWidgetId, false)
+        refreshWidgetUi(appWidgetId)
+    }
+
+    suspend fun isAnyActive() = widgetRepository.isAnyActive()
+
+    private suspend fun refreshWidgetUi(appWidgetId: Int) {
 
         val manager = GlanceAppWidgetManager(context)
         // if illegal exception let worker fail
@@ -31,45 +66,31 @@ class UpdateLogic(
         // Glance use this instance to generate RemoteView to show
         val updater = LivePointWidget()
 
-        val fetchState =
-            if (remainingTimes < 0)
-                FetchState.RESULT_RAN_SKIPPED
-            else
-                updateData(
-                    appContainer = appContainer,
-                    appWidgetId = appWidgetId
-                ).let {
-                    when (it) {
-                        FetchState.RESULT_ERROR_UNKNOWN,
-                        FetchState.RESULT_ERROR_UNREACHABLE,
-                        FetchState.RESULT_ERROR_UNRESOLVED -> identityIssue(
-                            context = context,
-                            currentState = it
-                        )
-                        else -> it
-                    }
-                }
-
-        widgetRepository.setState(
-            appWidgetId = appWidgetId,
-            state = WidgetState(fetchState)
-        )
-
         updater.update(context, glanceId)
+    }
+
+    private suspend fun refreshWidgetState(appWidgetId: Int): Boolean {
+
+        val fetchState = refreshArrivalsState(appWidgetId).let {
+            when (it) {
+                FetchState.RESULT_ERROR_UNKNOWN,
+                FetchState.RESULT_ERROR_UNREACHABLE,
+                FetchState.RESULT_ERROR_UNRESOLVED -> identityIssue() ?: it
+                else -> it
+            }
+        }
+
+        widgetRepository.setFetchState(appWidgetId, fetchState)
 
         return when (fetchState) {
-            FetchState.RESULT_RAN_COMPLETED,
-            FetchState.RESULT_RAN_SKIPPED -> true
+            FetchState.RESULT_RAN_COMPLETED -> true
             else -> false
         }
     }
 
-    private suspend fun updateData(
-        appContainer: AppContainer,
-        appWidgetId: Int,
-    ): FetchState {
+    private suspend fun refreshArrivalsState(appWidgetId: Int): FetchState {
 
-        val widgetConfig = appContainer.widgetRepository.getConfig(appWidgetId)
+        val widgetConfig = widgetRepository.getConfig(appWidgetId)
             ?: return FetchState.RESULT_ERROR_UNKNOWN
 
         val agency = widgetConfig.agencyId?.let { appContainer.agencyFromId(it) }
@@ -102,52 +123,42 @@ class UpdateLogic(
         }
     }
 
-    private fun identityIssue(
-        context: Context,
-        currentState: FetchState,
-    ): FetchState =
-        UpdateResultBuilder(
-            context = context,
-            storedState = currentState,
-        )
-            .tryIdentifyMeteredNetworkIssue()
-            .tryIdentifyBatteryOptimizationIssue()
-            .build()
+    private fun identityIssue(): FetchState? {
 
-    private data class UpdateResultBuilder(
-        private val context: Context,
-        private val storedState: FetchState = FetchState.RESULT_ERROR_UNKNOWN,
-    ) {
-        fun build(): FetchState = storedState
-
-        fun tryIdentifyMeteredNetworkIssue(): UpdateResultBuilder {
-
-            val currentBuilder = this
+        fun tryIdentifyMeteredNetworkIssue(): FetchState? {
 
             val connectivityManager = (context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)
-                ?: return currentBuilder
+                ?: return null
 
             connectivityManager.apply {
                 return if (isActiveNetworkMetered && restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)
-                    UpdateResultBuilder(context, FetchState.RESULT_ERROR_METERED)
+                    FetchState.RESULT_ERROR_METERED
                 else
-                    currentBuilder
+                    null
             }
         }
 
-        fun tryIdentifyBatteryOptimizationIssue(): UpdateResultBuilder {
-            val currentBuilder = this
+        fun tryIdentifyBatteryOptimizationIssue(): FetchState? {
 
             val powerManager = (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)
-                ?: return currentBuilder
+                ?: return null
 
             powerManager.apply {
                 return if (isPowerSaveMode && isIgnoringBatteryOptimizations(context.packageName))
-                    currentBuilder
+                    null
                 else
-                    UpdateResultBuilder(context, FetchState.RESULT_ERROR_BATTERY)
+                    FetchState.RESULT_ERROR_BATTERY
             }
         }
+
+        with(tryIdentifyMeteredNetworkIssue()) {
+            if (this@with != null) return this@with
+        }
+        with(tryIdentifyBatteryOptimizationIssue()) {
+            if (this@with != null) return this@with
+        }
+        return null
     }
+
 }
 

@@ -1,11 +1,5 @@
 package com.eden.livewidget.data.widget.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.SkipQueryVerification
-import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 interface WidgetDao {
@@ -22,5 +16,9 @@ interface WidgetDao {
 
     fun getStateFlow(appWidgetId: Int): Flow<StateEntity?>
 
-    suspend fun setState(state: StateEntity)
+    suspend fun setIsActive(appWidgetId: Int, isActive: Boolean)
+
+    suspend fun setFetchState(appWidgetId: Int, fetchState: String)
+
+    suspend fun getActiveCount(): Int
 }

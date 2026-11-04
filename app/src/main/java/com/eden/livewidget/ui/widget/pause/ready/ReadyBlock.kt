@@ -1,5 +1,6 @@
 package com.eden.livewidget.ui.widget.pause.ready
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -11,6 +12,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.action.actionStartService
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -24,10 +26,15 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.logic.update.UpdateBeginCallback
+import com.eden.livewidget.logic.update.UpdateService
 
 @Composable
-fun ReadyBlock() {
+fun ReadyBlock(
+    appWidgetId: Int,
+) {
+
+    val context = LocalContext.current
+
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -40,7 +47,13 @@ fun ReadyBlock() {
                 .cornerRadius(12.dp)
                 .padding(all = 8.dp)
                 .clickable(
-                    onClick = actionRunCallback<UpdateBeginCallback>()
+                    onClick = actionStartService(
+                        isForegroundService = true,
+                        intent = Intent(context, UpdateService::class.java).apply {
+                            action = UpdateService.ACTION_UPDATE
+                            putExtra(UpdateService.EXTRA_APP_WIDGET_ID, appWidgetId)
+                        }
+                    )
                 ),
             contentAlignment = Alignment.Center
         ) {
