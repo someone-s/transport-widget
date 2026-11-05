@@ -36,16 +36,15 @@ class UpdateNotification(
             }
     }
 
-    fun getNotification(appWidgetId: Int): Notification {
+    fun getNotification(requestCode: Int): Notification {
 
         val pauseIntent = PendingIntentCompat.getService(
             context,
-            appWidgetId,
+            requestCode,
             Intent(context, UpdateService::class.java).apply {
                 action = UpdateService.ACTION_PAUSE
-                putExtra(UpdateService.EXTRA_APP_WIDGET_ID, appWidgetId)
             },
-            0,
+            PendingIntent.FLAG_UPDATE_CURRENT,
             false
         )
 

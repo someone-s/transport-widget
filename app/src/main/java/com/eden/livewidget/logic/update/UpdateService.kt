@@ -5,14 +5,15 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
-import androidx.collection.MutableIntSet
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.eden.livewidget.BuildConfig
 import com.eden.livewidget.LiveWidgetApplication
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
 class UpdateService: LifecycleService() {
@@ -25,7 +26,7 @@ class UpdateService: LifecycleService() {
         const val ACTION_UPDATE = "${BuildConfig.APPLICATION_ID}.ACTION_UPDATE"
         /**
          * Call with [android.content.Context.startService];
-         * Requires [EXTRA_APP_WIDGET_ID]
+         * Optional [EXTRA_APP_WIDGET_ID]
          */
         const val ACTION_PAUSE = "${BuildConfig.APPLICATION_ID}.ACTION_PAUSE"
         const val EXTRA_APP_WIDGET_ID = "${BuildConfig.APPLICATION_ID}.EXTRA_APP_WIDGET_ID"
@@ -76,6 +77,8 @@ class UpdateService: LifecycleService() {
         return START_NOT_STICKY
     }
 
+    private class PauseCancellationException: CancellationException()
+    private class StopServiceCancellationException: CancellationException()
 
     private fun onUpdate(intent: Intent, startId: Int) = synchronized(this) {
         val capturedLogic = updateLogic
@@ -96,7 +99,7 @@ class UpdateService: LifecycleService() {
 
         val existingJob = activeJobs[appWidgetId]
 
-        val newJob = lifecycleScope
+        lifecycleScope
             .launch {
                 existingJob?.cancelAndJoin()
 
@@ -106,34 +109,55 @@ class UpdateService: LifecycleService() {
                 // If new active added between check and use,
                 // stopSelf(startId) will ignore as newer startId must exist
                 if (!capturedLogic.isAnyActive())
-                    stopSelf(startId)
+                    throw StopServiceCancellationException()
             }
-        activeJobs[appWidgetId] = newJob
-        newJob.invokeOnCompletion { activeJobs.remove(appWidgetId) }
+            .also {
+                activeJobs[appWidgetId] = it
+            }
+            .invokeOnCompletion { cause ->
+                if (cause is PauseCancellationException)
+                    return@invokeOnCompletion
+
+                Log.i("$javaClass", "M")
+                activeJobs.remove(appWidgetId)
+                if (cause is StopServiceCancellationException) {
+                    stopSelf(startId)
+                }
+            }
     }
 
     private fun onPause(intent: Intent, startId: Int) = synchronized(this) {
         val capturedLogic = updateLogic
         checkNotNull(capturedLogic) { "Logic not initialized." }
 
-        val appWidgetId = intent.getIntExtra(EXTRA_APP_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-        assert(appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) { "Invalid app widget id." }
-
-        val existingJob = activeJobs[appWidgetId]
+        val sourceAppWidgetId = intent.getIntExtra(EXTRA_APP_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+        Log.i("$javaClass", "$sourceAppWidgetId")
+        val appWidgetIds =
+            if (sourceAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) activeJobs.keys
+            else listOf(sourceAppWidgetId)
+        val existingJobs =
+            if (sourceAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) activeJobs.values
+            else activeJobs[sourceAppWidgetId]?.let { listOf(it) } ?: emptyList()
 
         lifecycleScope
             .launch {
-                existingJob?.cancelAndJoin()
+                existingJobs.forEach { it.cancel(PauseCancellationException()) }
+                existingJobs.joinAll()
 
-                capturedLogic.end(appWidgetId)
+                appWidgetIds.forEach { capturedLogic.end(it) }
 
                 // If new active added between check and use,
                 // stopSelf(startId) will ignore as newer startId must exist
                 if (!capturedLogic.isAnyActive())
-                    stopSelf(startId)
+                    throw StopServiceCancellationException()
 
             }
-            .invokeOnCompletion { activeJobs.remove(appWidgetId) }
+            .invokeOnCompletion { cause ->
+                appWidgetIds.forEach { activeJobs.remove(it) }
+                if (cause is StopServiceCancellationException) {
+                    stopSelf(startId)
+                }
+            }
 
     }
 }

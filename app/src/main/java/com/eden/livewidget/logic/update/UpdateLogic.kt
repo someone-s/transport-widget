@@ -11,7 +11,6 @@ import com.eden.livewidget.logic.emptyFilterState
 import com.eden.livewidget.data.widget.repository.WidgetRepository
 import com.eden.livewidget.data.widget.structure.FetchState
 import com.eden.livewidget.ui.widget.LivePointWidget
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlin.time.toKotlinDuration
 
