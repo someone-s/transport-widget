@@ -33,6 +33,8 @@ class UpdateService: LifecycleService() {
         private val FOREGROUND_SERVICE_TYPE = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
         else 0
+
+        const val NOTIFICATION_ID = 1
     }
 
     private var updateLogic: UpdateLogic? = null
@@ -61,11 +63,14 @@ class UpdateService: LifecycleService() {
                 when(intent.action) {
                     ACTION_UPDATE -> onUpdate(intent, startId)
                     ACTION_PAUSE -> onPause(intent, startId)
+                    else -> throw IllegalStateException("Unexpected/missing action \"${intent.action}\".")
                 }
             } catch (e: Exception) {
                 Log.e("$javaClass", e.message, e)
                 stopSelf(startId)
             }
+        else
+            stopSelf(startId)
 
         // Restart if killed after this return
         return START_NOT_STICKY
@@ -81,10 +86,10 @@ class UpdateService: LifecycleService() {
         val appWidgetId = intent.getIntExtra(EXTRA_APP_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
         assert(appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) { "Invalid app widget id." }
 
-        val notification = capturedNotification.getNotification(appWidgetId)
+        val notification = capturedNotification.getNotification(NOTIFICATION_ID)
         ServiceCompat.startForeground(
             this,
-            0,
+            NOTIFICATION_ID,
             notification,
             FOREGROUND_SERVICE_TYPE
         )
