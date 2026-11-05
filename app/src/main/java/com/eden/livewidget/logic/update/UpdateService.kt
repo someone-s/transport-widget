@@ -118,7 +118,6 @@ class UpdateService: LifecycleService() {
                 if (cause is PauseCancellationException)
                     return@invokeOnCompletion
 
-                Log.i("$javaClass", "M")
                 activeJobs.remove(appWidgetId)
                 if (cause is StopServiceCancellationException) {
                     stopSelf(startId)
