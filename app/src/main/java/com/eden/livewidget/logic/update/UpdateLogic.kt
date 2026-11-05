@@ -54,13 +54,22 @@ class UpdateLogic(
         refreshWidgetUi(appWidgetId)
     }
 
+    suspend fun delete(appWidgetId: Int) {
+        widgetRepository.deleteConfig(appWidgetId)
+    }
+
     suspend fun isAnyActive() = widgetRepository.isAnyActive()
 
+    @Throws(ExitEarlyException::class)
     private suspend fun refreshWidgetUi(appWidgetId: Int) {
 
         val manager = GlanceAppWidgetManager(context)
         // if illegal exception let worker fail
-        val glanceId = manager.getGlanceIdBy(appWidgetId)
+        val glanceId = try {
+            manager.getGlanceIdBy(appWidgetId)
+        } catch (_: IllegalArgumentException) {
+            throw ExitEarlyException()
+        }
 
         // Glance use this instance to generate RemoteView to show
         val updater = LivePointWidget()

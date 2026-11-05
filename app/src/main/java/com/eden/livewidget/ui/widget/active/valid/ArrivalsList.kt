@@ -20,15 +20,20 @@ fun ArrivalsList(arrivals: List<ArrivalEntry>) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        itemsIndexed(arrivals.take(40)) { index, arrival ->
-            Column {
-                ArrivalsItem(arrival, timeFormatter)
+        itemsIndexed(
+            items = arrivals.take(40),
+            itemId = { index, _ ->
+                index.toLong()
+            },
+            itemContent = { index, arrival ->
+                Column {
+                    ArrivalsItem(arrival, timeFormatter)
 
-                if (index < arrivals.size - 1)
-                    Spacer(modifier = GlanceModifier.height(4.dp))
+                    if (index < arrivals.size - 1)
+                        Spacer(modifier = GlanceModifier.height(4.dp))
+                }
             }
-
-        }
+        )
         item {
             Spacer(modifier = GlanceModifier.height(16.dp))
         }

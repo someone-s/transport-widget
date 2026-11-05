@@ -22,6 +22,8 @@ val mockConfigViewModel = ConfigViewModel(
 
             override suspend fun setConfig(config: WidgetConfig) {}
 
+            override suspend fun deleteConfig(appWidgetId: Int) {}
+
             override suspend fun getState(appWidgetId: Int): WidgetState? = null
 
             override fun getStateFlow(appWidgetId: Int): Flow<WidgetState?> = flowOf(null)

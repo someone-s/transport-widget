@@ -29,6 +29,11 @@ class UpdateService: LifecycleService() {
          * Optional [EXTRA_APP_WIDGET_ID]
          */
         const val ACTION_PAUSE = "${BuildConfig.APPLICATION_ID}.ACTION_PAUSE"
+        /**
+         * Call with [android.content.Context.startService];
+         * Optional [EXTRA_APP_WIDGET_ID]
+         */
+        const val ACTION_DELETE = "${BuildConfig.APPLICATION_ID}.ACTION_DELETE"
         const val EXTRA_APP_WIDGET_ID = "${BuildConfig.APPLICATION_ID}.EXTRA_APP_WIDGET_ID"
 
         private val FOREGROUND_SERVICE_TYPE = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -64,6 +69,7 @@ class UpdateService: LifecycleService() {
                 when(intent.action) {
                     ACTION_UPDATE -> onUpdate(intent, startId)
                     ACTION_PAUSE -> onPause(intent, startId)
+                    ACTION_DELETE -> onDelete(intent, startId)
                     else -> throw IllegalStateException("Unexpected/missing action \"${intent.action}\".")
                 }
             } catch (e: Exception) {
@@ -77,7 +83,7 @@ class UpdateService: LifecycleService() {
         return START_NOT_STICKY
     }
 
-    private class PauseCancellationException: CancellationException()
+    private class PauseOrDeleteCancellationException: CancellationException()
     private class StopServiceCancellationException: CancellationException()
 
     private fun onUpdate(intent: Intent, startId: Int) = synchronized(this) {
@@ -115,7 +121,7 @@ class UpdateService: LifecycleService() {
                 activeJobs[appWidgetId] = it
             }
             .invokeOnCompletion { cause ->
-                if (cause is PauseCancellationException)
+                if (cause is PauseOrDeleteCancellationException)
                     return@invokeOnCompletion
 
                 activeJobs.remove(appWidgetId)
@@ -125,7 +131,15 @@ class UpdateService: LifecycleService() {
             }
     }
 
-    private fun onPause(intent: Intent, startId: Int) = synchronized(this) {
+    private fun onPause(intent: Intent, startId: Int) = onPauseOrDelete(intent, startId) {
+        end(it)
+    }
+
+    private fun onDelete(intent: Intent, startId: Int) = onPauseOrDelete(intent, startId) {
+        delete(it)
+    }
+
+    private fun onPauseOrDelete(intent: Intent, startId: Int, action: suspend UpdateLogic.(appWidgetId: Int) -> Unit) = synchronized(this) {
         val capturedLogic = updateLogic
         checkNotNull(capturedLogic) { "Logic not initialized." }
 
@@ -140,10 +154,10 @@ class UpdateService: LifecycleService() {
 
         lifecycleScope
             .launch {
-                existingJobs.forEach { it.cancel(PauseCancellationException()) }
+                existingJobs.forEach { it.cancel(PauseOrDeleteCancellationException()) }
                 existingJobs.joinAll()
 
-                appWidgetIds.forEach { capturedLogic.end(it) }
+                appWidgetIds.forEach { action(capturedLogic, it) }
 
                 // If new active added between check and use,
                 // stopSelf(startId) will ignore as newer startId must exist
@@ -159,4 +173,5 @@ class UpdateService: LifecycleService() {
             }
 
     }
+
 }

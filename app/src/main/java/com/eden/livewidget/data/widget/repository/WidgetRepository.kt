@@ -9,6 +9,7 @@ interface WidgetRepository {
     suspend fun getConfig(appWidgetId: Int): WidgetConfig?
     fun getConfigFlow(appWidgetId: Int): Flow<WidgetConfig?>
     suspend fun setConfig(config: WidgetConfig)
+    suspend fun deleteConfig(appWidgetId: Int)
 
     suspend fun getState(appWidgetId: Int): WidgetState?
     fun getStateFlow(appWidgetId: Int): Flow<WidgetState?>

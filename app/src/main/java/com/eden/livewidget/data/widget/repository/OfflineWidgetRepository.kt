@@ -17,6 +17,10 @@ class OfflineWidgetRepository(private val widgetDao: WidgetDao): WidgetRepositor
     override suspend fun setConfig(config: WidgetConfig) =
         widgetDao.setConfig(config.toConfigEntity())
 
+    override suspend fun deleteConfig(appWidgetId: Int) {
+        widgetDao.deleteConfig(appWidgetId)
+    }
+
     override suspend fun getState(appWidgetId: Int): WidgetState? =
         widgetDao.getState(appWidgetId)?.toWidgetState()
 
