@@ -2,7 +2,7 @@ package com.eden.livewidget.data.agency.trasitous.point
 
 import android.content.Context
 import android.util.Log
-import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -66,7 +66,7 @@ class TransitousPointsApi(
 ) {
 
     data class Option(
-        val logicalPoint: LogicalPoint,
+        val logicalPoint: FixedLogicalPoint,
         val annotation: String? = null,
     )
 
@@ -102,7 +102,7 @@ class TransitousPointsApi(
             .map {
                 Option(
                     logicalPoint =
-                        LogicalPoint(
+                        FixedLogicalPoint(
                             name = it.name!!,
                             dataPoint = TransitousDataPoint(it.id!!),
                         ),

@@ -21,8 +21,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
-import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.Provider
+import com.eden.livewidget.data.agency.common.point.FloatLogicalPoint
+import com.eden.livewidget.data.agency.common.point.LogicalPoint
 import kotlinx.coroutines.launch
 
 @Composable
@@ -89,8 +91,12 @@ fun PointItem(
         },
         supportingContent = {
             Text(
-                text = point?.dataPoints?.joinToString(",") { it.displayString }
-                    ?: stringResource(R.string.config_ui_pointitem_description_placeholder),
+                text = when (point) {
+                    is FixedLogicalPoint -> point.dataPoints.joinToString(",") { it.displayString }
+                    is FloatLogicalPoint -> stringResource(R.string.config_ui_pointitem_description_float)
+                    null -> stringResource(R.string.config_ui_pointitem_description_placeholder)
+                    else -> throw IllegalStateException("Unexpected logical point.")
+                } ,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

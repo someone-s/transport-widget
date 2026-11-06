@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.flowOf
 
 val mockPointsViewModel = PointsViewModel(
     pointsRepository = object : PointsRepository {
-        override val matchingPoints: Flow<List<PointsRepository.Option>> = flowOf()
+        override val matchingOptions: Flow<List<PointsRepository.Option>> = flowOf()
 
         override suspend fun fetchMatching(input: String) { }
     }

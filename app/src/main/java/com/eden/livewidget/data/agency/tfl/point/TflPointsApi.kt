@@ -5,7 +5,7 @@ import android.util.Log
 import com.eden.livewidget.R
 import com.eden.livewidget.data.agency.buffered.point.BufferedPointOption
 import com.eden.livewidget.data.agency.buffered.point.BufferedPointsApi
-import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -182,8 +182,8 @@ class TflPointsApi(
                 .filter { it.modes!!.any { mode -> validModes.contains(mode) } }
                 .map { stopPoint ->
                     BufferedPointOption(
-                        logicalPoint =
-                            LogicalPoint(
+                        fixedLogicalPoint =
+                            FixedLogicalPoint(
                                 name = stopPoint.commonName!!,
                                 dataPoint = TflDataPoint(
                                     naptanId = stopPoint.naptanId!!,

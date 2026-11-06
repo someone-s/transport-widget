@@ -3,7 +3,7 @@ package com.eden.livewidget.data.agency.rdg.point
 import android.content.Context
 import com.eden.livewidget.data.agency.buffered.point.BufferedPointOption
 import com.eden.livewidget.data.agency.buffered.point.BufferedPointsCache
-import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.formatter
 
 class RdgPointsCache(
@@ -17,15 +17,15 @@ class RdgPointsCache(
         pointsDao.getAllFuzzyMatches(search)
             .map { native ->
                 BufferedPointOption(
-                    logicalPoint = LogicalPoint(name = native.name, dataPoints = formatter.decodeFromString(native.values))
+                    fixedLogicalPoint = FixedLogicalPoint(name = native.name, dataPoints = formatter.decodeFromString(native.values))
                 )
             }
 
     override suspend fun insert(option: BufferedPointOption) =
         pointsDao.insert(
             RdgPointsEntity(
-                name = option.logicalPoint.name,
-                values = formatter.encodeToString(option.logicalPoint.dataPoints)
+                name = option.fixedLogicalPoint.name,
+                values = formatter.encodeToString(option.fixedLogicalPoint.dataPoints)
             )
         )
 

@@ -2,6 +2,8 @@ package com.eden.livewidget.ui.config
 
 import com.eden.livewidget.data.AppContainer
 import com.eden.livewidget.data.agency.Agency
+import com.eden.livewidget.data.location.repository.LocationRepository
+import com.eden.livewidget.data.location.structure.Location
 import com.eden.livewidget.data.widget.repository.WidgetRepository
 import com.eden.livewidget.data.widget.structure.FetchState
 import com.eden.livewidget.data.widget.structure.WidgetConfig
@@ -33,6 +35,10 @@ val mockConfigViewModel = ConfigViewModel(
             override suspend fun setIsActive(appWidgetId: Int, isActive: Boolean) {}
 
             override suspend fun setFetchState(appWidgetId: Int, fetchState: FetchState) {}
+        }
+
+        override val locationRepository: LocationRepository = object : LocationRepository {
+            override suspend fun getLocation(accuracy: LocationRepository.Accuracy) = Location(0.0, 0.0)
         }
     }
 )

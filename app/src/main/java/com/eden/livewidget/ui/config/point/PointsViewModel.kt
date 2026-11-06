@@ -13,7 +13,7 @@ class PointsViewModel(
     private val pointsRepository: PointsRepository,
 ): ViewModel() {
     val pointsUiState: StateFlow<DestinationsUiState> =
-        pointsRepository.matchingPoints.map { DestinationsUiState(it) }.stateIn(
+        pointsRepository.matchingOptions.map { DestinationsUiState(it) }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = DestinationsUiState()

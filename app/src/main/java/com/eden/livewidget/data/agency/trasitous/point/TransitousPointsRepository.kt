@@ -17,7 +17,7 @@ class TransitousPointsRepository(
 ): PointsRepository {
     private val _matchingPoints = MutableStateFlow<List<PointsRepository.Option>>(emptyList())
 
-    override val matchingPoints: Flow<List<PointsRepository.Option>> = _matchingPoints.asStateFlow()
+    override val matchingOptions: Flow<List<PointsRepository.Option>> = _matchingPoints.asStateFlow()
 
     private val mutex = Mutex()
     private var queued: String? = null

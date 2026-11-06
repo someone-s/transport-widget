@@ -149,6 +149,7 @@
     <string name="config_ui_agencyitem_name_placeholder">Set agency</string>
     <string name="config_ui_agencyitem_description_placeholder">Not set</string>
     <string name="config_ui_pointitem_name_placeholder">Set point</string>
+    <string name="config_ui_pointitem_description_float">Data based on the device\'s location</string>
     <string name="config_ui_pointitem_description_placeholder">Not set</string>
     <string name="config_ui_pointitem_input_placeholder">Search for point</string>
     <string name="config_ui_applybutton_action">Apply changes</string>

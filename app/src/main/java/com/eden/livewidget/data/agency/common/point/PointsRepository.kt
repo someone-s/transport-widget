@@ -4,7 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.flow.Flow
 
 interface PointsRepository {
-    val matchingPoints: Flow<List<Option>>
+    val matchingOptions: Flow<List<Option>>
 
     data class Option(
         val logicalPoint: LogicalPoint,
@@ -12,6 +12,13 @@ interface PointsRepository {
     )
 
     suspend fun fetchMatching(input: String)
+
+    val asLocationAware: LocationAware?
+        get() = this as? LocationAware
+
+    interface LocationAware {
+        suspend fun getClosest(latitude: Double, longitude: Double): FixedLogicalPoint
+    }
 
     val asRefreshable: Refreshable?
         get() = this as? Refreshable

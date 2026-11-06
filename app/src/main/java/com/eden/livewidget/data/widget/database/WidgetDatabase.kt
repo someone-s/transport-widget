@@ -1,11 +1,20 @@
 package com.eden.livewidget.data.widget.database
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.AutoMigrationSpec
+import androidx.room.migration.Migration
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 
-@Database(entities = [ConfigEntity::class, StateEntity::class], version = 2)
+@Database(
+    entities = [ConfigEntity::class, StateEntity::class],
+    version = 3,
+    autoMigrations = []
+)
 abstract class WidgetDatabase : RoomDatabase() {
     protected abstract fun internalWidgetDao(): InternalWidgetDao
 
@@ -22,6 +31,9 @@ abstract class WidgetDatabase : RoomDatabase() {
                     WidgetDatabase::class.java,
                     "WIDGET_DATABASE"
                 )
+                    .addMigrations(
+                        MIGRATION_2_3
+                    )
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { Instance = it }
@@ -30,3 +42,11 @@ abstract class WidgetDatabase : RoomDatabase() {
     }
 }
 
+private val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("""
+            UPDATE config
+            SET point = '{"type": "l-fixed",' || substr(point, 2)
+        """.trimIndent())
+    }
+}

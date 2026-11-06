@@ -18,7 +18,7 @@ class BufferedPointsRepository(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ): PointsRepository, PointsRepository.Refreshable, PointsRepository.Resettable {
     private val _matchingPoints = MutableStateFlow(emptyList<PointsRepository.Option>())
-    override val matchingPoints: Flow<List<PointsRepository.Option>> = _matchingPoints.asStateFlow()
+    override val matchingOptions: Flow<List<PointsRepository.Option>> = _matchingPoints.asStateFlow()
 
     private val mutex = Mutex()
     private var queued: String? = null
@@ -35,7 +35,7 @@ class BufferedPointsRepository(
         _matchingPoints.update {
             withContext(dispatcher) {
                 cache.getAllFuzzyMatches(input).map { PointsRepository.Option(
-                    logicalPoint = it.logicalPoint,
+                    logicalPoint = it.fixedLogicalPoint,
                     annotation = it.annotation,
                 ) }
             }

@@ -5,7 +5,7 @@ import android.util.Log
 import com.eden.livewidget.R
 import com.eden.livewidget.data.agency.buffered.point.BufferedPointOption
 import com.eden.livewidget.data.agency.buffered.point.BufferedPointsApi
-import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.keys.KeyProvider
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
@@ -104,8 +104,8 @@ class RdgPointsApi(
 
         return stationList.map {
             BufferedPointOption(
-                logicalPoint =
-                    LogicalPoint(
+                fixedLogicalPoint =
+                    FixedLogicalPoint(
                         name = it.commonName,
                         dataPoint = RdgDataPoint(it.crsCode),
                     ),

@@ -23,14 +23,14 @@ import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
 import com.eden.livewidget.data.agency.common.destination.DestinationConfig
-import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.Provider
 import kotlinx.coroutines.launch
 
 @Composable
 fun AddDestinationItem(
     provider: Provider,
-    point: LogicalPoint?,
+    point: FixedLogicalPoint?,
     addDestination: (DestinationConfig) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
     viewModel: DestinationsViewModel =
@@ -41,7 +41,7 @@ fun AddDestinationItem(
         ),
 ) {
     val destinationsUiState by viewModel.destinationsUiState.collectAsState()
-    val matchingPoints = destinationsUiState.matchingPoints
+    val matchingPoints = destinationsUiState.matchingOptions
 
     val searchBarState = rememberSearchBarState()
     val textFieldState = rememberTextFieldState()
@@ -62,7 +62,7 @@ fun AddDestinationItem(
                 .take(25)
                 .map { point ->
                     SearchOption(
-                        queryText = point.logicalPoint.name,
+                        queryText = point.fixedLogicalPoint.name,
                         supportText = point.annotation
                     )
                 },
@@ -71,7 +71,7 @@ fun AddDestinationItem(
                     addDestination(
                         DestinationConfig(
                             fromPoint = point,
-                            toPoint = matchingPoints[index].logicalPoint,
+                            toPoint = matchingPoints[index].fixedLogicalPoint,
                         )
                     )
             }
