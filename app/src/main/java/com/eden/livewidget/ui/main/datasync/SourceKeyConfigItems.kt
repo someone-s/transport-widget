@@ -34,7 +34,6 @@ fun SourceKeyConfigItems(
     setInputKeyState: (Boolean) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
-    val context = LocalContext.current
     var isConfigureExpanded by remember { mutableStateOf(false) }
 
     ListItem(

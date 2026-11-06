@@ -1,7 +1,6 @@
 package com.eden.livewidget.ui.widget
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.DpSize

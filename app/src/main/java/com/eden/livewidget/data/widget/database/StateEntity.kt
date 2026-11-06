@@ -33,7 +33,6 @@ data class StateEntity(
         const val RESULT_ERROR_UNRESOLVED = "ERROR_UNRESOLVED"
         const val RESULT_ERROR_METERED = "ERROR_METERED"
         const val RESULT_ERROR_BATTERY = "ERROR_BATTERY"
-        const val RESULT_RAN_SKIPPED = "RAN_SKIPPED"
         const val RESULT_RAN_COMPLETED = "RAN_COMPLETED"
     }
 }

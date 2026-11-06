@@ -29,5 +29,4 @@ class LocationFrom(
 
 class LocationBoard(
     val boardText: String,
-): LocationPretext {
-}
+): LocationPretext

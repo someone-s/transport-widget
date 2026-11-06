@@ -74,7 +74,7 @@ class TransitousPointsApi(
         retrofit.create(PointsTransitousApiService::class.java)
     }
 
-    suspend fun getAllFuzzyMatches(
+    fun getAllFuzzyMatches(
         input: String
     ): List<Option> {
 

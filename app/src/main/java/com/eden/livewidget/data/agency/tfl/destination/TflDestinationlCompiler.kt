@@ -100,7 +100,7 @@ class TflDestinationCompiler: DestinationCompiler {
                 val lineId = line.key
 
                 // Check if line is in both from and to sets
-                val toIntermediates = toLines[lineId] ?: return@flatMap emptySet<TflDestinationFilter>()
+                val toIntermediates = toLines[lineId] ?: return@flatMap emptySet()
                 val fromIntermediates = line.value
 
                 fromIntermediates

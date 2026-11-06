@@ -15,5 +15,4 @@ class TflDestinationFilter(
     val direction: String,
     @SerialName("t")
     val finalNaptanIds: List<String>,
-): DestinationFilter {
-}
+): DestinationFilter

@@ -120,9 +120,9 @@ fun DataSyncScreen(
         }
     }
 
-    PlaceWidgetButton({ placeWidgetState = it })
+    PlaceWidgetButton { placeWidgetState = it }
     if (placeWidgetState)
-        PlaceWidgetGuide({ placeWidgetState = it })
+        PlaceWidgetGuide { placeWidgetState = it }
 
     if (inputKeyState)
         KeyInputDialog(currentKeyValue, { inputKeyState = it }, currentInputKeyAction)

@@ -9,5 +9,4 @@ import kotlinx.serialization.Serializable
 class RdgDestinationFilter(
     @SerialName("c")
     val toCrsCode: String,
-): DestinationFilter {
-}
+): DestinationFilter

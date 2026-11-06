@@ -24,7 +24,7 @@ fun ToGroup(
     context: Context,
     toNames: List<String>
 ) {
-    Column() {
+    Column {
         toNames.forEach { toName ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,

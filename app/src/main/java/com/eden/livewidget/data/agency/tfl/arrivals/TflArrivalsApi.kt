@@ -162,14 +162,13 @@ class TflArrivalsApi {
     }
 
     private val stripServiceNameRegex = Regex("(Line)|[^A-Z0-9&]")
-    private fun processServiceName(input: String): String {
+    private fun processServiceName(input: String): String =
         if (input.length <= 5)
-            return input
-        if (input.length <= 15)
-            return input.take(5)
+            input
+        else if (input.length <= 15)
+            input.take(5)
         else
-            return stripServiceNameRegex.replace(input, "").take(5)
-    }
+            stripServiceNameRegex.replace(input, "").take(5)
 
     class UnresolvedException(message: String?) : RuntimeException(message)
     class UnreachableException(message: String?) : RuntimeException(message)
