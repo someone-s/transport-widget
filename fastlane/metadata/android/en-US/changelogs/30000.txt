@@ -1,0 +1,2 @@
+Restructured underlying logic to imporve app reliability and support for future features
+Enable optimization flags to reduce build size
