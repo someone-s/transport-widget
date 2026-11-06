@@ -31,10 +31,10 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.data.common.ArrivalEntry
-import com.eden.livewidget.data.common.LocationBoard
-import com.eden.livewidget.data.common.LocationFrom
-import com.eden.livewidget.data.common.LocationVia
+import com.eden.livewidget.data.agency.common.arrivals.ArrivalEntry
+import com.eden.livewidget.data.agency.common.arrivals.LocationBoard
+import com.eden.livewidget.data.agency.common.arrivals.LocationFrom
+import com.eden.livewidget.data.agency.common.arrivals.LocationVia
 import com.eden.livewidget.ui.util.getResolvedOpenUriIntent
 import java.time.format.DateTimeFormatter
 

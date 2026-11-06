@@ -3,7 +3,7 @@ package com.eden.livewidget.ui.config.point
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eden.livewidget.data.common.PointsRepository
+import com.eden.livewidget.data.agency.common.point.PointsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map

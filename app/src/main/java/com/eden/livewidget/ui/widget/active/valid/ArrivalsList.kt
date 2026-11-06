@@ -9,7 +9,7 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.height
-import com.eden.livewidget.data.common.ArrivalEntry
+import com.eden.livewidget.data.agency.common.arrivals.ArrivalEntry
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -20,15 +20,20 @@ fun ArrivalsList(arrivals: List<ArrivalEntry>) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        itemsIndexed(arrivals.take(40)) { index, arrival ->
-            Column {
-                ArrivalsItem(arrival, timeFormatter)
+        itemsIndexed(
+            items = arrivals.take(40),
+            itemId = { index, _ ->
+                index.toLong()
+            },
+            itemContent = { index, arrival ->
+                Column {
+                    ArrivalsItem(arrival, timeFormatter)
 
-                if (index < arrivals.size - 1)
-                    Spacer(modifier = GlanceModifier.height(4.dp))
+                    if (index < arrivals.size - 1)
+                        Spacer(modifier = GlanceModifier.height(4.dp))
+                }
             }
-
-        }
+        )
         item {
             Spacer(modifier = GlanceModifier.height(16.dp))
         }

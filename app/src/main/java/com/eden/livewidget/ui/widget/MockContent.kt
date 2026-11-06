@@ -6,7 +6,7 @@ import androidx.glance.LocalContext
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
 import com.eden.livewidget.R
-import com.eden.livewidget.data.common.ArrivalEntry
+import com.eden.livewidget.data.agency.common.arrivals.ArrivalEntry
 import java.time.LocalDateTime
 
 @Composable
@@ -14,7 +14,7 @@ fun MockContent() {
 
     MyContent(
         mode = MyContentMode.ACTIVE_VALID,
-        widgetId = -1,
+        appWidgetId = -1,
         fromName = LocalContext.current.getString(R.string.widget_mock_station_text),
         toNames = listOf(
             LocalContext.current.getString(R.string.widget_ui_mockcontent_destination_0_name)

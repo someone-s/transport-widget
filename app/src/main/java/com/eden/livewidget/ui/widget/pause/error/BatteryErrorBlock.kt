@@ -28,7 +28,9 @@ import com.eden.livewidget.ui.util.getResolvedBatterySaverSettingsIntent
 import com.eden.livewidget.ui.util.getResolvedAppSettingsIntent
 
 @Composable
-fun BatteryErrorBlock() {
+fun BatteryErrorBlock(
+    appWidgetId: Int,
+) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -39,7 +41,9 @@ fun BatteryErrorBlock() {
                 .fillMaxSize()
                 .padding(bottom = 72.dp)
         ) {
-            RetrySurface {
+            RetrySurface(
+                appWidgetId = appWidgetId,
+            ) {
                 Text(
                     text = LocalContext.current.getString(R.string.widget_retry_battery_reason_text),
                     style = TextStyle(

@@ -25,12 +25,13 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.data.Agency
+import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.ui.util.getExplicitKeySettingsIntent
 import com.eden.livewidget.ui.util.getResolvedOpenUriIntent
 
 @Composable
 fun AuthenticateErrorBlock(
+    appWidgetId: Int,
     agency: Agency?
 ) {
     Box(
@@ -43,7 +44,9 @@ fun AuthenticateErrorBlock(
                 .fillMaxSize()
                 .padding(bottom = 72.dp)
         ) {
-            RetrySurface {
+            RetrySurface(
+                appWidgetId = appWidgetId,
+            ) {
                 Text(
                     text = LocalContext.current.getString(R.string.widget_retry_authenticate_reason_text),
                     style = TextStyle(

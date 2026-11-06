@@ -16,13 +16,17 @@ import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
 
 @Composable
-fun UnknownErrorBlock() {
+fun UnknownErrorBlock(
+    appWidgetId: Int,
+) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
             .padding(bottom = 16.dp)
     ) {
-        RetrySurface {
+        RetrySurface(
+            appWidgetId = appWidgetId,
+        ) {
             Text(
                 text = LocalContext.current.getString(R.string.widget_retry_unknown_reason_text),
                 style = TextStyle(

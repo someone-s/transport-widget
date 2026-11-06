@@ -19,8 +19,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.eden.livewidget.LiveWidgetApplication
 import com.eden.livewidget.R
-import com.eden.livewidget.data.Agency
-import com.eden.livewidget.data.common.PointsRepository
+import com.eden.livewidget.data.agency.Agency
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID

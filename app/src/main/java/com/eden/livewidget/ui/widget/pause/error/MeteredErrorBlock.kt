@@ -28,7 +28,9 @@ import com.eden.livewidget.ui.util.getResolvedMeteredSettingsIntent
 import com.eden.livewidget.ui.util.getResolvedNetworkSettingsIntent
 
 @Composable
-fun MeteredErrorBlock() {
+fun MeteredErrorBlock(
+    appWidgetId: Int,
+) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -39,7 +41,9 @@ fun MeteredErrorBlock() {
                 .fillMaxSize()
                 .padding(bottom = 72.dp)
         ) {
-            RetrySurface {
+            RetrySurface(
+                appWidgetId = appWidgetId,
+            ) {
                 Text(
                     text = LocalContext.current.getString(R.string.widget_retry_metered_reason_text),
                     style = TextStyle(

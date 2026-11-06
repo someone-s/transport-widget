@@ -8,7 +8,8 @@
     <uses-permission
         android:name="android.permission.USE_EXACT_ALARM"
         android:minSdkVersion="33"
-        android:purposeString="@string/exact_alarm_reason" />
+        android:purposeString="@string/exact_alarm_reason"
+        tools:ignore="ExactAlarmPolicy" />
     <uses-permission
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
         android:maxSdkVersion="32"
@@ -18,7 +19,8 @@
 
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE"
-        android:purposeString="@string/foreground_service_reason" />
+        android:purposeString="@string/foreground_service_reason"
+        tools:ignore="ForegroundServicesPolicy" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
     <application
@@ -69,14 +71,11 @@
                 android:resource="@xml/live_point_widget_info" />
         </receiver>
 
-        <receiver
-            android:name=".logic.update.UpdateExecuteReceiver"
-            android:exported="false">
-        </receiver>
-        <receiver
-            android:name=".logic.update.UpdateCancelReceiver"
-            android:exported="false">
-        </receiver>
+        <service
+            android:name=".logic.update.UpdateService"
+            android:foregroundServiceType="dataSync"
+            android:description="@string/foreground_service_reason"
+            android:exported="false" />
 
     </application>
 

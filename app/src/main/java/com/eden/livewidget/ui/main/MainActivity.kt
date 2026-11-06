@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.lifecycleScope
 import com.eden.livewidget.LiveWidgetApplication
-import com.eden.livewidget.data.Agency
+import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.ui.main.notification.PermissionLogic
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import com.eden.livewidget.ui.widget.LivePointWidgetReceiver
