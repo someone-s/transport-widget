@@ -141,6 +141,8 @@ fun ConfigScreen(
                             currentAgency = agency,
                             onAgencySelected = { newAgency ->
                                 agency = newAgency
+                                point = null
+                                destinations.clear()
                                 anyChanges = true
                             },
                         )
@@ -169,6 +171,7 @@ fun ConfigScreen(
                                 point = point,
                                 onPointSelected = { newPoint ->
                                     point = newPoint
+                                    destinations.clear()
                                     anyChanges = true
                                 },
                             )
