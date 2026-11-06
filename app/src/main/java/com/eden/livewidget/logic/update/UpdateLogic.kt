@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.eden.livewidget.data.AppContainer
 import com.eden.livewidget.data.agency.common.arrivals.FetchResult
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
+import com.eden.livewidget.data.location.repository.LocationRepository
 import com.eden.livewidget.logic.emptyFilterState
 import com.eden.livewidget.data.widget.repository.WidgetRepository
 import com.eden.livewidget.data.widget.structure.FetchState
@@ -18,6 +20,7 @@ class UpdateLogic(
     private val context: Context,
     private val appContainer: AppContainer,
     private val widgetRepository: WidgetRepository,
+    private val locationRepository: LocationRepository,
 ) {
     private class ExitEarlyException: RuntimeException()
 
@@ -111,6 +114,9 @@ class UpdateLogic(
         val filters = widgetConfig.filters ?: emptyFilterState()
 
         try {
+//            val location = locationRepository.getLocation(LocationRepository.Accuracy.FINE)
+            if (point !is FixedLogicalPoint) throw RuntimeException()
+
             // Update data source
             val result = provider.arrivalsRepository.updateState(
                 key = appWidgetId,

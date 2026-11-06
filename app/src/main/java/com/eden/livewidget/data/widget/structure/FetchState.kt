@@ -3,6 +3,7 @@ package com.eden.livewidget.data.widget.structure
 enum class FetchState {
     PENDING,
     RESULT_ERROR_UNKNOWN,
+    RESULT_ERROR_LOCATION,
     RESULT_ERROR_AUTHENTICATION,
     RESULT_ERROR_UNREACHABLE,
     RESULT_ERROR_UNRESOLVED,

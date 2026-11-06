@@ -54,6 +54,7 @@ class UpdateService: LifecycleService() {
             context = this,
             appContainer = (application as LiveWidgetApplication).container,
             widgetRepository = (application as LiveWidgetApplication).container.widgetRepository,
+            locationRepository = (application as LiveWidgetApplication).container.locationRepository,
         )
         updateNotification = UpdateNotification(
             context = this,
