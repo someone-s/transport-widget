@@ -3,7 +3,7 @@ name: Release CI
 on:
   push:
     branches:
-      - 'main'
+      - 'master'
   
   workflow_dispatch:
 
@@ -30,6 +30,7 @@ jobs:
     
     - id: info_release
       name: Get latest release name
+      continue-on-error: true
       run: |
         LATEST_RELEASE_NAME=$(gh release view --json tagName --jq '.tagName')
         echo "LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME" >> $GITHUB_OUTPUT
@@ -126,25 +127,25 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    - name: Setup signing info
+      run: |
+        mkdir -p app/keystore/
+        touch app/keystore/release.jks
+        echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/keystore/release.jks
+
+        mkdir -p ~/.gradle/
+        touch ~/.gradle/gradle.properties
+        echo "RELEASE_STORE_FILE=keystore/release.jks" >> ~/.gradle/gradle.properties
+        echo "RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
+        echo "RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
+        echo "RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
+        
     - name: Build with Gradle
       run: ./gradlew :app:assembleRelease
 
-    - uses: r0adkll/sign-android-release@v1
-      name: Sign app APK
-      # ID used to access action output
-      id: sign_app
-      with:
-        releaseDirectory: app/build/outputs/apk/release
-        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-        alias: ${{ secrets.ALIAS }}
-        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEY_PASSWORD }}
-      env:
-        # override default build-tools version (33.0.0) -- optional
-        BUILD_TOOLS_VERSION: "34.0.0"
-
-    - name: Rename file 
-      run: mv ${{steps.sign_app.outputs.signedReleaseFile}} ${{ env.ARTIFACT_PATH }}
+    - name: Move file 
+      run: mv app/build/outputs/apk/release/app-release.apk ${{ env.ARTIFACT_PATH }}
 
     - uses: actions/upload-artifact@v4
       with:
@@ -179,25 +180,25 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    - name: Setup signing info
+      run: |
+        mkdir -p app/keystore/
+        touch app/keystore/release.jks
+        echo ${{ secrets.SIGNING_KEY }} | base64 -d > app/keystore/release.jks
+        
+        mkdir -p ~/.gradle/
+        touch ~/.gradle/gradle.properties
+        echo "RELEASE_STORE_FILE=keystore/release.jks" >> ~/.gradle/gradle.properties
+        echo "RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
+        echo "RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
+        echo "RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
+        
     - name: Build with Gradle
       run: ./gradlew :app:bundleRelease
 
-    - uses: r0adkll/sign-android-release@v1
-      name: Sign app AAB
-      # ID used to access action output
-      id: sign_app
-      with:
-        releaseDirectory: app/build/outputs/bundle/release
-        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-        alias: ${{ secrets.ALIAS }}
-        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEY_PASSWORD }}
-      env:
-        # override default build-tools version (33.0.0) -- optional
-        BUILD_TOOLS_VERSION: "34.0.0"
-
-    - name: Rename file 
-      run: mv ${{steps.sign_app.outputs.signedReleaseFile}} ${{ env.ARTIFACT_PATH }}
+    - name: Move file 
+      run: mv app/build/outputs/bundle/release/app-release.aab ${{ env.ARTIFACT_PATH }}
 
     - uses: actions/upload-artifact@v4
       with:
