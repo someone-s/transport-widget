@@ -1,0 +1,1 @@
+Remove now redundant alarm permissions

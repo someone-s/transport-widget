@@ -18,8 +18,8 @@ android {
         applicationId = "com.eden.livewidget"
         minSdk = 24
         targetSdk = 37
-        versionCode = 30000
-        versionName = "3.0.0"
+        versionCode = 30001
+        versionName = "3.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
