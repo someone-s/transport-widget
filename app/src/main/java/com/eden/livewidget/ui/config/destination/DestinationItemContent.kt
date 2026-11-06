@@ -1,0 +1,69 @@
+package com.eden.livewidget.ui.config.destination
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedListItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.eden.livewidget.R
+import com.eden.livewidget.logic.DestinationState
+
+@Composable
+fun DestinationItemContent(
+    destination: DestinationState,
+    onClick: () -> Unit,
+    shapes: ListItemShapes,
+) {
+
+    SegmentedListItem(
+        shapes = shapes,
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
+        leadingContent = {
+            Icon(
+                painter = painterResource(R.drawable.directions_alt),
+                contentDescription = null,
+            )
+        },
+        content = {
+            Text(
+                text = destination.config.toPoint.name,
+                maxLines = 1,
+            )
+        },
+        supportingContent = {
+            if (destination.filters == null) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .padding(top = 8.dp, bottom = 8.dp)
+                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    trackColor = MaterialTheme.colorScheme.tertiary,
+                )
+            } else {
+                Text(
+                    text = destination.config.toPoint.dataPoints.joinToString(",") { it.displayString },
+                    maxLines = 1,
+                )
+            }
+        },
+        trailingContent = {
+            Icon(
+                painter = painterResource(R.drawable.edit),
+                contentDescription = stringResource(R.string.config_ui_destination_itemcontent_action),
+            )
+        },
+        onClick = onClick,
+    )
+}

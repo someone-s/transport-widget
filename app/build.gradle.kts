@@ -1,6 +1,3 @@
-import com.android.build.api.dsl.ApplicationExtension
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -10,56 +7,45 @@ plugins {
     alias(libs.plugins.jaredsburrows.license)
 }
 
-// https://developer.android.com/training/data-storage/room/migrating-db-versions#set_schema_location_using_room_gradle_plugin
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
-java {
-    toolchain {
-    }
-}
-
-kotlin {
-    jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_21
-    }
-}
-
-extensions.configure<ApplicationExtension> {
+android {
 
     namespace = "com.eden.livewidget"
-    compileSdk = 37
+    compileSdk {
+        version = release(37)
+    }
 
     defaultConfig {
         applicationId = "com.eden.livewidget"
         minSdk = 24
         targetSdk = 37
-        versionCode = 20301
-        versionName = "2.3.1"
+        versionCode = 30000
+        versionName = "3.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(project.property("RELEASE_STORE_FILE").toString())
+            storePassword = project.property("RELEASE_STORE_PASSWORD").toString()
+            keyAlias = project.property("RELEASE_KEY_ALIAS").toString()
+            keyPassword = project.property("RELEASE_KEY_PASSWORD").toString()
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
             optimization {
-                enable = true // Enables code and resource optimizations.
+                enable = true
             }
             ndk {
-                debugSymbolLevel = "SYMBOL_TABLE"
+                debugSymbolLevel = "FULL"
             }
-        }
-        debug {
-
         }
     }
     compileOptions {
@@ -69,6 +55,7 @@ extensions.configure<ApplicationExtension> {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     dependenciesInfo {
@@ -80,6 +67,11 @@ extensions.configure<ApplicationExtension> {
     }
 }
 
+// https://developer.android.com/training/data-storage/room/migrating-db-versions#set_schema_location_using_room_gradle_plugin
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 
 dependencies {
     implementation(libs.androidx.compose.foundation)
@@ -88,6 +80,8 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.concurrent.futures.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -97,7 +91,6 @@ dependencies {
     implementation(libs.androidx.adaptive)
     implementation(libs.androidx.window)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.glance)

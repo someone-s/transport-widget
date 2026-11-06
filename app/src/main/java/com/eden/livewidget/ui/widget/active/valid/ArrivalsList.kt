@@ -1,0 +1,44 @@
+package com.eden.livewidget.ui.widget.active.valid
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.itemsIndexed
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Column
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.height
+import com.eden.livewidget.data.agency.common.arrivals.ArrivalEntry
+import java.time.format.DateTimeFormatter
+
+@Composable
+fun ArrivalsList(arrivals: List<ArrivalEntry>) {
+
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        itemsIndexed(
+            items = arrivals.take(40),
+            itemId = { index, _ ->
+                index.toLong()
+            },
+            itemContent = { index, arrival ->
+                Column {
+                    ArrivalsItem(arrival, timeFormatter)
+
+                    if (index < arrivals.size - 1)
+                        Spacer(modifier = GlanceModifier.height(4.dp))
+                }
+            }
+        )
+        item {
+            Spacer(modifier = GlanceModifier.height(16.dp))
+        }
+    }
+
+
+}
+
