@@ -2,9 +2,9 @@ package com.eden.livewidget.data.agency.buffered.point
 
 interface BufferedPointsCache {
 
-    suspend fun getAllFuzzyMatches(search: String): List<BufferedPointOption>
+    suspend fun getAllFuzzyMatches(search: String): List<BufferedPointEntry>
 
-    suspend fun insert(option: BufferedPointOption)
+    suspend fun insert(option: BufferedPointEntry)
     suspend fun deleteAll()
     
     val asResettable: Resettable?

@@ -3,7 +3,7 @@ package com.eden.livewidget.data.agency.tfl.point
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.R
-import com.eden.livewidget.data.agency.buffered.point.BufferedPointOption
+import com.eden.livewidget.data.agency.buffered.point.BufferedPointEntry
 import com.eden.livewidget.data.agency.buffered.point.BufferedPointsApi
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.google.gson.annotations.SerializedName
@@ -89,7 +89,7 @@ class TflPointsApi(
         retrofit.create(PointsTflApiService::class.java)
     }
 
-    override suspend fun fetchPoints(statusUpdate: ((status: String) -> Unit)?): Flow<BufferedPointOption> = channelFlow {
+    override suspend fun fetchPoints(statusUpdate: ((status: String) -> Unit)?): Flow<BufferedPointEntry> = channelFlow {
 
         val pageBatch = 3
         val maxAttempt = 3
@@ -144,7 +144,7 @@ class TflPointsApi(
     private data class PageResult(
         val success: Boolean,
         val unfilteredIsEmpty: Boolean = false,
-        val values: List<BufferedPointOption>? = null,
+        val values: List<BufferedPointEntry>? = null,
     )
     private fun fetchPage(
         pageZeroIndexed: Int,
@@ -181,10 +181,10 @@ class TflPointsApi(
                 .filter { it.isValid() }
                 .filter { it.modes!!.any { mode -> validModes.contains(mode) } }
                 .map { stopPoint ->
-                    BufferedPointOption(
+                    BufferedPointEntry(
                         fixedLogicalPoint =
                             FixedLogicalPoint(
-                                name = stopPoint.commonName!!,
+                                nameString = stopPoint.commonName!!,
                                 dataPoint = TflDataPoint(
                                     naptanId = stopPoint.naptanId!!,
                                     lineIds = stopPoint.lines!!.map { it.id!! },

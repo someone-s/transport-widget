@@ -3,7 +3,7 @@ package com.eden.livewidget.data.agency.rdg.point
 import android.content.Context
 import android.util.Log
 import com.eden.livewidget.R
-import com.eden.livewidget.data.agency.buffered.point.BufferedPointOption
+import com.eden.livewidget.data.agency.buffered.point.BufferedPointEntry
 import com.eden.livewidget.data.agency.buffered.point.BufferedPointsApi
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.keys.KeyProvider
@@ -60,7 +60,7 @@ class RdgPointsApi(
         retrofit.create(PointsRdgApiService::class.java)
     }
 
-    override suspend fun fetchPoints(statusUpdate: ((status: String) -> Unit)?): Flow<BufferedPointOption> = flow {
+    override suspend fun fetchPoints(statusUpdate: ((status: String) -> Unit)?): Flow<BufferedPointEntry> = flow {
 
         val points = fetchData()
         for (point in points)
@@ -71,7 +71,7 @@ class RdgPointsApi(
         )
     }
 
-    private fun fetchData(): List<BufferedPointOption> {
+    private fun fetchData(): List<BufferedPointEntry> {
         Log.i(this.javaClass.name, "request data")
 
         val headers = mapOf(
@@ -103,10 +103,10 @@ class RdgPointsApi(
         Log.i(this.javaClass.name, "found ${stationList.size} entries")
 
         return stationList.map {
-            BufferedPointOption(
+            BufferedPointEntry(
                 fixedLogicalPoint =
                     FixedLogicalPoint(
-                        name = it.commonName,
+                        nameString = it.commonName,
                         dataPoint = RdgDataPoint(it.crsCode),
                     ),
             )
