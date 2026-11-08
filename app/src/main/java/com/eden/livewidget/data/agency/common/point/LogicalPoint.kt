@@ -4,7 +4,6 @@ import androidx.compose.runtime.Stable
 import com.eden.livewidget.data.agency.common.text.Text
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
-import kotlin.reflect.KProperty
 
 @Serializable
 @Polymorphic

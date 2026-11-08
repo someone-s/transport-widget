@@ -3,7 +3,6 @@ package com.eden.livewidget.data.agency.common.keys
 import android.content.Context
 import android.provider.Settings.Secure
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 import java.security.SecureRandom
