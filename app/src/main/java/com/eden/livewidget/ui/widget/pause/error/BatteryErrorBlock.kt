@@ -65,14 +65,14 @@ fun BatteryErrorBlock(
                     .fillMaxWidth()
                     .height(64.dp)
             ) {
-                UpdateKeyGroup()
+                UpdateBatterySettingsGroup()
             }
         }
     }
 }
 
 @Composable
-private fun UpdateKeyGroup() {
+private fun UpdateBatterySettingsGroup() {
 
     val appSettingsIntent = getResolvedAppSettingsIntent(LocalContext.current.packageManager, LocalContext.current.packageName)
 

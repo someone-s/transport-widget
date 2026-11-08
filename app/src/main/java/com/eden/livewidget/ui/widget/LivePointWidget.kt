@@ -80,6 +80,8 @@ class LivePointWidget : GlanceAppWidget() {
                             FetchState.RESULT_ERROR_NETWORK_METERED -> MyContentMode.PAUSED_ERROR_METERED
                             FetchState.RESULT_ERROR_BATTERY -> MyContentMode.PAUSED_ERROR_BATTERY
                             FetchState.RESULT_ERROR_UNKNOWN -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                            FetchState.RESULT_ERROR_LOCATION_PERMISSION -> MyContentMode.PAUSED_ERROR_LOCATION
+                            FetchState.RESULT_ERROR_LOCATION_DISABLED -> MyContentMode.PAUSED_ERROR_LOCATION
                             else -> MyContentMode.PAUSED_ERROR_UNKNOWN
                         }
 

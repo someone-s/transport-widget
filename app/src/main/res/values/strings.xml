@@ -168,4 +168,7 @@
     <string name="widget_arrival_from_text">from</string>
     <string name="widget_platform_platform_placeholder">-</string>
     <string name="widget_arrival_board_text">board</string>
+    <string name="widget_retry_location_reason_text">Location not available</string>
+    <string name="widget_retry_location_grant_fine_location_text">Grant precise location</string>
+    <string name="widget_retry_location_enable_text">Enable location</string>
 </resources>

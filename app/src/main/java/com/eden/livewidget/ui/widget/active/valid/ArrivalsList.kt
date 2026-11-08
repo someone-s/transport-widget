@@ -21,7 +21,7 @@ fun ArrivalsList(arrivals: List<ArrivalEntry>) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         itemsIndexed(
-            items = arrivals.take(40),
+            items = arrivals.take(30),
             itemId = { index, _ ->
                 index.toLong()
             },
