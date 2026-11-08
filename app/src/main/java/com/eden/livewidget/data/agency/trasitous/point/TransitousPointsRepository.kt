@@ -36,7 +36,7 @@ class TransitousPointsRepository(
                 api.getAllFuzzyMatches(input).map {
                     PointsRepository.Option(
                         logicalPoint = it.logicalPoint,
-                        annotation = it.annotation,
+                        annotation = it.annotation?.let { a -> LiteralText(a) },
                     )
                 }
             }

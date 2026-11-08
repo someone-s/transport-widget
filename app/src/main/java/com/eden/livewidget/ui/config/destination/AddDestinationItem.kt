@@ -62,7 +62,7 @@ fun AddDestinationItem(
                 .take(25)
                 .map { point ->
                     SearchOption(
-                        queryText = point.fixedLogicalPoint.name,
+                        queryText = point.fixedLogicalPoint.nameString,
                         supportText = point.annotation
                     )
                 },

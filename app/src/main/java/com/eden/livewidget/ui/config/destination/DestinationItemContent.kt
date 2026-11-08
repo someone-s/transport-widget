@@ -38,7 +38,7 @@ fun DestinationItemContent(
         },
         content = {
             Text(
-                text = destination.config.toPoint.name,
+                text = destination.config.toPoint.nameString,
                 maxLines = 1,
             )
         },

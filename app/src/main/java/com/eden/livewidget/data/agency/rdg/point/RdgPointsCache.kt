@@ -24,7 +24,7 @@ class RdgPointsCache(
     override suspend fun insert(option: BufferedPointOption) =
         pointsDao.insert(
             RdgPointsEntity(
-                name = option.fixedLogicalPoint.name,
+                name = option.fixedLogicalPoint.nameString,
                 values = formatter.encodeToString(option.fixedLogicalPoint.dataPoints)
             )
         )

@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
@@ -25,6 +26,7 @@ import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.Provider
 import com.eden.livewidget.data.agency.common.point.FloatLogicalPoint
 import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.text.asString
 import kotlinx.coroutines.launch
 
 @Composable
@@ -39,6 +41,8 @@ fun PointItem(
             factory = PointsViewModelFactory(provider)
         ),
 ) {
+    val context = LocalContext.current
+
     val pointsUiState by viewModel.pointsUiState.collectAsState()
     val matchingPoints = pointsUiState.matchingPoints
 
@@ -56,8 +60,14 @@ fun PointItem(
         searchBarState = searchBarState,
         textFieldState = textFieldState,
         placeholder = stringResource(R.string.config_ui_pointitem_input_placeholder),
-        options = matchingPoints.take(25)
-            .map { SearchOption(queryText = it.logicalPoint.name, supportText = it.annotation) },
+        options = matchingPoints
+            .take(25)
+            .map {
+                SearchOption(
+                    queryText = it.logicalPoint.name.asString(),
+                    supportText = it.annotation?.asString()
+                )
+            },
         onOptionClick = { index, _ ->
             onPointSelected(
                 if (index >= 0 && index < matchingPoints.size)
@@ -84,7 +94,7 @@ fun PointItem(
         },
         content = {
             Text(
-                text = point?.name ?: stringResource(R.string.config_ui_pointitem_name_placeholder),
+                text = point?.name?.asString() ?: stringResource(R.string.config_ui_pointitem_name_placeholder),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -109,7 +119,7 @@ fun PointItem(
         },
         onClick = {
             coroutineScope.launch {
-                textFieldState.setTextAndPlaceCursorAtEnd(point?.name ?: "")
+                textFieldState.setTextAndPlaceCursorAtEnd(point?.name?.asString(context) ?: "")
                 searchBarState.animateToExpanded()
             }
         }

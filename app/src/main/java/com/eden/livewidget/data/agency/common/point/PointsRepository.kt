@@ -1,6 +1,7 @@
 package com.eden.livewidget.data.agency.common.point
 
 import android.content.Context
+import com.eden.livewidget.data.agency.common.text.Text
 import kotlinx.coroutines.flow.Flow
 
 interface PointsRepository {
@@ -8,7 +9,7 @@ interface PointsRepository {
 
     data class Option(
         val logicalPoint: LogicalPoint,
-        val annotation: String? = null,
+        val annotation: Text? = null,
     )
 
     suspend fun fetchMatching(input: String)

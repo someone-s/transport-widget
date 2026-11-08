@@ -77,7 +77,7 @@ fun DestinationItem(
                 .take(25)
                 .map { point ->
                     SearchOption(
-                        queryText = point.fixedLogicalPoint.name,
+                        queryText = point.fixedLogicalPoint.nameString,
                         supportText = point.annotation
                     )
                 },
@@ -110,7 +110,7 @@ fun DestinationItem(
                     onClick = {
                         if (destination.filters != null)
                             coroutineScope.launch {
-                                textFieldState.setTextAndPlaceCursorAtEnd(destination.config.toPoint.name)
+                                textFieldState.setTextAndPlaceCursorAtEnd(destination.config.toPoint.nameString)
                                 searchBarState.animateToExpanded()
                             }
                     },

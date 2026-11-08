@@ -2,6 +2,7 @@ package com.eden.livewidget.data.agency.buffered.point
 
 import android.content.Context
 import com.eden.livewidget.data.agency.common.point.PointsRepository
+import com.eden.livewidget.data.agency.common.text.LiteralText
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-class BufferedPointsRepository(
+open class BufferedPointsRepository(
     private val api: BufferedPointsApi,
     private val cache: BufferedPointsCache,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -23,6 +24,7 @@ class BufferedPointsRepository(
     private val mutex = Mutex()
     private var queued: String? = null
     private var fetching = false
+
     override suspend fun fetchMatching(input: String) {
         mutex.withLock {
             if (fetching) {
@@ -32,14 +34,7 @@ class BufferedPointsRepository(
             fetching = true
         }
 
-        _matchingPoints.update {
-            withContext(dispatcher) {
-                cache.getAllFuzzyMatches(input).map { PointsRepository.Option(
-                    logicalPoint = it.fixedLogicalPoint,
-                    annotation = it.annotation,
-                ) }
-            }
-        }
+        _matchingPoints.update { getAllFuzzyMatches(input = input) }
 
         var queuedCopy: String?
         mutex.withLock {
@@ -51,6 +46,13 @@ class BufferedPointsRepository(
         // Probably race condition, but not significant
         if (queuedCopy != null)
             fetchMatching(queuedCopy)
+    }
+
+    open suspend fun getAllFuzzyMatches(input: String): List<PointsRepository.Option> = withContext(dispatcher) {
+        cache.getAllFuzzyMatches(input).map { PointsRepository.Option(
+            logicalPoint = it.fixedLogicalPoint,
+            annotation = it.annotation?.let { a -> LiteralText(a) },
+        ) }
     }
 
     override suspend fun refresh(statusUpdate: ((status: String) -> Unit)?) {

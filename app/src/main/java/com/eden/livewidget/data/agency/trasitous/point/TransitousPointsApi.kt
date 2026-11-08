@@ -103,7 +103,7 @@ class TransitousPointsApi(
                 Option(
                     logicalPoint =
                         FixedLogicalPoint(
-                            name = it.name!!,
+                            nameString = it.name!!,
                             dataPoint = TransitousDataPoint(it.id!!),
                         ),
                     annotation =

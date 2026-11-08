@@ -25,7 +25,7 @@ class TflPointsCache(
         option.fixedLogicalPoint.dataPoints.forEach { value ->
             pointsDao.insert(
                 TflPointsEntity(
-                    name = option.fixedLogicalPoint.name,
+                    name = option.fixedLogicalPoint.nameString,
                     value = formatter.encodeToString(value)
                 )
             )

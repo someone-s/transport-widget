@@ -1,6 +1,8 @@
 package com.eden.livewidget.data.agency.common.point
 
 import androidx.compose.runtime.Stable
+import com.eden.livewidget.data.agency.common.text.LiteralText
+import com.eden.livewidget.data.agency.common.text.Text
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -8,14 +10,16 @@ import kotlinx.serialization.Serializable
 @SerialName("l-fixed")
 @Stable
 data class FixedLogicalPoint(
-    override val name: String,
+    val nameString: String,
     val dataPoints: List<DataPoint>, // api specific value
 ): LogicalPoint() {
+    override val name: Text = LiteralText(nameString)
+
     constructor(
-        name: String,
+        nameString: String,
         dataPoint: DataPoint,
     ): this(
-        name = name,
+        nameString = nameString,
         dataPoints = listOf(dataPoint)
     )
 }

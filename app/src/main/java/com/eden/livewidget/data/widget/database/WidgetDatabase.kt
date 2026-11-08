@@ -1,18 +1,16 @@
 package com.eden.livewidget.data.widget.database
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 @Database(
     entities = [ConfigEntity::class, StateEntity::class],
-    version = 4,
+    version = 5,
     autoMigrations = []
 )
 abstract class WidgetDatabase : RoomDatabase() {
@@ -33,7 +31,8 @@ abstract class WidgetDatabase : RoomDatabase() {
                 )
                     .addMigrations(
                         MIGRATION_2_3,
-                        MIGRATION_3_4
+                        MIGRATION_3_4,
+                        MIGRATION_4_5,
                     )
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
@@ -73,6 +72,15 @@ private val MIGRATION_3_4 = object : Migration(3, 4) {
             UPDATE state
             SET fetch_state = 'ERROR_NETWORK_METERED'
             WHERE fetch_state = 'ERROR_METERED'
+        """.trimIndent())
+    }
+}
+
+private val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("""
+            UPDATE config
+            SET point = replace(point, '"name":"', '"nameString":"')
         """.trimIndent())
     }
 }
