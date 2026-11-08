@@ -1,4 +1,4 @@
-package com.eden.livewidget.data.agency.common.arrivals
+package com.eden.livewidget.data.agency.common
 
 enum class FetchResult {
     SUCCESS,

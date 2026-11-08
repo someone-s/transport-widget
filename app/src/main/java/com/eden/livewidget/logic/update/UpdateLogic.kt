@@ -6,7 +6,7 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.eden.livewidget.data.AppContainer
-import com.eden.livewidget.data.agency.common.arrivals.FetchResult
+import com.eden.livewidget.data.agency.common.FetchResult
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.location.repository.LocationRepository
 import com.eden.livewidget.logic.emptyFilterState
