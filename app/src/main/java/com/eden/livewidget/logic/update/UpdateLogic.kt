@@ -6,7 +6,10 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.eden.livewidget.data.AppContainer
-import com.eden.livewidget.data.agency.common.arrivals.FetchResult
+import com.eden.livewidget.data.agency.common.FetchResult
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
+import com.eden.livewidget.data.agency.common.point.FloatLogicalPoint
+import com.eden.livewidget.data.location.repository.LocationRepository
 import com.eden.livewidget.logic.emptyFilterState
 import com.eden.livewidget.data.widget.repository.WidgetRepository
 import com.eden.livewidget.data.widget.structure.FetchState
@@ -18,6 +21,7 @@ class UpdateLogic(
     private val context: Context,
     private val appContainer: AppContainer,
     private val widgetRepository: WidgetRepository,
+    private val locationRepository: LocationRepository,
 ) {
     private class ExitEarlyException: RuntimeException()
 
@@ -88,8 +92,8 @@ class UpdateLogic(
         val fetchState = refreshArrivalsState(appWidgetId).let {
             when (it) {
                 FetchState.RESULT_ERROR_UNKNOWN,
-                FetchState.RESULT_ERROR_UNREACHABLE,
-                FetchState.RESULT_ERROR_UNRESOLVED -> identityIssue() ?: it
+                FetchState.RESULT_ERROR_NETWORK_UNREACHABLE,
+                FetchState.RESULT_ERROR_NETWORK_UNRESOLVED -> identityIssue() ?: it
                 else -> it
             }
         }
@@ -111,8 +115,40 @@ class UpdateLogic(
             ?: return FetchState.RESULT_ERROR_UNKNOWN
         val provider = agency.provider
 
-        val point = widgetConfig.point
+        val logicalPoint = widgetConfig.point
             ?: return FetchState.RESULT_ERROR_UNKNOWN
+
+        val dataPoints = when(logicalPoint) {
+            is FixedLogicalPoint -> logicalPoint.dataPoints
+            is FloatLogicalPoint -> {
+                val location = try {
+                    locationRepository.getLocation(LocationRepository.Accuracy.FINE)
+                } catch (_: LocationRepository.MissingPermissionException) {
+                    return FetchState.RESULT_ERROR_LOCATION_PERMISSION
+                } catch (_: LocationRepository.UnavailableException) {
+                    return FetchState.RESULT_ERROR_LOCATION_DISABLED
+                }
+
+                val locationAwarePointRepository = provider.pointsRepository.asLocationAware ?:
+                    return FetchState.RESULT_ERROR_UNKNOWN
+
+                val (locationResult, actualPoint) =
+                    locationAwarePointRepository.getClosest(location.latitude, location.longitude)
+
+                when (locationResult) {
+                    FetchResult.SUCCESS -> actualPoint?.dataPoints ?: return FetchState.RESULT_ERROR_UNKNOWN
+                    FetchResult.ERROR_NO_DATA,
+                    FetchResult.ERROR_SCHEMA -> return FetchState.RESULT_ERROR_UNKNOWN
+                    FetchResult.ERROR_AUTHENTICATION -> return FetchState.RESULT_ERROR_NETWORK_AUTHENTICATION
+                    FetchResult.ERROR_UNREACHABLE -> return FetchState.RESULT_ERROR_NETWORK_UNREACHABLE
+                    FetchResult.ERROR_UNRESOLVED -> return FetchState.RESULT_ERROR_NETWORK_UNRESOLVED
+                }
+            }
+            else -> {
+                Log.e("$javaClass", "Unexpected logical point type")
+                return FetchState.RESULT_ERROR_UNKNOWN
+            }
+        }
 
         val filters = widgetConfig.filters ?: emptyFilterState()
 
@@ -120,15 +156,17 @@ class UpdateLogic(
             // Update data source
             val result = provider.arrivalsRepository.updateState(
                 key = appWidgetId,
-                dataPoints = point.dataPoints,
+                dataPoints = dataPoints,
                 destinationFilters = filters.destinations.mapNotNull { it.filters }.flatten()
             )
 
             return when (result) {
                 FetchResult.SUCCESS -> FetchState.RESULT_RAN_COMPLETED
-                FetchResult.ERROR_AUTHENTICATION -> FetchState.RESULT_ERROR_AUTHENTICATION
-                FetchResult.ERROR_UNREACHABLE -> FetchState.RESULT_ERROR_UNREACHABLE
-                FetchResult.ERROR_UNRESOLVED -> FetchState.RESULT_ERROR_UNRESOLVED
+                FetchResult.ERROR_NO_DATA,
+                FetchResult.ERROR_SCHEMA -> FetchState.RESULT_ERROR_UNKNOWN
+                FetchResult.ERROR_AUTHENTICATION -> FetchState.RESULT_ERROR_NETWORK_AUTHENTICATION
+                FetchResult.ERROR_UNREACHABLE -> FetchState.RESULT_ERROR_NETWORK_UNREACHABLE
+                FetchResult.ERROR_UNRESOLVED -> FetchState.RESULT_ERROR_NETWORK_UNRESOLVED
             }
 
         } catch (e: Exception) {
@@ -146,7 +184,7 @@ class UpdateLogic(
 
             connectivityManager.apply {
                 return if (isActiveNetworkMetered && restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)
-                    FetchState.RESULT_ERROR_METERED
+                    FetchState.RESULT_ERROR_NETWORK_METERED
                 else
                     null
             }

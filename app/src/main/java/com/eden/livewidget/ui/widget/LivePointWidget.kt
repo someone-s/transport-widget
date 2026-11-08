@@ -13,6 +13,7 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import com.eden.livewidget.LiveWidgetApplication
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsState
+import com.eden.livewidget.data.agency.common.text.asString
 import com.eden.livewidget.data.widget.structure.FetchState
 import com.eden.livewidget.logic.emptyFilterState
 
@@ -73,23 +74,25 @@ class LivePointWidget : GlanceAppWidget() {
                                     ArrivalsState.Validity.VALID -> MyContentMode.PAUSED_OK_READY
                                     ArrivalsState.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
                                 }
-                            FetchState.RESULT_ERROR_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
-                            FetchState.RESULT_ERROR_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
-                            FetchState.RESULT_ERROR_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
-                            FetchState.RESULT_ERROR_METERED -> MyContentMode.PAUSED_ERROR_METERED
+                            FetchState.RESULT_ERROR_NETWORK_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
+                            FetchState.RESULT_ERROR_NETWORK_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
+                            FetchState.RESULT_ERROR_NETWORK_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
+                            FetchState.RESULT_ERROR_NETWORK_METERED -> MyContentMode.PAUSED_ERROR_METERED
                             FetchState.RESULT_ERROR_BATTERY -> MyContentMode.PAUSED_ERROR_BATTERY
                             FetchState.RESULT_ERROR_UNKNOWN -> MyContentMode.PAUSED_ERROR_UNKNOWN
+                            FetchState.RESULT_ERROR_LOCATION_PERMISSION -> MyContentMode.PAUSED_ERROR_LOCATION
+                            FetchState.RESULT_ERROR_LOCATION_DISABLED -> MyContentMode.PAUSED_ERROR_LOCATION
                             else -> MyContentMode.PAUSED_ERROR_UNKNOWN
                         }
 
                 val updateTime = if (fetchState != FetchState.PENDING) arrivalsData.lastUpdate else null
 
-                val destinationNames = filters.destinations.map { it.config.toPoint.name }
+                val destinationNames = filters.destinations.map { it.config.toPoint.name.asString(context) }
 
                 MyContent(
                     mode = mode,
                     appWidgetId = appWidgetId,
-                    fromName = point.name,
+                    fromName = point.name.asString(context),
                     toNames = destinationNames,
                     agency = agency,
                     lastUpdate = updateTime,

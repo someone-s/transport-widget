@@ -44,6 +44,7 @@ import com.eden.livewidget.ui.config.agency.Item
 import com.eden.livewidget.ui.config.common.LabelItem
 import com.eden.livewidget.ui.config.destination.DestinationsGroup
 import com.eden.livewidget.ui.config.point.PointItem
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.point.LogicalPoint
 import com.eden.livewidget.data.widget.structure.WidgetConfig
 import com.eden.livewidget.logic.DestinationState
@@ -140,6 +141,8 @@ fun ConfigScreen(
                             currentAgency = agency,
                             onAgencySelected = { newAgency ->
                                 agency = newAgency
+                                point = null
+                                destinations.clear()
                                 anyChanges = true
                             },
                         )
@@ -168,6 +171,7 @@ fun ConfigScreen(
                                 point = point,
                                 onPointSelected = { newPoint ->
                                     point = newPoint
+                                    destinations.clear()
                                     anyChanges = true
                                 },
                             )
@@ -175,7 +179,7 @@ fun ConfigScreen(
                 }
 
                 val capturedPoint = point
-                val destinationsGroupVisible = provider != null && capturedPoint != null
+                val destinationsGroupVisible = provider != null && capturedPoint != null && capturedPoint is FixedLogicalPoint
                 AnimatedVisibility(
                     visible = destinationsGroupVisible,
                     enter =
@@ -247,7 +251,9 @@ fun ConfigScreen(
                                         agencyId = agency?.id,
                                         point = point,
                                         filters = FiltersState(
-                                            destinations = destinations.map { it.value },
+                                            destinations = if (point is FixedLogicalPoint)
+                                                destinations.map { it.value }
+                                            else emptyList(),
                                         ),
                                         fetchDuration = Duration.ofSeconds(90),
                                         fetchInterval = Duration.ofSeconds(30),

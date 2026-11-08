@@ -149,6 +149,7 @@
     <string name="config_ui_agencyitem_name_placeholder">Set agency</string>
     <string name="config_ui_agencyitem_description_placeholder">Not set</string>
     <string name="config_ui_pointitem_name_placeholder">Set point</string>
+    <string name="config_ui_pointitem_description_float">Data based on the device\'s location</string>
     <string name="config_ui_pointitem_description_placeholder">Not set</string>
     <string name="config_ui_pointitem_input_placeholder">Search for point</string>
     <string name="config_ui_applybutton_action">Apply changes</string>
@@ -164,7 +165,12 @@
     <string name="agency_t00_title">Transitous</string>
     <string name="agency_t00_about_short">International community-run service</string>
     <string name="agency_t00_about_full">An international community-run service using open data and FOSS routing engine.</string>
+    <string name="agency_t00_point_livelocation_name">Live location</string>
+    <string name="agency_t00_point_livelocation_annotation">Fetch departure based on location when refreshing</string>
     <string name="widget_arrival_from_text">from</string>
     <string name="widget_platform_platform_placeholder">-</string>
     <string name="widget_arrival_board_text">board</string>
+    <string name="widget_retry_location_reason_text">Location not available</string>
+    <string name="widget_retry_location_grant_fine_location_text">Grant precise location</string>
+    <string name="widget_retry_location_enable_text">Enable location</string>
 </resources>

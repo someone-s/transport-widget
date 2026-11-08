@@ -3,7 +3,7 @@ package com.eden.livewidget.data.agency.rdg.arrivals
 import com.eden.livewidget.data.agency.common.point.DataPoint
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsRepository
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsState
-import com.eden.livewidget.data.agency.common.arrivals.FetchResult
+import com.eden.livewidget.data.agency.common.FetchResult
 import com.eden.livewidget.data.agency.common.destination.DestinationFilter
 import com.eden.livewidget.data.agency.rdg.destination.RdgDestinationFilter
 import com.eden.livewidget.data.agency.rdg.point.RdgDataPoint

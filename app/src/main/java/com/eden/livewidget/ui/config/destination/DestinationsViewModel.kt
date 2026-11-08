@@ -3,6 +3,7 @@ package com.eden.livewidget.ui.config.destination
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.point.PointsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,11 +14,22 @@ class DestinationsViewModel(
     private val pointsRepository: PointsRepository,
 ): ViewModel() {
     val destinationsUiState: StateFlow<DestinationsUiState> =
-        pointsRepository.matchingPoints.map { DestinationsUiState(it) }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = DestinationsUiState()
-        )
+        pointsRepository.matchingOptions
+            .map { matchingOptions ->
+                DestinationsUiState(
+                    matchingOptions
+                        .mapNotNull { option ->
+                            (option.logicalPoint as? FixedLogicalPoint)?.let { point ->
+                                DestinationOption(point)
+                            }
+                        }
+                )
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = DestinationsUiState()
+            )
 
     suspend fun fetchMatching(input: String) {
         pointsRepository.fetchMatching(input)
@@ -29,4 +41,9 @@ class DestinationsViewModel(
 }
 
 @Immutable
-data class DestinationsUiState(val matchingPoints: List<PointsRepository.Option> = listOf())
+data class DestinationsUiState(val matchingOptions: List<DestinationOption> = listOf())
+
+data class DestinationOption(
+    val fixedLogicalPoint: FixedLogicalPoint,
+    val annotation: String? = null,
+)

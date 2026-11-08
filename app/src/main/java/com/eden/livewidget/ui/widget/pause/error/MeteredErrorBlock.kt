@@ -65,14 +65,14 @@ fun MeteredErrorBlock(
                     .fillMaxWidth()
                     .height(64.dp)
             ) {
-                UpdateKeyGroup()
+                UpdateNetworkSettingsGroup()
             }
         }
     }
 }
 
 @Composable
-private fun UpdateKeyGroup() {
+private fun UpdateNetworkSettingsGroup() {
 
     val networkSettingsIntent = getResolvedNetworkSettingsIntent(LocalContext.current.packageManager)
 

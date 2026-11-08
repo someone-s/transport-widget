@@ -1,5 +1,6 @@
 package com.eden.livewidget.data.agency.common.arrivals
 
+import com.eden.livewidget.data.agency.common.FetchResult
 import com.eden.livewidget.data.agency.common.point.DataPoint
 import com.eden.livewidget.data.agency.common.destination.DestinationFilter
 import kotlinx.coroutines.flow.StateFlow

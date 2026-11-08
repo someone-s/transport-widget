@@ -37,6 +37,7 @@ import com.eden.livewidget.ui.widget.active.fetching.ActiveUnInitializedBlock
 import com.eden.livewidget.ui.widget.active.valid.ActiveValidBlock
 import com.eden.livewidget.ui.widget.pause.error.AuthenticateErrorBlock
 import com.eden.livewidget.ui.widget.pause.error.BatteryErrorBlock
+import com.eden.livewidget.ui.widget.pause.error.LocationErrorBlock
 import com.eden.livewidget.ui.widget.pause.error.MeteredErrorBlock
 import com.eden.livewidget.ui.widget.pause.error.UnknownErrorBlock
 import com.eden.livewidget.ui.widget.pause.error.UnreachableErrorBlock
@@ -50,6 +51,7 @@ enum class MyContentMode {
     PAUSED_OK_READY,
     ACTIVE_RETRY,
     PAUSED_ERROR_UNKNOWN,
+    PAUSED_ERROR_LOCATION,
     PAUSED_ERROR_BATTERY,
     PAUSED_ERROR_AUTHENTICATE,
     PAUSED_ERROR_UNREACHABLE,
@@ -140,6 +142,7 @@ fun MyContent(
                     MyContentMode.ACTIVE_RETRY -> ActiveRetryBlock()
                     MyContentMode.PAUSED_OK_READY -> ReadyBlock(appWidgetId)
                     MyContentMode.PAUSED_ERROR_METERED -> MeteredErrorBlock(appWidgetId)
+                    MyContentMode.PAUSED_ERROR_LOCATION -> LocationErrorBlock(appWidgetId)
                     MyContentMode.PAUSED_ERROR_BATTERY -> BatteryErrorBlock(appWidgetId)
                     MyContentMode.PAUSED_ERROR_UNRESOLVED -> UnresolvedErrorBlock(appWidgetId)
                     MyContentMode.PAUSED_ERROR_UNREACHABLE -> UnreachableErrorBlock(appWidgetId)

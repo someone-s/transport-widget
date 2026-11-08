@@ -24,7 +24,7 @@ import com.eden.livewidget.R
 import com.eden.livewidget.ui.config.common.SearchGroup
 import com.eden.livewidget.ui.config.common.SearchOption
 import com.eden.livewidget.data.agency.common.destination.DestinationConfig
-import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.Provider
 import com.eden.livewidget.logic.DestinationState
 import kotlinx.coroutines.launch
@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun DestinationItem(
     provider: Provider,
-    point: LogicalPoint,
+    point: FixedLogicalPoint,
     destination: DestinationState,
     updateDestination: (DestinationConfig) -> Unit,
     removeDestination: () -> Unit,
@@ -45,7 +45,7 @@ fun DestinationItem(
         ),
 ) {
     val destinationsUiState by viewModel.destinationsUiState.collectAsState()
-    val matchingPoints = destinationsUiState.matchingPoints
+    val matchingPoints = destinationsUiState.matchingOptions
 
     // Avoid standard rememberSwipeToDismissBoxState as that does not have key option
     // Also do not need to survive recomposition
@@ -77,7 +77,7 @@ fun DestinationItem(
                 .take(25)
                 .map { point ->
                     SearchOption(
-                        queryText = point.logicalPoint.name,
+                        queryText = point.fixedLogicalPoint.nameString,
                         supportText = point.annotation
                     )
                 },
@@ -86,7 +86,7 @@ fun DestinationItem(
                     updateDestination(
                         DestinationConfig(
                             fromPoint = point,
-                            toPoint = matchingPoints[index].logicalPoint,
+                            toPoint = matchingPoints[index].fixedLogicalPoint,
                         )
                     )
             }
@@ -110,7 +110,7 @@ fun DestinationItem(
                     onClick = {
                         if (destination.filters != null)
                             coroutineScope.launch {
-                                textFieldState.setTextAndPlaceCursorAtEnd(destination.config.toPoint.name)
+                                textFieldState.setTextAndPlaceCursorAtEnd(destination.config.toPoint.nameString)
                                 searchBarState.animateToExpanded()
                             }
                     },
