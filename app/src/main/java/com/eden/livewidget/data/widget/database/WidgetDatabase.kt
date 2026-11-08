@@ -12,7 +12,7 @@ import androidx.sqlite.execSQL
 
 @Database(
     entities = [ConfigEntity::class, StateEntity::class],
-    version = 3,
+    version = 4,
     autoMigrations = []
 )
 abstract class WidgetDatabase : RoomDatabase() {
@@ -32,7 +32,8 @@ abstract class WidgetDatabase : RoomDatabase() {
                     "WIDGET_DATABASE"
                 )
                     .addMigrations(
-                        MIGRATION_2_3
+                        MIGRATION_2_3,
+                        MIGRATION_3_4
                     )
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
@@ -47,6 +48,31 @@ private val MIGRATION_2_3 = object : Migration(2, 3) {
         connection.execSQL("""
             UPDATE config
             SET point = '{"type": "l-fixed",' || substr(point, 2)
+        """.trimIndent())
+    }
+}
+
+private val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("""
+            UPDATE state
+            SET fetch_state = 'ERROR_NETWORK_AUTHENTICATION'
+            WHERE fetch_state = 'ERROR_AUTHENTICATION'
+        """.trimIndent())
+        connection.execSQL("""
+            UPDATE state
+            SET fetch_state = 'ERROR_NETWORK_UNREACHABLE'
+            WHERE fetch_state = 'ERROR_UNREACHABLE'
+        """.trimIndent())
+        connection.execSQL("""
+            UPDATE state
+            SET fetch_state = 'ERROR_NETWORK_UNRESOLVED'
+            WHERE fetch_state = 'ERROR_UNRESOLVED'
+        """.trimIndent())
+        connection.execSQL("""
+            UPDATE state
+            SET fetch_state = 'ERROR_NETWORK_METERED'
+            WHERE fetch_state = 'ERROR_METERED'
         """.trimIndent())
     }
 }

@@ -73,10 +73,10 @@ class LivePointWidget : GlanceAppWidget() {
                                     ArrivalsState.Validity.VALID -> MyContentMode.PAUSED_OK_READY
                                     ArrivalsState.Validity.INVALID -> MyContentMode.PAUSED_ERROR_UNKNOWN
                                 }
-                            FetchState.RESULT_ERROR_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
-                            FetchState.RESULT_ERROR_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
-                            FetchState.RESULT_ERROR_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
-                            FetchState.RESULT_ERROR_METERED -> MyContentMode.PAUSED_ERROR_METERED
+                            FetchState.RESULT_ERROR_NETWORK_UNRESOLVED -> MyContentMode.PAUSED_ERROR_UNRESOLVED
+                            FetchState.RESULT_ERROR_NETWORK_UNREACHABLE -> MyContentMode.PAUSED_ERROR_UNREACHABLE
+                            FetchState.RESULT_ERROR_NETWORK_AUTHENTICATION -> MyContentMode.PAUSED_ERROR_AUTHENTICATE
+                            FetchState.RESULT_ERROR_NETWORK_METERED -> MyContentMode.PAUSED_ERROR_METERED
                             FetchState.RESULT_ERROR_BATTERY -> MyContentMode.PAUSED_ERROR_BATTERY
                             FetchState.RESULT_ERROR_UNKNOWN -> MyContentMode.PAUSED_ERROR_UNKNOWN
                             else -> MyContentMode.PAUSED_ERROR_UNKNOWN

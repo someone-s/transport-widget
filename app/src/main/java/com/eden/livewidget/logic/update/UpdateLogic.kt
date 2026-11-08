@@ -85,8 +85,8 @@ class UpdateLogic(
         val fetchState = refreshArrivalsState(appWidgetId).let {
             when (it) {
                 FetchState.RESULT_ERROR_UNKNOWN,
-                FetchState.RESULT_ERROR_UNREACHABLE,
-                FetchState.RESULT_ERROR_UNRESOLVED -> identityIssue() ?: it
+                FetchState.RESULT_ERROR_NETWORK_UNREACHABLE,
+                FetchState.RESULT_ERROR_NETWORK_UNRESOLVED -> identityIssue() ?: it
                 else -> it
             }
         }
@@ -126,9 +126,9 @@ class UpdateLogic(
 
             return when (result) {
                 FetchResult.SUCCESS -> FetchState.RESULT_RAN_COMPLETED
-                FetchResult.ERROR_AUTHENTICATION -> FetchState.RESULT_ERROR_AUTHENTICATION
-                FetchResult.ERROR_UNREACHABLE -> FetchState.RESULT_ERROR_UNREACHABLE
-                FetchResult.ERROR_UNRESOLVED -> FetchState.RESULT_ERROR_UNRESOLVED
+                FetchResult.ERROR_AUTHENTICATION -> FetchState.RESULT_ERROR_NETWORK_AUTHENTICATION
+                FetchResult.ERROR_UNREACHABLE -> FetchState.RESULT_ERROR_NETWORK_UNREACHABLE
+                FetchResult.ERROR_UNRESOLVED -> FetchState.RESULT_ERROR_NETWORK_UNRESOLVED
             }
 
         } catch (e: Exception) {
@@ -146,7 +146,7 @@ class UpdateLogic(
 
             connectivityManager.apply {
                 return if (isActiveNetworkMetered && restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)
-                    FetchState.RESULT_ERROR_METERED
+                    FetchState.RESULT_ERROR_NETWORK_METERED
                 else
                     null
             }
