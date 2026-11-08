@@ -5,4 +5,6 @@ enum class FetchResult {
     ERROR_UNRESOLVED,
     ERROR_UNREACHABLE,
     ERROR_AUTHENTICATION,
+    ERROR_SCHEMA,
+    ERROR_NO_DATA,
 }
