@@ -21,7 +21,7 @@ class DeviceLocationRepository(
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?:
             throw LocationRepository.UnavailableException()
 
-        if (LocationManagerCompat.isLocationEnabled(manager))
+        if (!LocationManagerCompat.isLocationEnabled(manager))
             throw LocationRepository.UnavailableException()
 
         val permission = when (accuracy) {
@@ -45,9 +45,9 @@ class DeviceLocationRepository(
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
     private suspend fun getLocationFromProvider(manager: LocationManager, provider: String): Location? {
 
-        if (LocationManagerCompat.hasProvider(manager, provider))
+        if (!LocationManagerCompat.hasProvider(manager, provider))
             return null
-        if (manager.isProviderEnabled(provider))
+        if (!manager.isProviderEnabled(provider))
             return null
 
         return suspendCancellableCoroutine { continuation ->
