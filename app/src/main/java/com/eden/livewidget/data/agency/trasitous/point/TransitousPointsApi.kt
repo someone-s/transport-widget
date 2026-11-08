@@ -1,12 +1,10 @@
 package com.eden.livewidget.data.agency.trasitous.point
 
-import android.content.Context
 import android.util.Log
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
 import retrofit2.Call
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -15,7 +13,7 @@ import retrofit2.http.Query
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
-private data class TransitousAutoComplete(
+private data class TransitousLocation(
     @SerializedName("name")
     val name: String?,
     @SerializedName("id")
@@ -53,17 +51,15 @@ private val retrofit = Retrofit.Builder()
 private interface PointsTransitousApiService {
     @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
     @GET("api/v1/geocode")
-    fun getAutoComplete(
+    fun getGeocode(
         @Query("type")
         type: String,
         @Query("text")
         text: String,
-    ): Call<List<TransitousAutoComplete>>
+    ): Call<List<TransitousLocation>>
 }
 
-class TransitousPointsApi(
-    private val context: Context,
-) {
+class TransitousPointsApi {
 
     data class Option(
         val logicalPoint: FixedLogicalPoint,
@@ -78,26 +74,24 @@ class TransitousPointsApi(
         input: String
     ): List<Option> {
 
-        val pageRequest = service.getAutoComplete("STOP", input)
-        pageRequest.request()
+        val request = service.getGeocode("STOP", input)
+        request.request()
 
-        val pageResponse: Response<List<TransitousAutoComplete>>
-        try {
-            pageResponse = pageRequest.execute()
-        }
-        catch (_: SocketTimeoutException) {
+        val response = try {
+            request.execute()
+        } catch (_: SocketTimeoutException) {
             Log.w(this.javaClass.name, "timeout for fetching auto complete")
             return emptyList()
         }
 
-        if (pageResponse.body() !is List<TransitousAutoComplete>) {
+        if (response.body() !is List<TransitousLocation>) {
             Log.i(this.javaClass.name, "failed to find page body")
             return emptyList()
         }
 
-        val autoCompletes = pageResponse.body() as List<TransitousAutoComplete>
+        val locations = response.body() as List<TransitousLocation>
 
-        return autoCompletes
+        return locations
             .filter { it.isValid() }
             .map {
                 Option(
