@@ -39,9 +39,11 @@ class UpdateLogic(
             var remainingDuration = config.fetchDuration
 
             while (remainingDuration.isPositive) {
-                val stateSuccess = refreshWidgetState(appWidgetId)
-                if (!stateSuccess) throw ExitEarlyException()
+                beginWidgetState(appWidgetId)
                 refreshWidgetUi(appWidgetId)
+                val stateSuccess = refreshWidgetState(appWidgetId)
+                refreshWidgetUi(appWidgetId)
+                if (!stateSuccess) throw ExitEarlyException()
 
                 delay(config.fetchInterval.toKotlinDuration())
 
@@ -79,6 +81,10 @@ class UpdateLogic(
         val updater = LivePointWidget()
 
         updater.update(context, glanceId)
+    }
+
+    private suspend fun beginWidgetState(appWidgetId: Int) {
+        widgetRepository.setFetchState(appWidgetId, FetchState.PENDING)
     }
 
     private suspend fun refreshWidgetState(appWidgetId: Int): Boolean {
