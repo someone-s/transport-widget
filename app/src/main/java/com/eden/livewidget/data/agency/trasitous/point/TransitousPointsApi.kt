@@ -10,6 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
+import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
@@ -56,6 +57,17 @@ private interface PointsTransitousApiService {
         type: String,
         @Query("text")
         text: String,
+    ): Call<List<TransitousLocation>>
+
+    @Headers("User-Agent: TransportWidget/2.2.0+ (https://github.com/someone-s/transport-widget)")
+    @GET("api/v1/reverse-geocode")
+    fun getReverseGeocode(
+        @Query("type")
+        type: String,
+        @Query("place")
+        place: String,
+        @Query("numResults")
+        count: Int,
     ): Call<List<TransitousLocation>>
 }
 
@@ -109,4 +121,47 @@ class TransitousPointsApi {
                 )
             }
     }
+
+    @Throws(
+        UnreachableException::class,
+        UnresolvedException::class,
+        SchemaException::class,
+        NoResultException::class
+    )
+    fun getClosest(latitude: Double, longitude: Double): FixedLogicalPoint {
+
+        val request = service.getReverseGeocode("STOP", "$latitude,$longitude", 1)
+        request.request()
+
+        val response = try {
+            request.execute()
+        } catch (e: IOException) {
+            Log.w(this.javaClass.name, e.message ?: "mo error message")
+            throw UnresolvedException("Unable to reach server")
+        }
+
+        if (response == null) {
+            Log.w(this.javaClass.name, "no response")
+            throw UnreachableException("Response empty")
+        }
+
+        if (response.body() !is List<TransitousLocation>) {
+            Log.i(this.javaClass.name, "failed to find page body")
+            throw SchemaException("Unexpected response body")
+        }
+
+        val locations = response.body() as List<TransitousLocation>
+        if (locations.isEmpty()) throw NoResultException("No result")
+
+        return FixedLogicalPoint(
+            nameString = locations[0].name!!,
+            dataPoint = TransitousDataPoint(locations[0].id!!),
+        )
+    }
+
+    class UnresolvedException(message: String?) : RuntimeException(message)
+    class UnreachableException(message: String?) : RuntimeException(message)
+    class SchemaException(message: String?): RuntimeException(message)
+    class NoResultException(message: String?): RuntimeException(message)
+
 }
