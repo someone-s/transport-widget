@@ -17,7 +17,10 @@ class TflPointsCache(
         pointsDao.getAllFuzzyMatches(search)
             .map { native ->
                 BufferedPointOption(
-                    fixedLogicalPoint = FixedLogicalPoint(name = native.name, dataPoints = formatter.decodeFromString(native.value))
+                    fixedLogicalPoint = FixedLogicalPoint(
+                        nameString = native.name,
+                        dataPoints = formatter.decodeFromString(native.value)
+                    )
                 )
             }
 

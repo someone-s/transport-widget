@@ -96,7 +96,7 @@ private fun UpdateKeyGroup(agency: Agency?) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         FilledButton(
-            icon = ImageProvider(R.drawable.ic_shared_filled_corporate_fare),
+            icon = ImageProvider(R.drawable.corporate_fare_filled),
             text = LocalContext.current.getString(R.string.widget_retry_authenticate_go_to_service_text),
             onClick = actionStartActivity(resolvedOpenUriIntent),
             modifier = GlanceModifier

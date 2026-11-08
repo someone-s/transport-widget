@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.main.datasync
+package com.eden.livewidget.ui.main.datasync.key
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +18,8 @@ import com.eden.livewidget.R
 @Composable
 fun KeyInputDialog(
     currentKeyValue: String,
-    setInputKeyState: (Boolean) -> Unit,
-    currentInputKeyAction: ((key: String) -> Unit)?,
+    onDismiss: () -> Unit,
+    onConfirm: (key: String) -> Unit,
 ) {
     val textFieldState = rememberTextFieldState(initialText = currentKeyValue)
 
@@ -28,22 +28,14 @@ fun KeyInputDialog(
         contentAlignment = Alignment.Center
     ) {
         AlertDialog(
-            onDismissRequest = {
-                setInputKeyState(false)
-            },
+            onDismissRequest = onDismiss,
             confirmButton = {
                 TextButton(
-                    onClick = {
-                        if (currentInputKeyAction != null)
-                            currentInputKeyAction(textFieldState.text.toString())
-                        setInputKeyState(false)
-                    }
+                    onClick = { onConfirm(textFieldState.text.toString()) }
                 ) { Text(stringResource(R.string.data_sync_download_warning_dialog_confirm)) }
             },
             dismissButton = {
-                Button(onClick = {
-                    setInputKeyState(false)
-                }) { Text(stringResource(R.string.data_sync_download_warning_dialog_cancel)) }
+                Button(onClick = onDismiss) { Text(stringResource(R.string.data_sync_download_warning_dialog_cancel)) }
             },
             title = { Text(stringResource(R.string.data_sync_key_input_dialog_title)) },
             text = {

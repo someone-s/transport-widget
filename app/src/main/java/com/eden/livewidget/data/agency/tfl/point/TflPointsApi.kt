@@ -184,7 +184,7 @@ class TflPointsApi(
                     BufferedPointOption(
                         fixedLogicalPoint =
                             FixedLogicalPoint(
-                                name = stopPoint.commonName!!,
+                                nameString = stopPoint.commonName!!,
                                 dataPoint = TflDataPoint(
                                     naptanId = stopPoint.naptanId!!,
                                     lineIds = stopPoint.lines!!.map { it.id!! },

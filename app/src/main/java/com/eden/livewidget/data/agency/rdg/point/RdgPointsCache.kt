@@ -17,7 +17,10 @@ class RdgPointsCache(
         pointsDao.getAllFuzzyMatches(search)
             .map { native ->
                 BufferedPointOption(
-                    fixedLogicalPoint = FixedLogicalPoint(name = native.name, dataPoints = formatter.decodeFromString(native.values))
+                    fixedLogicalPoint = FixedLogicalPoint(
+                        nameString = native.name,
+                        dataPoints = formatter.decodeFromString(native.values)
+                    )
                 )
             }
 

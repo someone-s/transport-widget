@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.main.datasync
+package com.eden.livewidget.ui.main.datasync.key
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -17,21 +19,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.eden.livewidget.R
 import com.eden.livewidget.data.agency.Agency
+import com.eden.livewidget.data.agency.common.keys.Key
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SourceKeyConfigItems(
     agency: Agency,
-    setCurrentInputKeyAction: (((String) -> Unit)?) -> Unit,
-    setCurrentKeyValue: (String) -> Unit,
-    setInputKeyState: (Boolean) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
     var isConfigureExpanded by remember { mutableStateOf(false) }
@@ -41,7 +44,7 @@ fun SourceKeyConfigItems(
         leadingContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_shared_outlined_key),
-                contentDescription = stringResource(R.string.data_sync_screen_key_configure_expand_button_icon)
+                contentDescription = null
             )
         },
         content = {
@@ -87,38 +90,33 @@ fun SourceKeyConfigItems(
                     shrinkVertically() +
                     fadeOut()
     ) {
-        SourceKeyHelpItem(agency)
-    }
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            SourceKeyHelpItem(agency)
 
-    agency.provider.keys.forEach { (purpose, provider) ->
-
-        val key by provider.key.collectAsState(null)
-        LaunchedEffect(Unit) {
-            provider.refreshKey()
-        }
-
-        AnimatedVisibility(
-            visible = isConfigureExpanded,
-            enter =
-                slideInVertically() +
-                        expandVertically() +
-                        fadeIn(),
-            exit =
-                slideOutVertically() +
-                        shrinkVertically() +
-                        fadeOut()
-        ) {
-            SourceKeyOpenItem(
-                purpose,
-                keyText = key?.ifBlank { null } ?: stringResource(R.string.data_sync_screen_key_configure_value_empty_text),
-                onClick = {
-                    setCurrentInputKeyAction { newKey ->
-                        provider.setKey(newKey)
-                    }
-                    setCurrentKeyValue(provider.refreshKey())
-                    setInputKeyState(true)
+            val keys = remember { mutableStateListOf<Key>() }
+            LaunchedEffect(agency) {
+                withContext(Dispatchers.IO) {
+                    keys.clear()
+                    keys.addAll(agency.provider.keys)
                 }
-            )
+            }
+
+            keys.forEach { (purpose, keyProvider) ->
+
+                val key by keyProvider.key.collectAsState(null)
+
+                SourceKeyOpenItem(
+                    purpose,
+                    keyValue = key?.ifBlank { null } ?: stringResource(R.string.data_sync_screen_key_configure_value_empty_text),
+                    setKey = { keyProvider.setKey(it) }
+                )
+
+                LaunchedEffect(Unit) {
+                    withContext(Dispatchers.IO) {
+                        keyProvider.refreshKey()
+                    }
+                }
+            }
         }
     }
 }

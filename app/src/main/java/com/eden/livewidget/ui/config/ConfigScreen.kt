@@ -41,7 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.livewidget.R
 import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.ui.config.agency.Item
-import com.eden.livewidget.ui.config.common.LabelItem
+import com.eden.livewidget.ui.common.components.LabelItem
 import com.eden.livewidget.ui.config.destination.DestinationsGroup
 import com.eden.livewidget.ui.config.point.PointItem
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint

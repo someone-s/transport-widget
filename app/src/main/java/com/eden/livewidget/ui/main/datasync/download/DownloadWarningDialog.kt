@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.main.datasync
+package com.eden.livewidget.ui.main.datasync.download
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,30 +16,22 @@ import com.eden.livewidget.R
 
 @Composable
 fun DownloadWarningDialog(
-    setDownloadWarningState: (Boolean) -> Unit,
-    currentDownloadAction: (() -> Unit)?,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         AlertDialog(
-            onDismissRequest = {
-                setDownloadWarningState(false)
-            },
+            onDismissRequest = onDismiss,
             confirmButton = {
                 TextButton(
-                    onClick = {
-                        if (currentDownloadAction != null)
-                            currentDownloadAction()
-                        setDownloadWarningState(false)
-                    }
+                    onClick = onConfirm
                 ) { Text(stringResource(R.string.data_sync_download_warning_dialog_confirm)) }
             },
             dismissButton = {
-                Button(onClick = {
-                    setDownloadWarningState(false)
-                }) { Text(stringResource(R.string.data_sync_download_warning_dialog_cancel)) }
+                Button(onClick = onDismiss) { Text(stringResource(R.string.data_sync_download_warning_dialog_cancel)) }
             },
             icon = {
                 Icon(

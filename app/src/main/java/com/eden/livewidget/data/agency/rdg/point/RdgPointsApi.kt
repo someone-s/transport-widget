@@ -106,7 +106,7 @@ class RdgPointsApi(
             BufferedPointOption(
                 fixedLogicalPoint =
                     FixedLogicalPoint(
-                        name = it.commonName,
+                        nameString = it.commonName,
                         dataPoint = RdgDataPoint(it.crsCode),
                     ),
             )
