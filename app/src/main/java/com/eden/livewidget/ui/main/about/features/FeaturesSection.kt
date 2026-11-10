@@ -59,19 +59,19 @@ class FeaturesSectionState(
             titleRes = R.string.ui_main_about_features_featuressection_datasource_title,
             shortTextRes = R.string.ui_main_about_features_featuressection_datasource_short,
             longTextRes = R.string.ui_main_about_features_featuressection_datasource_long,
-            videoRes = null,
+            videoRes = R.raw.provider,
         ),
         Feature(
             titleRes = R.string.ui_main_about_features_featuressection_filterdestination_title,
             shortTextRes = R.string.ui_main_about_features_featuressection_filterdestination_short,
             longTextRes = R.string.ui_main_about_features_featuressection_filterdestination_long,
-            videoRes = null,
+            videoRes = R.raw.destination,
         ),
         Feature(
             titleRes = R.string.ui_main_about_features_featuressection_livelocation_title,
             shortTextRes = R.string.ui_main_about_features_featuressection_livelocation_short,
             longTextRes = R.string.ui_main_about_features_featuressection_livelocation_long,
-            videoRes = null,
+            videoRes = R.raw.livelocation,
         ),
     )
 ) {
