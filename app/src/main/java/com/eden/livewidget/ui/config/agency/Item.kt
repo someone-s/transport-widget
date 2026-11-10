@@ -2,6 +2,7 @@ package com.eden.livewidget.ui.config.agency
 
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -96,7 +97,7 @@ fun Item(
         },
         onClick = {
             coroutineScope.launch {
-                textFieldState.setTextAndPlaceCursorAtEnd(currentAgencyName)
+                textFieldState.setTextAndSelectAll(currentAgencyName)
                 searchBarState.animateToExpanded()
             }
         }

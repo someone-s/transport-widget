@@ -2,6 +2,7 @@ package com.eden.livewidget.ui.config.point
 
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -119,7 +120,7 @@ fun PointItem(
         },
         onClick = {
             coroutineScope.launch {
-                textFieldState.setTextAndPlaceCursorAtEnd(point?.name?.asString(context) ?: "")
+                textFieldState.setTextAndSelectAll(point?.name?.asString(context) ?: "")
                 searchBarState.animateToExpanded()
             }
         }

@@ -3,6 +3,7 @@ package com.eden.livewidget.ui.config.destination
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.SwipeToDismissBox
@@ -110,7 +111,7 @@ fun DestinationItem(
                     onClick = {
                         if (destination.filters != null)
                             coroutineScope.launch {
-                                textFieldState.setTextAndPlaceCursorAtEnd(destination.config.toPoint.nameString)
+                                textFieldState.setTextAndSelectAll(destination.config.toPoint.nameString)
                                 searchBarState.animateToExpanded()
                             }
                     },
