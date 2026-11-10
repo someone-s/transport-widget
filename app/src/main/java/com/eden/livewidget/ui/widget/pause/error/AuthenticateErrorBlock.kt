@@ -2,6 +2,7 @@ package com.eden.livewidget.ui.widget.pause.error
 
 import android.content.Intent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
@@ -78,10 +79,17 @@ fun AuthenticateErrorBlock(
 @Composable
 private fun UpdateKeyGroup(agency: Agency?) {
 
-    val (resolvedOpenUriIntent, resolvedOpenUriBundle) =
-        if (agency != null)
-            getResolvedOpenUriIntent(agency.agencyHelp)
-        else Pair(Intent(), null)
+    val openUrlAction = remember(agency) {
+        val (intent, bundle) =
+            if (agency != null)
+                getResolvedOpenUriIntent(agency.agencyHelp)
+            else Pair(Intent(), null)
+        @OptIn(ExperimentalGlanceApi::class)
+        actionStartActivity(
+            intent = intent,
+            activityOptions = bundle
+        )
+    }
 
     val explicitKeySettingsIntent =
         if (agency != null)
@@ -94,14 +102,10 @@ private fun UpdateKeyGroup(agency: Agency?) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        @OptIn(ExperimentalGlanceApi::class)
         FilledButton(
             icon = ImageProvider(R.drawable.corporate_fare_filled),
             text = LocalContext.current.getString(R.string.widget_retry_authenticate_go_to_service_text),
-            onClick = actionStartActivity(
-                intent = resolvedOpenUriIntent,
-                activityOptions = resolvedOpenUriBundle
-            ),
+            onClick = openUrlAction,
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .defaultWeight()

@@ -1,8 +1,8 @@
 package com.eden.livewidget.ui.widget.active.valid
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
@@ -12,9 +12,9 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
-import androidx.glance.action.action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -46,20 +46,21 @@ fun ArrivalsItem(
     arrival: ArrivalEntry,
     timeFormatter: DateTimeFormatter,
 ) {
-    val (intent, bundle) =
-        if (arrival.detailUri != null)
-            getResolvedOpenUriIntent(arrival.detailUri)
-        else Pair(Intent(), null)
+    val openUrlAction = remember(arrival) {
+        val (intent, bundle) =
+            if (arrival.detailUri != null)
+                getResolvedOpenUriIntent(arrival.detailUri)
+            else Pair(Intent(), null)
+        @OptIn(ExperimentalGlanceApi::class)
+        actionStartActivity(
+            intent = intent,
+            activityOptions = bundle
+        )
+    }
 
-    @OptIn(ExperimentalGlanceApi::class)
     Box(
         modifier = GlanceModifier
-            .clickable(
-                onClick = actionStartActivity(
-                    intent = intent,
-                    activityOptions = bundle
-                )
-            )
+            .clickable(onClick = openUrlAction),
     ) {
 
         Box(
