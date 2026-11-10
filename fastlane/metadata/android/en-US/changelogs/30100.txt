@@ -1,0 +1,6 @@
+New:
+- Live location, optionally use device location to show nearby departure (available with Transitous data source)
+- Reworked application screen, guide on how to utilize features in the Abouts tab
+
+Fix:
+- Improve open journey detail link reliability, double-click still required
