@@ -1,15 +1,18 @@
 package com.eden.livewidget.ui.widget.active.valid
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.action.action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
@@ -43,68 +46,73 @@ fun ArrivalsItem(
     arrival: ArrivalEntry,
     timeFormatter: DateTimeFormatter,
 ) {
-        val resolvedOpenUriIntent =
-            if (arrival.detailUri != null)
-                getResolvedOpenUriIntent(LocalContext.current.packageManager, arrival.detailUri)
-            else
-                Intent()
+    val (intent, bundle) =
+        if (arrival.detailUri != null)
+            getResolvedOpenUriIntent(arrival.detailUri)
+        else Pair(Intent(), null)
+
+    @OptIn(ExperimentalGlanceApi::class)
+    Box(
+        modifier = GlanceModifier
+            .clickable(
+                onClick = actionStartActivity(
+                    intent = intent,
+                    activityOptions = bundle
+                )
+            )
+    ) {
 
         Box(
             modifier = GlanceModifier
-                .clickable(actionStartActivity(resolvedOpenUriIntent))
+                .fillMaxSize()
+                .padding(end = 32.dp)
         ) {
-
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize()
-                    .padding(end = 32.dp)
-            ) {
-                Box(
-                    modifier = GlanceModifier
-                        .fillMaxSize()
-                        .cornerRadius(44.dp)
-                        .background(GlanceTheme.colors.surface)
-                ) {}
-            }
+                    .cornerRadius(44.dp)
+                    .background(GlanceTheme.colors.surface)
+            ) {}
+        }
+        Box(
+            modifier = GlanceModifier
+                .fillMaxWidth(),
+            contentAlignment = Alignment.CenterStart
+        ) {
             Box(
                 modifier = GlanceModifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.CenterStart
+                    .width(78.dp)
+                    .fillMaxHeight()
             ) {
-                Box(
-                    modifier = GlanceModifier
-                        .width(78.dp)
-                        .fillMaxHeight()
-                ) {
-                    IdentifierColumn(arrival)
+                IdentifierColumn(arrival)
 
-                }
-            }
-            Box(
-                modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .padding(start = 80.dp, end = 64.dp)
-            ) {
-
-                DirectionBlock(arrival)
-
-            }
-
-            Box(
-                modifier = GlanceModifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Box(
-                    modifier = GlanceModifier
-                        .width(62.dp)
-                        .fillMaxHeight()
-                ) {
-
-                    TimeColumn(arrival, timeFormatter)
-                }
             }
         }
+        Box(
+            modifier = GlanceModifier
+                .fillMaxWidth()
+                .padding(start = 80.dp, end = 64.dp)
+        ) {
+
+            DirectionBlock(arrival)
+
+        }
+
+        Box(
+            modifier = GlanceModifier
+                .fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Box(
+                modifier = GlanceModifier
+                    .width(62.dp)
+                    .fillMaxHeight()
+            ) {
+
+                TimeColumn(arrival, timeFormatter)
+            }
+        }
+    }
 }
 
 @Composable

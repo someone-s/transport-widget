@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
@@ -77,17 +78,15 @@ fun AuthenticateErrorBlock(
 @Composable
 private fun UpdateKeyGroup(agency: Agency?) {
 
-    val resolvedOpenUriIntent =
+    val (resolvedOpenUriIntent, resolvedOpenUriBundle) =
         if (agency != null)
-            getResolvedOpenUriIntent(LocalContext.current.packageManager, agency.agencyHelp)
-        else
-            Intent()
+            getResolvedOpenUriIntent(agency.agencyHelp)
+        else Pair(Intent(), null)
 
     val explicitKeySettingsIntent =
         if (agency != null)
             getExplicitKeySettingsIntent(LocalContext.current, agency)
-        else
-            Intent()
+        else Intent()
 
     Row(
         modifier = GlanceModifier
@@ -95,10 +94,14 @@ private fun UpdateKeyGroup(agency: Agency?) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        @OptIn(ExperimentalGlanceApi::class)
         FilledButton(
             icon = ImageProvider(R.drawable.corporate_fare_filled),
             text = LocalContext.current.getString(R.string.widget_retry_authenticate_go_to_service_text),
-            onClick = actionStartActivity(resolvedOpenUriIntent),
+            onClick = actionStartActivity(
+                intent = resolvedOpenUriIntent,
+                activityOptions = resolvedOpenUriBundle
+            ),
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .defaultWeight()
