@@ -7,7 +7,7 @@ import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.data.agency.rdg.RdgProvider
 import com.eden.livewidget.data.agency.tfl.TflProvider
 import com.eden.livewidget.data.agency.trasitous.TransitousProvider
-import com.eden.livewidget.data.location.repository.DeviceLocationRepository
+import com.eden.livewidget.data.location.repository.FallbackLocationRepository
 import com.eden.livewidget.data.location.repository.LocationRepository
 import com.eden.livewidget.data.version.repository.OfflineVersionRepository
 import com.eden.livewidget.data.version.repository.VersionRepository
@@ -53,7 +53,7 @@ class AppDataContainer(private val context: Context): AppContainer {
     }
 
     override val locationRepository: LocationRepository by lazy {
-        DeviceLocationRepository(context)
+        FallbackLocationRepository(context)
     }
 
     override val versionRepository: VersionRepository by lazy {

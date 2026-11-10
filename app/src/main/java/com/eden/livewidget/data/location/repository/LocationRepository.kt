@@ -9,6 +9,9 @@ interface LocationRepository {
     @Throws(MissingPermissionException::class, UnavailableException::class)
     suspend fun getLocation(accuracy: Accuracy): Location
 
+    @Throws(MissingPermissionException::class, UnavailableException::class)
+    fun getLastKnownLocation(): Location
+
     class MissingPermissionException: RuntimeException()
     class UnavailableException: RuntimeException()
 }

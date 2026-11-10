@@ -13,7 +13,7 @@ import com.eden.livewidget.data.location.structure.Location
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-class DeviceLocationRepository(
+open class DeviceLocationRepository(
     private val context: Context
 ): LocationRepository {
 
@@ -65,5 +65,37 @@ class DeviceLocationRepository(
                 continuation.resume(it?.let { Location(it.latitude, it.longitude) })
             }
         }
+    }
+
+    override fun getLastKnownLocation(): Location {
+        val manager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?:
+        throw LocationRepository.UnavailableException()
+
+        val hasFineLocation =
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val hasCoarseLocation =
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (!hasFineLocation && !hasCoarseLocation)
+            throw LocationRepository.MissingPermissionException()
+
+        val location =
+            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                getLastKnownLocationFromProvider(manager, LocationManager.FUSED_PROVIDER)
+            else null) ?:
+            getLastKnownLocationFromProvider(manager, LocationManager.NETWORK_PROVIDER) ?:
+            getLastKnownLocationFromProvider(manager, LocationManager.GPS_PROVIDER) ?:
+            throw LocationRepository.UnavailableException()
+        return location
+    }
+
+    @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
+    private fun getLastKnownLocationFromProvider(manager: LocationManager, provider: String): Location? {
+
+        if (!LocationManagerCompat.hasProvider(manager, provider))
+            return null
+        if (!manager.isProviderEnabled(provider))
+            return null
+
+        return manager.getLastKnownLocation(provider)?.let { Location(it.latitude, it.longitude) }
     }
 }
