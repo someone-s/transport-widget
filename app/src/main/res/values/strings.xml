@@ -191,6 +191,9 @@
     <string name="ui_main_about_features_featuressection_livelocation_title">Live Location</string>
     <string name="ui_main_about_features_featuressection_livelocation_short">Departure/arrivals at device location</string>
     <string name="ui_main_about_features_featuressection_livelocation_long">Click on the edit icon of a widget and set point to live location. When refreshing the widget, the app fetches the nearest stop based on device location.</string>
+    <string name="ui_main_about_features_featuressection_viewwebsite_title">View Journey</string>
+    <string name="ui_main_about_features_featuressection_viewwebsite_short">Open journey of a particular departure</string>
+    <string name="ui_main_about_features_featuressection_viewwebsite_long">Double click on a departure/arrival in the widget to open the journey detail if available.</string>
     <string name="ui_main_about_features_supportsection_upcoming_title">Upcoming features</string>
     <string name="ui_main_about_features_supportsection_upcoming_support">View features planned and under consideration</string>
     <string name="ui_main_about_features_supportsection_issues_title">Report issue</string>

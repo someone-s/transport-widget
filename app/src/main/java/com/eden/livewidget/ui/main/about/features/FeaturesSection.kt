@@ -73,6 +73,12 @@ class FeaturesSectionState(
             longTextRes = R.string.ui_main_about_features_featuressection_livelocation_long,
             videoRes = R.raw.livelocation,
         ),
+        Feature(
+            titleRes = R.string.ui_main_about_features_featuressection_viewwebsite_title,
+            shortTextRes = R.string.ui_main_about_features_featuressection_viewwebsite_short,
+            longTextRes = R.string.ui_main_about_features_featuressection_viewwebsite_long,
+            videoRes = R.raw.viewwebsite,
+        ),
     )
 ) {
     var visible by mutableStateOf(false)
