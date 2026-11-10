@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.main.datasync
+package com.eden.livewidget.ui.main.datasync.reset
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemDefaults
@@ -7,7 +7,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -20,19 +24,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun SourceResetItem(
     agency: Agency,
-    setCurrentResetAction: ((() -> Unit)?) -> Unit,
-    setResetWarningState: (Boolean) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    var isWarningVisible by remember { mutableStateOf(false) }
 
     SegmentedListItem(
         shapes = shapes,
         leadingContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_data_sync_reset),
-                contentDescription = stringResource(R.string.data_sync_screen_reset_data_button_icon)
+                contentDescription = null
             )
         },
         content = {
@@ -46,8 +50,13 @@ fun SourceResetItem(
             )
         },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        onClick = {
-            setCurrentResetAction {
+        onClick = { isWarningVisible = true }
+    )
+
+    if (isWarningVisible)
+        ResetWarningDialog(
+            onDismiss = { isWarningVisible = false },
+            onConfirm = {
                 DataSyncWorker.cancelCurrentRequest(context, agency)
 
                 coroutineScope.launch(Dispatchers.IO) {
@@ -55,8 +64,8 @@ fun SourceResetItem(
                     checkNotNull(resettablePointsRepository)
                     resettablePointsRepository.reset(context)
                 }
-            }
-            setResetWarningState(true)
-        }
-    )
+
+                isWarningVisible = false
+            },
+        )
 }

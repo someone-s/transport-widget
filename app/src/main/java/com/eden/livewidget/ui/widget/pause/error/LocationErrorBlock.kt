@@ -24,7 +24,6 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.eden.livewidget.R
-import com.eden.livewidget.ui.util.getResolvedBatterySaverSettingsIntent
 import com.eden.livewidget.ui.util.getResolvedAppSettingsIntent
 import com.eden.livewidget.ui.util.getResolvedLocationSettingsIntent
 

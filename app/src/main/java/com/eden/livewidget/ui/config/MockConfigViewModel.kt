@@ -4,6 +4,7 @@ import com.eden.livewidget.data.AppContainer
 import com.eden.livewidget.data.agency.Agency
 import com.eden.livewidget.data.location.repository.LocationRepository
 import com.eden.livewidget.data.location.structure.Location
+import com.eden.livewidget.data.version.repository.VersionRepository
 import com.eden.livewidget.data.widget.repository.WidgetRepository
 import com.eden.livewidget.data.widget.structure.FetchState
 import com.eden.livewidget.data.widget.structure.WidgetConfig
@@ -39,6 +40,16 @@ val mockConfigViewModel = ConfigViewModel(
 
         override val locationRepository: LocationRepository = object : LocationRepository {
             override suspend fun getLocation(accuracy: LocationRepository.Accuracy) = Location(0.0, 0.0)
+        }
+
+        override val versionRepository: VersionRepository = object : VersionRepository {
+            override val appName: String = ""
+            override val applicationId: String = ""
+            override val versionName: String = ""
+            override val versionCode: Int = 0
+            override val isVersionCodeGreaterThanStored: Flow<Boolean?> = flowOf(false)
+
+            override suspend fun storeBuildVersionCode() {}
         }
     }
 )

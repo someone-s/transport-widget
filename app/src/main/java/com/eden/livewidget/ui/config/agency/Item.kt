@@ -18,8 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.eden.livewidget.R
 import com.eden.livewidget.data.agency.Agency
-import com.eden.livewidget.ui.config.common.SearchGroup
-import com.eden.livewidget.ui.config.common.SearchOption
+import com.eden.livewidget.ui.common.components.SearchGroup
+import com.eden.livewidget.ui.common.components.SearchOption
 import kotlinx.coroutines.launch
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
@@ -70,7 +70,7 @@ fun Item(
         ),
         leadingContent = {
             Icon(
-                painter = painterResource(R.drawable.ic_shared_outlined_corporate_fare),
+                painter = painterResource(R.drawable.corporate_fare),
                 contentDescription = null,
             )
         },

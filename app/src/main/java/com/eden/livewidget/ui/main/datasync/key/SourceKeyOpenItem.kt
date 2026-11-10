@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.main.datasync
+package com.eden.livewidget.ui.main.datasync.key
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -7,6 +7,10 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -17,9 +21,12 @@ import java.util.EnumSet
 @Composable
 fun SourceKeyOpenItem(
     purpose: EnumSet<KeyPurpose>,
-    keyText: String,
-    onClick: () -> Unit
+    keyValue: String,
+    setKey: (newKeyValue: String) -> Unit
 ) {
+
+    var isInputVisible by remember { mutableStateOf(false) }
+
     ListItem(
         shapes = ListItemDefaults.shapes(
             shape = MaterialTheme.shapes.medium
@@ -40,7 +47,17 @@ fun SourceKeyOpenItem(
                         stringResource(R.string.data_sync_screen_key_configure_purpose_unknown_text)
             )
         },
-        supportingContent = { Text(text = keyText) },
-        onClick = onClick
+        supportingContent = { Text(text = keyValue) },
+        onClick = { isInputVisible = true }
     )
+
+    if (isInputVisible)
+        KeyInputDialog(
+            currentKeyValue = keyValue,
+            onDismiss = { isInputVisible = false },
+            onConfirm = {
+                setKey(it)
+                isInputVisible = false
+            }
+        )
 }

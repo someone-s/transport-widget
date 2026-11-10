@@ -1,53 +1,70 @@
 package com.eden.livewidget.ui.main.datasync
 
-import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.eden.livewidget.R
 import com.eden.livewidget.data.agency.Agency
+import com.eden.livewidget.data.agency.mockAgency
+import com.eden.livewidget.ui.main.datasync.acknowledgment.SourceAcknowledgmentItem
+import com.eden.livewidget.ui.main.datasync.download.SourceDownloadItems
+import com.eden.livewidget.ui.main.datasync.key.SourceKeyConfigItems
+import com.eden.livewidget.ui.main.datasync.reset.SourceResetItem
 
 @Composable
 fun SourceContainer(
     agency: Agency,
-    setCurrentInputKeyAction: (((String) -> Unit)?) -> Unit,
-    setCurrentKeyValueAction: (String) -> Unit,
-    setInputKeyState: (Boolean) -> Unit,
-    setCurrentDownloadAction: ((() -> Unit)?) -> Unit,
-    setDownloadWarningState: (Boolean) -> Unit,
-    setCurrentResetAction: ((() -> Unit)?) -> Unit,
-    setResetWarningState: (Boolean) -> Unit,
 ) {
-    val context = LocalContext.current
-    val intent = CustomTabsIntent.Builder()
-        .addDefaultShareMenuItem()
-        .build()
-        .intent
-        .apply {
-            data = agency.agencyHelp
-        }
+    var isExpanded by remember { mutableStateOf(false) }
+
+    val targetAgencyId = LocalTargetAgencyId.current
+    var ranOnStart by rememberSaveable(targetAgencyId) { mutableStateOf(false) }
+    LaunchedEffect(ranOnStart) {
+        if (ranOnStart) return@LaunchedEffect
+
+        if (targetAgencyId == agency.id)
+            isExpanded = true
+
+        ranOnStart = true
+    }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { context.startActivity(intent) },
+            .clickable { isExpanded = !isExpanded },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             MaterialTheme.colorScheme.surfaceContainer
@@ -60,69 +77,109 @@ fun SourceContainer(
             verticalArrangement = Arrangement.SpaceBetween
 
         ) {
-            Text(
-                text = stringResource(agency.agencyName),
-                fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(agency.agencyDescription),
-                fontWeight = FontWeight.Normal,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Justify
-            )
 
-            val showKeyConfig = agency.provider.keys.isNotEmpty()
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(end = 48.dp),
+                ) {
+                    Text(
+                        text = stringResource(agency.agencyName),
+                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(agency.agencyDescription),
+                        fontWeight = FontWeight.Normal,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Justify,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .align(Alignment.CenterEnd)
+                ) {
+                    FilledIconButton(
+                        onClick = { isExpanded = !isExpanded },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                        ),
+                        content = {
+                            if (isExpanded)
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_shared_arrow_drop_up),
+                                    contentDescription = stringResource(R.string.ui_main_datasync_sorucecontainer_collapse)
+                                )
+                            else
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_shared_arrow_drop_down),
+                                    contentDescription = stringResource(R.string.ui_main_datasync_sorucecontainer_expand)
+                                )
+                        }
+                    )
+                }
+            }
 
-            val showDownload = agency.provider.pointsRepository.asRefreshable != null
-            val showReset = agency.provider.pointsRepository.asResettable != null
+            AnimatedVisibility(isExpanded) {
 
-            val showAny = showKeyConfig || showDownload || showReset
+                val showKeyConfig = agency.provider.keys.isNotEmpty()
 
-            if (showAny) {
-                Spacer(Modifier.height(8.dp))
+                val showDownload = agency.provider.pointsRepository.asRefreshable != null
+                val showReset = agency.provider.pointsRepository.asResettable != null
+
+                val count =
+                    1 + (if (showKeyConfig) 1 else 0) + (if (showDownload) 1 else 0) + (if (showReset) 1 else 0)
+                val acknowledgmentIndex = 0
+                val keyIndex = 1
+                val downloadIndex = 2 + (if (showKeyConfig) 0 else -1)
+                val resetIndex =
+                    3 + (if (showKeyConfig) 0 else -1) + (if (showDownload) 0 else -1)
 
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
 
+                    Spacer(Modifier.height(8.dp))
+
+                    SourceAcknowledgmentItem(
+                        agency,
+                        ListItemDefaults.segmentedShapes(acknowledgmentIndex, count),
+                    )
+
                     if (showKeyConfig) {
                         SourceKeyConfigItems(
                             agency,
-                            setCurrentInputKeyAction,
-                            setCurrentKeyValueAction,
-                            setInputKeyState,
-                            ListItemDefaults.segmentedShapes(0, 3),
+                            ListItemDefaults.segmentedShapes(keyIndex, count),
                         )
                     }
                     if (showDownload)
                         SourceDownloadItems(
                             agency,
-                            setCurrentDownloadAction,
-                            setDownloadWarningState,
-                            if (showKeyConfig)
-                                ListItemDefaults.segmentedShapes(1, 3)
-                            else
-                                ListItemDefaults.segmentedShapes(0, 2),
+                            ListItemDefaults.segmentedShapes(downloadIndex, count),
                         )
                     if (showReset)
                         SourceResetItem(
                             agency,
-                            setCurrentResetAction,
-                            setResetWarningState,
-                            if (showKeyConfig)
-                                ListItemDefaults.segmentedShapes(2, 3)
-                            else
-                                ListItemDefaults.segmentedShapes(1, 2),
+                            ListItemDefaults.segmentedShapes(resetIndex, count),
                         )
                 }
-
             }
         }
     }
 }
 
+@Preview(
+    widthDp = 400,
+    heightDp = 200,
+)
+@Composable
+fun SourceContainerPreview() {
+    SourceContainer(mockAgency)
+}

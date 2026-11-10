@@ -173,4 +173,39 @@
     <string name="widget_retry_location_reason_text">Location not available</string>
     <string name="widget_retry_location_grant_fine_location_text">Grant precise location</string>
     <string name="widget_retry_location_enable_text">Enable location</string>
+
+    <string name="ui_main_navigation_toplevelroute_providers">Providers</string>
+    <string name="ui_main_navigation_toplevelroute_about">About</string>
+
+    <string name="ui_main_about_abouttopbar_title">About</string>
+    <string name="ui_main_about_featuressection_label">Features</string>
+    <string name="ui_main_about_features_featuressection_placeholder">Placeholder</string>
+    <string name="ui_main_about_features_featuredialog_dismiss">Dismiss</string>
+    <string name="ui_main_about_features_featuressection_datasource_title">Data Source</string>
+    <string name="ui_main_about_features_featuressection_datasource_short">Choose from different data source</string>
+    <string name="ui_main_about_features_featuressection_datasource_long">Click on the edit icon of a widget and choose from a list of data source for the widget.</string>
+    <string name="ui_main_about_features_featuressection_filterdestination_title">Filter by Destination</string>
+    <string name="ui_main_about_features_featuressection_filterdestination_short">Departures/arrivals by destination(s)</string>
+    <string name="ui_main_about_features_featuressection_filterdestination_long">Click on the edit icon of a widget and select one or more destination to filter by. Not available when live location is chosen.</string>
+    <string name="ui_main_about_features_featuressection_livelocation_title">Live Location</string>
+    <string name="ui_main_about_features_featuressection_livelocation_short">Departure/arrivals at device location</string>
+    <string name="ui_main_about_features_featuressection_livelocation_long">Click on the edit icon of a widget and set point to live location. When refreshing the widget, the app fetches the nearest stop based on device location.</string>
+    <string name="ui_main_about_features_supportsection_upcoming_title">Upcoming features</string>
+    <string name="ui_main_about_features_supportsection_upcoming_support">View features planned and under consideration</string>
+    <string name="ui_main_about_features_supportsection_issues_title">Report issue</string>
+    <string name="ui_main_about_features_supportsection_issues_support">Spotted a bug? Report the issue here</string>
+    <string name="ui_main_about_features_supportsection_releases_title">Release notes</string>
+    <string name="ui_main_about_features_supportsection_releases_support">View release notes of the app</string>
+    <string name="ui_main_about_supportsection_label">Support</string>
+
+    <string name="ui_main_welcome_releasedialog_title">Update %1$s</string>
+    <string name="ui_main_welcome_releasedialog_body">%1$s has been updated to version %2$s. View new features, fixes and release notes in About.</string>
+    <string name="ui_main_welcome_releasedialog_dismiss">Dismiss</string>
+    <string name="ui_main_welcome_welcomedialog_title">Welcome!</string>
+    <string name="ui_main_welcome_welcomedialog_dismiss">Dismiss</string>
+    <string name="ui_main_welcome_welcomedialog_body">Thank you for downloading %1$s, highlighted features are shown in the About section. Made with love, enjoy!</string>
+    <string name="ui_main_datasync_sorucecontainer_expand">Expand</string>
+    <string name="ui_main_datasync_sorucecontainer_collapse">Collapse</string>
+    <string name="ui_main_datasync_sourceacknowledgmentitem_title">Acknowledgments</string>
+    <string name="ui_main_datasync_sourceacknowledgmentitem_support">Open acknowledgments to this data source</string>
 </resources>

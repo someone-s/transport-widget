@@ -21,8 +21,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.livewidget.R
-import com.eden.livewidget.ui.config.common.SearchGroup
-import com.eden.livewidget.ui.config.common.SearchOption
+import com.eden.livewidget.ui.common.components.SearchGroup
+import com.eden.livewidget.ui.common.components.SearchOption
 import com.eden.livewidget.data.agency.common.destination.DestinationConfig
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.Provider

@@ -1,6 +1,7 @@
 package com.eden.livewidget.data.agency.common.point
 
 import android.content.Context
+import com.eden.livewidget.data.agency.common.FetchResult
 import com.eden.livewidget.data.agency.common.text.Text
 import kotlinx.coroutines.flow.Flow
 
@@ -18,7 +19,7 @@ interface PointsRepository {
         get() = this as? LocationAware
 
     interface LocationAware {
-        suspend fun getClosest(latitude: Double, longitude: Double): FixedLogicalPoint
+        suspend fun getClosest(latitude: Double, longitude: Double): Pair<FetchResult, FixedLogicalPoint?>
     }
 
     val asRefreshable: Refreshable?

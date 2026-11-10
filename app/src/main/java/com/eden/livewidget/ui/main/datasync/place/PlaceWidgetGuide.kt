@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.main.datasync
+package com.eden.livewidget.ui.main.datasync.place
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,22 +15,16 @@ import com.eden.livewidget.R
 
 @Composable
 fun PlaceWidgetGuide(
-    setPlaceGuideState: (Boolean) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         AlertDialog(
-            onDismissRequest = {
-                setPlaceGuideState(false)
-            },
+            onDismissRequest = onDismiss,
             confirmButton = {
-                Button(
-                    onClick = {
-                        setPlaceGuideState(false)
-                    }
-                ) { Text(stringResource(R.string.data_sync_place_widget_dismiss)) }
+                Button(onClick = onDismiss) { Text(stringResource(R.string.data_sync_place_widget_dismiss)) }
             },
             icon = {
                 Icon(

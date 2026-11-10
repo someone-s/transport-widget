@@ -1,4 +1,4 @@
-package com.eden.livewidget.ui.main.datasync
+package com.eden.livewidget.ui.main.datasync.reset
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,30 +16,20 @@ import com.eden.livewidget.R
 
 @Composable
 fun ResetWarningDialog(
-    setResetWarningState: (Boolean) -> Unit,
-    currentResetAction: (() -> Unit)?,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         AlertDialog(
-            onDismissRequest = {
-                setResetWarningState(false)
-            },
+            onDismissRequest = onDismiss,
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (currentResetAction != null)
-                            currentResetAction()
-                        setResetWarningState(false)
-                    }
-                ) { Text(stringResource(R.string.data_sync_reset_warning_dialog_confirm)) }
+                TextButton(onClick = onConfirm) { Text(stringResource(R.string.data_sync_reset_warning_dialog_confirm)) }
             },
             dismissButton = {
-                Button(onClick = {
-                    setResetWarningState(false)
-                }) { Text(stringResource(R.string.data_sync_reset_warning_dialog_cancel)) }
+                Button(onClick = onDismiss) { Text(stringResource(R.string.data_sync_reset_warning_dialog_cancel)) }
             },
             icon = {
                 Icon(
