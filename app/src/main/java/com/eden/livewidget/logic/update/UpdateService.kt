@@ -145,7 +145,7 @@ class UpdateService: LifecycleService() {
         checkNotNull(capturedLogic) { "Logic not initialized." }
 
         val sourceAppWidgetId = intent.getIntExtra(EXTRA_APP_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-        Log.i("$javaClass", "$sourceAppWidgetId")
+
         val appWidgetIds =
             if (sourceAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) activeJobs.keys
             else listOf(sourceAppWidgetId)

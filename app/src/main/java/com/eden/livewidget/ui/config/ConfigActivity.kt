@@ -3,7 +3,6 @@ package com.eden.livewidget.ui.config
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -53,21 +52,17 @@ class ConfigActivity: ComponentActivity() {
                     ConfigScreen(
                         appWidgetId = appWidgetId,
                         onExit = {
-                            Log.i("$javaClass", "A!! Exit")
                             coroutineScope.launch {
                                 val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                                 setResult(RESULT_OK, resultValue)
 
-                                Log.i("$javaClass", "A!! Exit2")
                                 // Stop any ongoing update
                                 startService(Intent(context, UpdateService::class.java).apply {
                                     action = UpdateService.ACTION_PAUSE
                                     putExtra(UpdateService.EXTRA_APP_WIDGET_ID, appWidgetId)
                                 })
 
-                                Log.i("$javaClass", "A!! Exit3")
                                 LivePointWidget().update(context, glanceId)
-                                Log.i("$javaClass", "A!! Exit4")
 
                             }.invokeOnCompletion { finish() }
                         },
