@@ -2,7 +2,6 @@ package com.eden.livewidget.ui.config.destination
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
