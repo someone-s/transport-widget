@@ -9,10 +9,6 @@ import com.eden.livewidget.logic.update.UpdateService
 class LivePointWidgetReceiver: GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = LivePointWidget()
 
-    override fun onDisabled(context: Context?) {
-        super.onDisabled(context)
-    }
-
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         appWidgetIds.forEach {
             context.startService(
