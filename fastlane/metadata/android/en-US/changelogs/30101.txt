@@ -1,0 +1,7 @@
+Improvements:
+- Reduce unnecessary update to widget by direct control of widget update mechanism
+
+Fixes:
+- Widget no longer showing placeholder momentarily when updating
+- List no longer stuck to top in nov android patch (from improvement)
+- Widget clicking on entry now reliably works on 2 clicks (from improvement)
