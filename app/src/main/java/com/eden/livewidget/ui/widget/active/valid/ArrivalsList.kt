@@ -1,6 +1,7 @@
 package com.eden.livewidget.ui.widget.active.valid
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -15,13 +16,15 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ArrivalsList(arrivals: List<ArrivalEntry>) {
 
-    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
+
+    val items = remember(arrivals) { arrivals.take(30) }
 
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         itemsIndexed(
-            items = arrivals.take(30),
+            items = items,
             itemId = { index, _ ->
                 index.toLong()
             },
@@ -34,9 +37,9 @@ fun ArrivalsList(arrivals: List<ArrivalEntry>) {
                 }
             }
         )
-        item {
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
+//        item {
+//            Spacer(modifier = GlanceModifier.height(16.dp))
+//        }
     }
 
 
