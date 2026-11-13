@@ -1,10 +1,12 @@
 package com.eden.livewidget.logic.update
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.PowerManager
 import android.util.Log
-import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.AppWidgetId
+import androidx.glance.appwidget.AppWidgetSession
 import com.eden.livewidget.data.AppContainer
 import com.eden.livewidget.data.agency.common.FetchResult
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
@@ -15,6 +17,7 @@ import com.eden.livewidget.data.widget.repository.WidgetRepository
 import com.eden.livewidget.data.widget.structure.FetchState
 import com.eden.livewidget.ui.widget.LivePointWidget
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toKotlinDuration
 
 class UpdateLogic(
@@ -69,18 +72,30 @@ class UpdateLogic(
     @Throws(ExitEarlyException::class)
     private suspend fun refreshWidgetUi(appWidgetId: Int) {
 
-        val manager = GlanceAppWidgetManager(context)
-        // if illegal exception let worker fail
-        val glanceId = try {
-            manager.getGlanceIdBy(appWidgetId)
-        } catch (_: IllegalArgumentException) {
-            throw ExitEarlyException()
-        }
-
         // Glance use this instance to generate RemoteView to show
         val updater = LivePointWidget()
 
-        updater.update(context, glanceId)
+        val sessionId = "appWidget-$appWidgetId"
+
+        Log.i("$javaClass", "Beginning custom glance session.")
+        @SuppressLint("RestrictedApi")
+        updater.getSessionManager(context).runWithLock {
+            val wasRunning = isSessionRunning(context, sessionId)
+            if (!wasRunning)
+                startSession(context, AppWidgetSession(updater, AppWidgetId(appWidgetId)))
+            val session = getSession(sessionId) as AppWidgetSession
+            session.updateGlance()
+        }
+
+        Log.i("$javaClass", "Allow custom glance session to update for some duration.")
+        delay(500.milliseconds)
+
+        Log.i("$javaClass", "Ending custom glance session.")
+        @SuppressLint("RestrictedApi")
+        updater.getSessionManager(context).runWithLock {
+            closeSession(sessionId)
+        }
+        Log.i("$javaClass", "Ended custom glance session.")
     }
 
     private suspend fun beginWidgetState(appWidgetId: Int) {
