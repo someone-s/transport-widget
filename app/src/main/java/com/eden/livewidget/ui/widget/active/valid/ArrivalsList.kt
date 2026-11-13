@@ -37,9 +37,9 @@ fun ArrivalsList(arrivals: List<ArrivalEntry>) {
                 }
             }
         )
-//        item {
-//            Spacer(modifier = GlanceModifier.height(16.dp))
-//        }
+        item {
+            Spacer(modifier = GlanceModifier.height(16.dp))
+        }
     }
 
 
