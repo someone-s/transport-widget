@@ -46,9 +46,12 @@ import com.eden.livewidget.ui.config.destination.DestinationsGroup
 import com.eden.livewidget.ui.config.point.PointItem
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.widget.structure.DisplayOptions
 import com.eden.livewidget.data.widget.structure.WidgetConfig
+import com.eden.livewidget.data.widget.structure.defaultDisplayOption
 import com.eden.livewidget.logic.DestinationState
 import com.eden.livewidget.logic.FiltersState
+import com.eden.livewidget.ui.config.display.ListStyleItem
 import com.eden.livewidget.ui.theme.TransportWidgetsTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,6 +73,7 @@ fun ConfigScreen(
     val provider = agency?.provider
     var point by remember { mutableStateOf<LogicalPoint?>(null) }
     val destinations = remember { mutableStateMapOf<Uuid, DestinationState>() }
+    var listStyle by remember { mutableStateOf(defaultDisplayOption.listStyle) }
     LaunchedEffect(appWidgetId, viewModel) {
         val widgetConfig = viewModel.getWidgetConfig(appWidgetId)
         agency = widgetConfig?.agencyId?.let { viewModel.agencyFromId(it) }
@@ -77,6 +81,9 @@ fun ConfigScreen(
         widgetConfig?.filters?.destinations
             ?.map { Pair(Uuid.random(), it) }
             ?.let { destinations.putAll(it) }
+        widgetConfig?.displayOptions?.let {
+            listStyle = it.listStyle
+        }
     }
     var anyChanges by remember { mutableStateOf(false) }
 
@@ -238,6 +245,31 @@ fun ConfigScreen(
                             )
                         }
                 }
+
+                AnimatedVisibility(
+                    visible = true,
+                    enter =
+                        slideInVertically() +
+                                expandVertically() +
+                                fadeIn(),
+                    exit =
+                        slideOutVertically() +
+                                shrinkVertically() +
+                                fadeOut(),
+                ) {
+                    Column {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        LabelItem(stringResource(R.string.ui_config_configscreen_label_liststyle))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        ListStyleItem(
+                            listStyle = listStyle,
+                            onStyleSelected = {
+                                listStyle = it
+                                anyChanges = true
+                            }
+                        )
+                    }
+                }
             }
 
             if (anyChanges && agency != null && point != null)
@@ -257,6 +289,9 @@ fun ConfigScreen(
                                         ),
                                         fetchDuration = Duration.ofSeconds(90),
                                         fetchInterval = Duration.ofSeconds(30),
+                                        displayOptions = DisplayOptions(
+                                            listStyle = listStyle
+                                        )
                                     )
                                 )
                             }

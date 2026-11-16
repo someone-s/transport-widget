@@ -17,6 +17,10 @@ data class ConfigEntity(
     val pointString: String?,
     @ColumnInfo(name = "filters")
     val filtersString: String?,
+    @ColumnInfo(name = "fetch_duration")
     val fetchDuration: Long,
+    @ColumnInfo(name = "fetch_interval")
     val fetchInterval: Long,
+    @ColumnInfo(name = "display_options")
+    val displayOptionsString: String?,
 )

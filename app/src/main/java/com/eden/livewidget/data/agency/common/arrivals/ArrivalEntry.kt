@@ -19,14 +19,14 @@ sealed interface LocationPretext
 
 sealed interface LocationSupplement
 
-class LocationVia(
+data class LocationVia(
     val viaText: String,
 ): LocationSupplement
 
-class LocationFrom(
+data class LocationFrom(
     val fromText: String,
 ): LocationSupplement
 
-class LocationBoard(
+data class LocationBoard(
     val boardText: String,
 ): LocationPretext

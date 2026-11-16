@@ -11,4 +11,5 @@ data class WidgetConfig(
     val filters: FiltersState?,
     val fetchDuration: Duration,
     val fetchInterval: Duration,
+    val displayOptions: DisplayOptions?,
 )
