@@ -1,0 +1,2 @@
+- Add compact and combined widget layouts
+
