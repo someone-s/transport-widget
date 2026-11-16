@@ -14,7 +14,6 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
-import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -42,7 +41,7 @@ import com.eden.livewidget.ui.util.getResolvedOpenUriIntent
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ArrivalsItem(
+fun ArrivalsMainItem(
     arrival: ArrivalEntry,
     timeFormatter: DateTimeFormatter,
 ) {

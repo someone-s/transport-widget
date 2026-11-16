@@ -138,6 +138,7 @@
     <string name="widget_retry_metered_reason_text">Network restricted</string>
     <string name="widget_retry_metered_data_saver_text">Check data saver</string>
     <string name="widget_retry_metered_add_whitelist_text">Allow unrestricted</string>
+
     <string name="config_ui_configscreen_label_agency">Provider</string>
     <string name="config_ui_agencyitem_action">Swap</string>
     <string name="config_ui_configscreen_label_point">Point</string>
@@ -159,6 +160,14 @@
     <string name="config_ui_destination_itemdeletebackground_action">Delete</string>
     <string name="config_ui_destination_item_input_placeholder">Search for destination</string>
     <string name="config_ui_destination_addbutton_input_placeholder">Search for destination</string>
+    <string name="ui_config_configscreen_label_liststyle">Layout</string>
+    <string name="ui_config_display_liststyleitem_styleshowfull_support">Show later departures</string>
+    <string name="ui_config_display_liststyleitem_styleshowgroup_support">Group later departures</string>
+    <string name="ui_config_display_liststyleitem_stylehide_support">Hide later departures</string>
+    <string name="ui_config_display_liststyleitem_styleshowfull_main">Chronological view</string>
+    <string name="ui_config_display_liststyleitem_styleshowgroup_main">Combined view</string>
+    <string name="ui_config_display_liststyleitem_stylehide_main">Compact view</string>
+
     <string name="widget_ui_togroup_separator">, </string>
     <string name="widget_ui_mockcontent_destination_0_name">Shepherd\'s Bush</string>
     <string name="widget_ui_togroup_filter">Filtered by</string>
@@ -212,4 +221,7 @@
     <string name="ui_main_datasync_sorucecontainer_collapse">Collapse</string>
     <string name="ui_main_datasync_sourceacknowledgmentitem_title">Acknowledgments</string>
     <string name="ui_main_datasync_sourceacknowledgmentitem_support">Open acknowledgments to this data source</string>
+    <string name="ui_main_about_features_featuressection_layout_title">Layout Options</string>
+    <string name="ui_main_about_features_featuressection_layout_short">Change layout of departure/arrivals</string>
+    <string name="ui_main_about_features_featuressection_layout_long">Configure the widget to show departures/arrivals in either chronological, combined, or compact order.</string>
 </resources>

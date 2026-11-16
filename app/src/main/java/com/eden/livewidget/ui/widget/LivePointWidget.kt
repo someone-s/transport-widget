@@ -17,6 +17,7 @@ import com.eden.livewidget.LiveWidgetApplication
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalsState
 import com.eden.livewidget.data.agency.common.text.asString
 import com.eden.livewidget.data.widget.structure.FetchState
+import com.eden.livewidget.data.widget.structure.defaultDisplayOption
 import com.eden.livewidget.logic.emptyFilterState
 
 class LivePointWidget : GlanceAppWidget() {
@@ -46,6 +47,7 @@ class LivePointWidget : GlanceAppWidget() {
             val agency = widgetConfig?.agencyId?.let { appContainer.agencyFromId(it) }
             val point = widgetConfig?.point
             val filters = widgetConfig?.filters ?: emptyFilterState()
+            val displayOptions = widgetConfig?.displayOptions ?: defaultDisplayOption
 
             val widgetState by widgetRepository.getStateFlow(appWidgetId).collectAsState(initialState)
             val fetchState = widgetState?.fetchState ?: FetchState.PENDING
@@ -104,6 +106,7 @@ class LivePointWidget : GlanceAppWidget() {
                     agency = agency,
                     lastUpdate = updateTime,
                     lastValidData =  arrivalsData.lastValidData,
+                    displayOptions = displayOptions,
                 )
             }
         }

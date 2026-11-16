@@ -7,6 +7,7 @@ import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
 import com.eden.livewidget.R
 import com.eden.livewidget.data.agency.common.arrivals.ArrivalEntry
+import com.eden.livewidget.data.widget.structure.defaultDisplayOption
 import java.time.LocalDateTime
 
 @Composable
@@ -47,6 +48,7 @@ fun MockContent() {
                 expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 54)
             ),
         ),
+        displayOptions = defaultDisplayOption,
     )
 
 }

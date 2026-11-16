@@ -31,6 +31,8 @@ import com.eden.livewidget.data.agency.common.arrivals.ArrivalEntry
 import com.eden.livewidget.data.agency.common.arrivals.LocationBoard
 import com.eden.livewidget.data.agency.common.arrivals.LocationFrom
 import com.eden.livewidget.data.agency.common.arrivals.LocationVia
+import com.eden.livewidget.data.widget.structure.DisplayOptions
+import com.eden.livewidget.data.widget.structure.defaultDisplayOption
 import com.eden.livewidget.ui.config.ConfigActivity
 import com.eden.livewidget.ui.widget.active.fetching.ActiveRetryBlock
 import com.eden.livewidget.ui.widget.active.fetching.ActiveUnInitializedBlock
@@ -68,6 +70,7 @@ fun MyContent(
     agency: Agency?,
     lastUpdate: LocalDateTime?,
     lastValidData: List<ArrivalEntry>,
+    displayOptions: DisplayOptions,
 ) {
 
     val context = LocalContext.current
@@ -137,7 +140,7 @@ fun MyContent(
                     .padding(horizontal = 16.dp)
             ) {
                 when (mode) {
-                    MyContentMode.ACTIVE_VALID -> ActiveValidBlock(lastValidData)
+                    MyContentMode.ACTIVE_VALID -> ActiveValidBlock(lastValidData, displayOptions)
                     MyContentMode.ACTIVE_UNINITIALIZED -> ActiveUnInitializedBlock()
                     MyContentMode.ACTIVE_RETRY -> ActiveRetryBlock()
                     MyContentMode.PAUSED_OK_READY -> ReadyBlock(appWidgetId)
@@ -262,7 +265,8 @@ fun MyContentPreview() {
                     remainingS = 4096,
                     expectedDateTime = LocalDateTime.of(2026, 8, 2, 20, 54)
                 ),
-            )
+            ),
+            displayOptions = defaultDisplayOption,
         )
     }
 }

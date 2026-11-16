@@ -15,6 +15,7 @@ fun WidgetConfig.toConfigEntity() = ConfigEntity(
     filtersString = this.filters?.let { formatter.encodeToString(it) },
     fetchDuration = this.fetchDuration.toNanos(),
     fetchInterval = this.fetchInterval.toNanos(),
+    displayOptionsString = this.displayOptions?.let { formatter.encodeToString(it) },
 )
 
 fun ConfigEntity.toWidgetConfig() = WidgetConfig(
@@ -24,6 +25,7 @@ fun ConfigEntity.toWidgetConfig() = WidgetConfig(
     filters = this.filtersString?.let { formatter.decodeFromString(it) },
     fetchDuration = Duration.ofNanos(this.fetchDuration),
     fetchInterval = Duration.ofNanos(this.fetchInterval),
+    displayOptions = this.displayOptionsString?.let { formatter.decodeFromString(it) },
 )
 
 fun FetchState.toSerial() = when(this) {
