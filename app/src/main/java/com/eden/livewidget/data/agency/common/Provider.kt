@@ -10,4 +10,10 @@ interface Provider {
     val pointsRepository: PointsRepository
     val arrivalsRepository: ArrivalsRepository
     val destinationCompiler: DestinationCompiler
+    val featureSet: List<String>
+
+    companion object {
+        const val FEATURE_LIVE_POINT = "LIVE_POINT"
+        const val FEATURE_DEST_WITH_LIVE_POINT = "DEST_WITH_LIVE_POINT"
+    }
 }

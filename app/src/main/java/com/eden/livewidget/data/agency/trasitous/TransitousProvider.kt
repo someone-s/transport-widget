@@ -30,4 +30,9 @@ class TransitousProvider(
     override val destinationCompiler: DestinationCompiler by lazy {
         TransitousDestinationCompiler()
     }
+
+    override val featureSet: List<String> = listOf(
+        Provider.FEATURE_LIVE_POINT,
+        Provider.FEATURE_DEST_WITH_LIVE_POINT,
+    )
 }

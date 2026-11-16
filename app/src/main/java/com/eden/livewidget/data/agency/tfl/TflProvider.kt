@@ -32,4 +32,6 @@ class TflProvider(
     override val destinationCompiler: DestinationCompiler by lazy {
         TflDestinationCompiler()
     }
+
+    override val featureSet: List<String> = emptyList()
 }

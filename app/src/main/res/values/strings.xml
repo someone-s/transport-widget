@@ -160,6 +160,7 @@
     <string name="config_ui_destination_itemdeletebackground_action">Delete</string>
     <string name="config_ui_destination_item_input_placeholder">Search for destination</string>
     <string name="config_ui_destination_addbutton_input_placeholder">Search for destination</string>
+    <string name="config_ui_destination_description_float">Data based on the device\'s location</string>
     <string name="ui_config_configscreen_label_liststyle">Layout</string>
     <string name="ui_config_display_liststyleitem_styleshowfull_support">Show later departures</string>
     <string name="ui_config_display_liststyleitem_styleshowgroup_support">Group later departures</string>

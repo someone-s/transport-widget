@@ -25,12 +25,14 @@ import com.eden.livewidget.ui.common.components.SearchOption
 import com.eden.livewidget.data.agency.common.destination.DestinationConfig
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.Provider
+import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.text.asString
 import kotlinx.coroutines.launch
 
 @Composable
 fun AddDestinationItem(
     provider: Provider,
-    point: FixedLogicalPoint?,
+    point: LogicalPoint?,
     addDestination: (DestinationConfig) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
     viewModel: DestinationsViewModel =
@@ -63,7 +65,7 @@ fun AddDestinationItem(
                 .map { point ->
                     SearchOption(
                         queryText = point.fixedLogicalPoint.nameString,
-                        supportText = point.annotation
+                        supportText = point.annotation?.asString()
                     )
                 },
             onOptionClick = { index, _ ->

@@ -15,6 +15,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.livewidget.R
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
+import com.eden.livewidget.data.agency.common.point.FloatLogicalPoint
+import com.eden.livewidget.data.agency.common.text.asString
 import com.eden.livewidget.logic.DestinationState
 
 @Composable
@@ -38,7 +41,7 @@ fun DestinationItemContent(
         },
         content = {
             Text(
-                text = destination.config.toPoint.nameString,
+                text = destination.config.toPoint.name.asString(),
                 maxLines = 1,
             )
         },
@@ -53,7 +56,11 @@ fun DestinationItemContent(
                 )
             } else {
                 Text(
-                    text = destination.config.toPoint.dataPoints.joinToString(",") { it.displayString },
+                    text = when (destination.config.toPoint) {
+                        is FixedLogicalPoint -> destination.config.toPoint.dataPoints.joinToString(",") { it.displayString }
+                        is FloatLogicalPoint -> stringResource(R.string.config_ui_destination_description_float)
+                        else -> throw IllegalStateException("Unexpected logical point.")
+                    } ,
                     maxLines = 1,
                 )
             }
