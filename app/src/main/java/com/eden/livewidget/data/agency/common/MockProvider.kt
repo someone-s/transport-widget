@@ -33,4 +33,5 @@ val mockProvider = object : Provider {
     override val destinationCompiler: DestinationCompiler = object : DestinationCompiler {
         override suspend fun compileFilter(filter: DestinationConfig): List<DestinationFilter> = emptyList()
     }
+    override val featureSet: List<String> = emptyList()
 }

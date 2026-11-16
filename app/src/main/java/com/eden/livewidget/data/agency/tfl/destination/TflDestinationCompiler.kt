@@ -4,6 +4,7 @@ import android.util.Log
 import com.eden.livewidget.data.agency.common.destination.DestinationCompiler
 import com.eden.livewidget.data.agency.common.destination.DestinationConfig
 import com.eden.livewidget.data.agency.common.destination.DestinationFilter
+import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.tfl.point.TflDataPoint
 import com.google.gson.annotations.SerializedName
 import retrofit2.Call
@@ -70,7 +71,9 @@ class TflDestinationCompiler: DestinationCompiler {
     override suspend fun compileFilter(filter: DestinationConfig): List<DestinationFilter> {
 
         Log.i(this.javaClass.name, "Compiling filter")
+        check(filter.fromPoint is FixedLogicalPoint)
         val fromPoints = filter.fromPoint.dataPoints.map { value -> (value as TflDataPoint) }
+        check(filter.toPoint is FixedLogicalPoint)
         val toPoints = filter.toPoint.dataPoints.map { value -> (value as TflDataPoint) }
 
         data class LineAndStop(

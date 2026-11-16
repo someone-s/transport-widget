@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,13 +27,15 @@ import com.eden.livewidget.ui.common.components.SearchOption
 import com.eden.livewidget.data.agency.common.destination.DestinationConfig
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.Provider
+import com.eden.livewidget.data.agency.common.point.LogicalPoint
+import com.eden.livewidget.data.agency.common.text.asString
 import com.eden.livewidget.logic.DestinationState
 import kotlinx.coroutines.launch
 
 @Composable
 fun DestinationItem(
     provider: Provider,
-    point: FixedLogicalPoint,
+    point: LogicalPoint,
     destination: DestinationState,
     updateDestination: (DestinationConfig) -> Unit,
     removeDestination: () -> Unit,
@@ -61,6 +64,8 @@ fun DestinationItem(
     val textFieldState = rememberTextFieldState()
     val coroutineScope = rememberCoroutineScope()
 
+    val context = LocalContext.current
+
     LaunchedEffect(provider, textFieldState.text) {
         coroutineScope.launch {
             viewModel.fetchMatching(textFieldState.text.toString())
@@ -78,7 +83,7 @@ fun DestinationItem(
                 .map { point ->
                     SearchOption(
                         queryText = point.fixedLogicalPoint.nameString,
-                        supportText = point.annotation
+                        supportText = point.annotation?.asString()
                     )
                 },
             onOptionClick = { index, _ ->
@@ -110,7 +115,7 @@ fun DestinationItem(
                     onClick = {
                         if (destination.filters != null)
                             coroutineScope.launch {
-                                textFieldState.setTextAndSelectAll(destination.config.toPoint.nameString)
+                                textFieldState.setTextAndSelectAll(destination.config.toPoint.name.asString(context))
                                 searchBarState.animateToExpanded()
                             }
                     },

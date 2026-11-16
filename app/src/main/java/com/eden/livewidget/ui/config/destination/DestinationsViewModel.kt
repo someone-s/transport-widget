@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
 import com.eden.livewidget.data.agency.common.point.PointsRepository
+import com.eden.livewidget.data.agency.common.text.Text
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -20,7 +21,10 @@ class DestinationsViewModel(
                     matchingOptions
                         .mapNotNull { option ->
                             (option.logicalPoint as? FixedLogicalPoint)?.let { point ->
-                                DestinationOption(point)
+                                DestinationOption(
+                                    fixedLogicalPoint = point,
+                                    annotation = option.annotation,
+                                )
                             }
                         }
                 )
@@ -45,5 +49,5 @@ data class DestinationsUiState(val matchingOptions: List<DestinationOption> = li
 
 data class DestinationOption(
     val fixedLogicalPoint: FixedLogicalPoint,
-    val annotation: String? = null,
+    val annotation: Text? = null,
 )

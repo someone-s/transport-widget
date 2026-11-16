@@ -38,13 +38,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.work.Configuration
 import com.eden.livewidget.R
 import com.eden.livewidget.data.agency.Agency
+import com.eden.livewidget.data.agency.common.Provider
 import com.eden.livewidget.ui.config.agency.Item
 import com.eden.livewidget.ui.common.components.LabelItem
 import com.eden.livewidget.ui.config.destination.DestinationsGroup
 import com.eden.livewidget.ui.config.point.PointItem
 import com.eden.livewidget.data.agency.common.point.FixedLogicalPoint
+import com.eden.livewidget.data.agency.common.point.FloatLogicalPoint
 import com.eden.livewidget.data.agency.common.point.LogicalPoint
 import com.eden.livewidget.data.widget.structure.DisplayOptions
 import com.eden.livewidget.data.widget.structure.WidgetConfig
@@ -186,7 +189,14 @@ fun ConfigScreen(
                 }
 
                 val capturedPoint = point
-                val destinationsGroupVisible = provider != null && capturedPoint != null && capturedPoint is FixedLogicalPoint
+                val destinationsPermitted =
+                    capturedPoint is FixedLogicalPoint ||
+                    (capturedPoint is FloatLogicalPoint &&
+                    provider?.featureSet?.contains(Provider.FEATURE_DEST_WITH_LIVE_POINT) ?: false)
+                val destinationsGroupVisible =
+                    provider != null
+                    && capturedPoint != null
+                    && destinationsPermitted
                 AnimatedVisibility(
                     visible = destinationsGroupVisible,
                     enter =
@@ -283,9 +293,7 @@ fun ConfigScreen(
                                         agencyId = agency?.id,
                                         point = point,
                                         filters = FiltersState(
-                                            destinations = if (point is FixedLogicalPoint)
-                                                destinations.map { it.value }
-                                            else emptyList(),
+                                            destinations = destinations.map { it.value },
                                         ),
                                         fetchDuration = Duration.ofSeconds(90),
                                         fetchInterval = Duration.ofSeconds(30),
