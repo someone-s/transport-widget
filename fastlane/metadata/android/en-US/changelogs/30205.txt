@@ -1,0 +1,2 @@
+- Enable destination filter for live location origin points when using transitous as data source
+
